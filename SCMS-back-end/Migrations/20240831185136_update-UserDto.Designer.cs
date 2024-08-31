@@ -12,8 +12,8 @@ using SCMS_back_end.Data;
 namespace SCMS_back_end.Migrations
 {
     [DbContext(typeof(StudyCenterDbContext))]
-    [Migration("20240831163702_update-user3")]
-    partial class updateuser3
+    [Migration("20240831185136_update-UserDto")]
+    partial class updateUserDto
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -884,11 +884,9 @@ namespace SCMS_back_end.Migrations
 
             modelBuilder.Entity("SCMS_back_end.Models.User", b =>
                 {
-                    b.Navigation("Student")
-                        .IsRequired();
+                    b.Navigation("Student");
 
-                    b.Navigation("Teacher")
-                        .IsRequired();
+                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.WeekDay", b =>

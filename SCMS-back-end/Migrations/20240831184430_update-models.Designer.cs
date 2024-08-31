@@ -12,8 +12,8 @@ using SCMS_back_end.Data;
 namespace SCMS_back_end.Migrations
 {
     [DbContext(typeof(StudyCenterDbContext))]
-    [Migration("20240831163551_update-user2")]
-    partial class updateuser2
+    [Migration("20240831184430_update-models")]
+    partial class updatemodels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -539,10 +539,6 @@ namespace SCMS_back_end.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -888,11 +884,9 @@ namespace SCMS_back_end.Migrations
 
             modelBuilder.Entity("SCMS_back_end.Models.User", b =>
                 {
-                    b.Navigation("Student")
-                        .IsRequired();
+                    b.Navigation("Student");
 
-                    b.Navigation("Teacher")
-                        .IsRequired();
+                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.WeekDay", b =>

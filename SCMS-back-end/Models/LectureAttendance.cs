@@ -16,8 +16,8 @@ namespace SCMS_back_end.Models
         [MaxLength(255)]
         public string Status { get; set; } = string.Empty;
 
-        public Lecture Lecture { get; set; } = new Lecture(); // Navigation property
-        public Student Student { get; set; } = new Student(); // Navigation property
+        public Lecture Lecture { get; set; } // Navigation property
+        public Student Student { get; set; }  // Navigation property
     }
 
 }

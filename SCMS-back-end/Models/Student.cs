@@ -17,7 +17,7 @@ namespace SCMS_back_end.Models
         [MaxLength(255)]
         public string PhoneNumber { get; set; } = string.Empty;
 
-        public User User { get; set; } = new User(); // Navigation property
+        public User User { get; set; }  // Navigation property
         public ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
         public ICollection<StudentAssignment> StudentAssignments { get; set; } = new List<StudentAssignment>();
         public ICollection<LectureAttendance> LectureAttendances { get; set; } = new List<LectureAttendance>();

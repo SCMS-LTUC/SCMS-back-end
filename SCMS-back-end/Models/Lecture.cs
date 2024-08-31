@@ -12,7 +12,7 @@ namespace SCMS_back_end.Models
 
         public DateTime LectureDate { get; set; }       
 
-        public Course Course { get; set; } = new Course(); // Navigation property
+        public Course Course { get; set; } // Navigation property
         public ICollection<LectureAttendance> LectureAttendances { get; set; } = new List<LectureAttendance>();
     }
 
