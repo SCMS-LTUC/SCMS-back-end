@@ -11,7 +11,7 @@ namespace SCMS_back_end.Data
         {
             
         }
-        public DbSet<Admin> Admins { get; set; }
+        //public DbSet<Admin> Admins { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
         public DbSet<Student> Students { get; set; }
@@ -42,10 +42,10 @@ namespace SCMS_back_end.Data
                 .IsUnique();
 
             // User - Admin/Teacher/Student relationship
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Admin)
-                .WithOne(a => a.User)
-                .HasForeignKey<Admin>(a => a.UserId);
+            //modelBuilder.Entity<User>()
+            //    .HasOne(u => u.Admin)
+            //    .WithOne(a => a.User)
+            //    .HasForeignKey<Admin>(a => a.UserId);
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Teacher)

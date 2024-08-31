@@ -6,7 +6,7 @@ namespace SCMS_back_end.Models
     {
         [Key]
         public int TeacherId { get; set; }
-        public string UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
 
         [Required]
         public string FullName { get; set; } = string.Empty;

@@ -6,6 +6,8 @@ using Microsoft.OpenApi.Models;
 using SCMS_back_end.Data;
 using SCMS_back_end.Repositories.Services;
 using System.Text.Json.Serialization;
+using SCMS_back_end.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace SCMS_back_end
 {
@@ -42,7 +44,7 @@ namespace SCMS_back_end
 
             //Identity 
             builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
-            //builder.Services.AddScoped<IAccount, IdentityAccountService>();
+           // builder.Services.AddScoped<IAccount, IdentityAccountService>();
 
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
