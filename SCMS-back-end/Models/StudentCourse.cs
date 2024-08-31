@@ -15,7 +15,7 @@ namespace SCMS_back_end.Models
 
         public DateTime EnrollmentDate { get; set; }
         public string Status { get; set; } = string.Empty;
-
+        public int AverageGrades {  get; set; }
         public Student Student { get; set; } = new Student(); // Navigation property
         public Course Course { get; set; } = new Course(); // Navigation property
     }
