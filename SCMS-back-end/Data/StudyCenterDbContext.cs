@@ -5,7 +5,7 @@ using SCMS_back_end.Models;
 
 namespace SCMS_back_end.Data
 {
-    public class StudyCenterDbContext:IdentityDbContext<IdentityUser>
+    public class StudyCenterDbContext:IdentityDbContext<User>
     {
         public StudyCenterDbContext(DbContextOptions options): base (options)
         {
