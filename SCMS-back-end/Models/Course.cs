@@ -22,8 +22,8 @@ namespace SCMS_back_end.Models
         public int Level { get; set; }
 
         public Teacher? Teacher { get; set; }// Navigation property
-        public Subject Subject { get; set; } = new Subject(); // Navigation property
-        public Schedule Schedule { get; set; } = new Schedule(); // Navigation property
+        public Subject Subject { get; set; }  // Navigation property
+        public Schedule Schedule { get; set; }  // Navigation property
         public ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
         public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
         public ICollection<Lecture> Lectures { get; set; }= new List<Lecture>();

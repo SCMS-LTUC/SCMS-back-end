@@ -881,11 +881,9 @@ namespace SCMS_back_end.Migrations
 
             modelBuilder.Entity("SCMS_back_end.Models.User", b =>
                 {
-                    b.Navigation("Student")
-                        .IsRequired();
+                    b.Navigation("Student");
 
-                    b.Navigation("Teacher")
-                        .IsRequired();
+                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.WeekDay", b =>

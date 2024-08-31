@@ -5,7 +5,7 @@
 namespace SCMS_back_end.Migrations
 {
     /// <inheritdoc />
-    public partial class update : Migration
+    public partial class updateuser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
