@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SCMS_back_end.Models;
+using SCMS_back_end.Models.Dto;
+using SCMS_back_end.Models.Dto.Response;
+using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Repositories.Interfaces;
 
 namespace SCMS_back_end.Controllers
@@ -34,22 +37,17 @@ namespace SCMS_back_end.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Subject>> AddSubject(Subject subject)
+        public async Task<ActionResult<DtoSubjectResponse>> AddSubject(DtoSubjectRequest subjectDto)
         {
-            var createdSubject = await _subject.AddSubjectAsync(subject);
-            return CreatedAtAction(nameof(GetSubjectById), new { id = createdSubject.SubjectId }, createdSubject);
+            var createdSubjectDto = await _subject.AddSubjectAsync(subjectDto);
+            return CreatedAtAction(nameof(GetSubjectById), new { id = createdSubjectDto.SubjectId }, createdSubjectDto);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateSubject(int id, Subject subject)
+        public async Task<IActionResult> UpdateSubject(int id, DtoSubjectRequest subjectDto)
         {
-            if (id != subject.SubjectId)
-            {
-                return BadRequest();
-            }
-
-            var updatedSubject = await _subject.UpdateSubjectAsync(id, subject);
-            if (updatedSubject == null)
+            var updatedSubjectDto = await _subject.UpdateSubjectAsync(id, subjectDto);
+            if (updatedSubjectDto == null)
             {
                 return NotFound();
             }

@@ -1,4 +1,7 @@
 ﻿using SCMS_back_end.Models;
+using SCMS_back_end.Models.Dto;
+using SCMS_back_end.Models.Dto.Response;
+using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Data;
 using SCMS_back_end.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -8,23 +11,39 @@ namespace SCMS_back_end.Repositories.Services
     public class IdentitySubjectServices : ISubject
     {
         private readonly StudyCenterDbContext _context;
-        private readonly object updatedSubject;
-        private object UpdateSubject;
 
         public IdentitySubjectServices(StudyCenterDbContext context)
         {
             _context = context;
         }
-        public async Task<Subject> AddSubjectAsync(Subject subject)
+
+        public async Task<DtoSubjectResponse> AddSubjectAsync(DtoSubjectRequest subjectDto)
         {
+            var subject = new Subject
+            {
+                Name = subjectDto.Name,
+                DepartmentId = subjectDto.DepartmentId
+            };
+
             _context.Subjects.Add(subject);
             await _context.SaveChangesAsync();
-            return subject;
+
+            return new DtoSubjectResponse
+            {
+                SubjectId = subject.SubjectId,
+                Name = subject.Name,
+                DepartmentId = subject.DepartmentId
+            };
         }
 
-        public Task DeleteSubjectAsync(int id)
+        public async Task DeleteSubjectAsync(int id)
         {
-            throw new NotImplementedException();
+            var subject = await _context.Subjects.FindAsync(id);
+            if (subject != null)
+            {
+                _context.Subjects.Remove(subject);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<IEnumerable<Subject>> GetAllSubjectsAsync()
@@ -35,20 +54,25 @@ namespace SCMS_back_end.Repositories.Services
         public async Task<Subject> GetSubjectByIdAsync(int id)
         {
             return await _context.Subjects.FindAsync(id);
-            
         }
 
-        public async Task<Subject> UpdateSubjectAsync(int id, Subject subject)
+        public async Task<DtoSubjectResponse> UpdateSubjectAsync(int id,DtoSubjectRequest subjectDto)
         {
-            var exitingSubject = await _context.Subjects.FindAsync(id);
-            if(exitingSubject != null)
+            var existingSubject = await _context.Subjects.FindAsync(id);
+            if (existingSubject != null)
             {
-                exitingSubject.Name = subject.Name;
-                exitingSubject.DepartmentId = subject.DepartmentId;
+                existingSubject.Name = subjectDto.Name;
+                existingSubject.DepartmentId = subjectDto.DepartmentId;
                 await _context.SaveChangesAsync();
-                return exitingSubject;
+
+                return new DtoSubjectResponse
+                {
+                    SubjectId = existingSubject.SubjectId,
+                    Name = existingSubject.Name,
+                    DepartmentId = existingSubject.DepartmentId
+                };
             }
-            return null; 
+            return null;
         }
     }
 }

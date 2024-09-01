@@ -1,4 +1,7 @@
 ﻿using SCMS_back_end.Models;
+using SCMS_back_end.Models.Dto;
+using SCMS_back_end.Models.Dto.Response;
+using SCMS_back_end.Models.Dto.Request;
 
 namespace SCMS_back_end.Repositories.Interfaces
 {
@@ -6,8 +9,8 @@ namespace SCMS_back_end.Repositories.Interfaces
     {
         Task<IEnumerable<Subject>> GetAllSubjectsAsync();
         Task<Subject> GetSubjectByIdAsync(int id);
-        Task<Subject> AddSubjectAsync(Subject subject);
-        Task<Subject> UpdateSubjectAsync(int id, Subject subject);
+        Task<DtoSubjectResponse> AddSubjectAsync(DtoSubjectRequest subjectDto);
+        Task<DtoSubjectResponse> UpdateSubjectAsync(int id, DtoSubjectRequest subjectDto);
         Task DeleteSubjectAsync(int id);
         
     }
