@@ -51,6 +51,7 @@ namespace SCMS_back_end.Data
                 .HasOne(u => u.Teacher)
                 .WithOne(t => t.User)
                 .HasForeignKey<Teacher>(t => t.UserId);
+                
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Student)
