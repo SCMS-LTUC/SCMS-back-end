@@ -14,7 +14,7 @@ namespace SCMS_back_end.Models
         [MaxLength(255)]
         public int DepartmentId { get; set; }
 
-        public Department Department { get; set; }= new Department();// Navigation property
+        public Department Department { get; set; }  // Navigation property
         public ICollection<Course> Courses { get; set; }= new List<Course>();
     }
 

@@ -15,6 +15,10 @@ namespace SCMS_back_end
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            //service configuration
+            //builder.Services.AddControllers();
+
+            // Configure JSON options to handle object cycles
             // Service configuration
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
@@ -22,10 +26,28 @@ namespace SCMS_back_end
                     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
                 });
 
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "SCMS API",
+                    Version = "v1",
+                    Description = "API for managing students, courses and teachers in the study center"
+                });
+            });
+
+            //connection string + DbContext
             // Connection string + DbContext
             string ConnectionStringVar = builder.Configuration.GetConnectionString("DefaultConnection");
             builder.Services.AddDbContext<StudyCenterDbContext>(optionsX => optionsX.UseSqlServer(ConnectionStringVar));
 
+            //Identity 
+            builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
+            builder.Services.AddScoped<IAccount, IdentityAccountService>();
+
+            // Register repositories
+            //builder.Services.AddScoped<IPlaylist, PlaylistService>();
+            
             // Identity configuration
             builder.Services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<StudyCenterDbContext>();
@@ -87,6 +109,7 @@ namespace SCMS_back_end
 
             app.UseSwaggerUI(options =>
             {
+                options.SwaggerEndpoint("/api/v1/swagger.json", "SCMS API v1");
                 options.SwaggerEndpoint("/api/v1/swagger.json", "StudyCenter API v1");
                 options.RoutePrefix = "";
             });

@@ -20,7 +20,7 @@ namespace SCMS_back_end.Models
         public bool Visible { get; set; }
 
         // Navigation property
-        public Course Course { get; set; } = new Course(); 
+        public Course Course { get; set; } 
         public ICollection<StudentAssignment> StudentAssignments { get; set; }= new List<StudentAssignment>();
     }
 

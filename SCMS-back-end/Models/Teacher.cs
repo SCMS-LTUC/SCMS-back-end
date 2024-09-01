@@ -17,8 +17,8 @@ namespace SCMS_back_end.Models
 
         public int DepartmentId { get; set; }
 
-        public Department Department { get; set; } = new Department(); // Navigation property
-        public User User { get; set; } = new User(); // Navigation property
+        public Department Department { get; set; } // Navigation property
+        public User User { get; set; }  // Navigation property
         public ICollection<Course> Courses { get; set; } = new List<Course>();
 
     }
