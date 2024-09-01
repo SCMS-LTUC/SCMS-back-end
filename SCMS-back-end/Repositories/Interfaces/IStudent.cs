@@ -12,6 +12,6 @@ namespace SCMS_back_end.Repositories.Interfaces
         IEnumerable<Student> GetAllStudents();
         Student GetStudentById(int id);
         IEnumerable<Student> GetStudentsByCourseId(int courseId);
-        void UpdateStudent(int id, Student student);
+        void UpdateStudent(int id, StudentDtoRequest student);
     }
 }

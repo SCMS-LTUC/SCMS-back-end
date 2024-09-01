@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SCMS_back_end.Data;
 using SCMS_back_end.Models;
+using SCMS_back_end.Models.Dto.Request;
+using SCMS_back_end.Repositories.Interfaces;
 
 namespace SCMS_back_end.Controllers
 {
@@ -16,9 +18,12 @@ namespace SCMS_back_end.Controllers
     {
         private readonly StudyCenterDbContext _context;
 
-        public StudentsController(StudyCenterDbContext context)
+        private readonly IStudent _studentService;
+
+        public StudentsController(StudyCenterDbContext context, IStudent studentService)
         {
             _context = context;
+            _studentService = studentService;
         }
 
         // GET: api/Students
@@ -34,33 +39,53 @@ namespace SCMS_back_end.Controllers
 
         // GET: api/Students/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Student>> GetStudent(int id)
+        public ActionResult<Student> GetStudent(int id)
         {
-          if (_context.Students == null)
-          {
-              return NotFound();
-          }
-            var student = await _context.Students.FindAsync(id);
-
-            if (student == null)
+            try
             {
-                return NotFound();
-            }
+                var student = _studentService.GetStudentById(id);
 
-            return student;
+                if (student == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(student);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
         }
 
         // PUT: api/Students/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutStudent(int id, Student student)
+        public async Task<IActionResult> PutStudent(int id, StudentDtoRequest studentDto)
         {
-            if (id != student.StudentId)
+            if (studentDto == null)
             {
-                return BadRequest();
+                return BadRequest("Student data is required.");
             }
 
-            _context.Entry(student).State = EntityState.Modified;
+            // Ensure the student ID matches the ID in the route
+            var existingStudent = await _context.Students.FindAsync(id);
+            if (existingStudent == null)
+            {
+                return NotFound($"Student with ID {id} not found.");
+            }
+
+            // Update the existing student's properties
+            existingStudent.UserId = studentDto.UserId;
+            existingStudent.FullName = studentDto.FullName;
+            existingStudent.Level = studentDto.Level;
+            existingStudent.PhoneNumber = studentDto.PhoneNumber;
+
+            // Mark the entity as modified
+            _context.Entry(existingStudent).State = EntityState.Modified;
 
             try
             {
@@ -80,6 +105,7 @@ namespace SCMS_back_end.Controllers
 
             return NoContent();
         }
+
 
         // POST: api/Students
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -118,7 +144,8 @@ namespace SCMS_back_end.Controllers
 
         private bool StudentExists(int id)
         {
-            return (_context.Students?.Any(e => e.StudentId == id)).GetValueOrDefault();
+            return _context.Students.Any(e => e.StudentId == id);
         }
+
     }
 }

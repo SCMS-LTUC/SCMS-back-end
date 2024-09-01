@@ -44,11 +44,11 @@ namespace SCMS_back_end
 
             //Identity 
             builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
-           // builder.Services.AddScoped<IAccount, IdentityAccountService>();
+            // builder.Services.AddScoped<IAccount, IdentityAccountService>();
 
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
-            
+            builder.Services.AddScoped<IStudent, StudentService>();
 
             //JWT authentication
             builder.Services.AddAuthentication(

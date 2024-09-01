@@ -86,19 +86,58 @@ namespace SCMS_back_end.Repositories.Services
 
         public Student GetStudentById(int id)
         {
-            throw new NotImplementedException();
+            var student = _context.Students
+                .Include(s => s.StudentCourses)
+                .Include(s => s.StudentAssignments)
+                .Include(s => s.LectureAttendances)
+                .FirstOrDefault(s => s.StudentId == id);
+
+            if (student == null)
+            {
+                throw new KeyNotFoundException($"Student with ID {id} not found.");
+            }
+
+            return student;
         }
+
 
         public IEnumerable<Student> GetStudentsByCourseId(int courseId)
         {
             throw new NotImplementedException();
         }
 
-        public void UpdateStudent(int id, StudentDtoRequest student)
+        public void UpdateStudent(int id, StudentDtoRequest studentDto)
         {
-            throw new NotImplementedException();
-            // write the logic here 
+            if (_context.Students == null)
+            {
+                throw new InvalidOperationException("Entity set 'StudyCenterDbContext.Students' is null.");
+            }
+
+            // Validate the studentDto object
+            if (studentDto == null)
+            {
+                throw new ArgumentNullException(nameof(studentDto), "Student data is required.");
+            }
+
+            // Retrieve the existing student by ID
+            var existingStudent = _context.Students.FirstOrDefault(s => s.StudentId == id);
+
+            if (existingStudent == null)
+            {
+                throw new KeyNotFoundException($"Student with ID {id} was not found.");
+            }
+
+            // Update the student's properties
+            existingStudent.UserId = studentDto.UserId;
+            existingStudent.FullName = studentDto.FullName;
+            existingStudent.Level = studentDto.Level;
+            existingStudent.PhoneNumber = studentDto.PhoneNumber;
+
+            // Save the changes to the database
+            _context.Students.Update(existingStudent);
+            _context.SaveChanges(); // Synchronously save changes to the database
 
         }
+
     }
 }
