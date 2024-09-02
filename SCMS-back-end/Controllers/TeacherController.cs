@@ -19,14 +19,14 @@ namespace SCMS_back_end.Controllers
             this.teacher = teacher;
         }
 
-        // POST: api/Teacher
-        //[Authorize(Roles ="Admin")]
-        [HttpPost("[action]")]
-        public async Task<ActionResult<DtoAddTeacherResponse>> AddTeacher(DtoAddTeacherRequest Teacher)
-        {
-            var Response = await teacher.AddTeacher(Teacher);
-            return Ok(Response);
-        }
+        //// POST: api/Teacher
+        ////[Authorize(Roles ="Admin")]
+        //[HttpPost("[action]")]
+        //public async Task<ActionResult<DtoAddTeacherResponse>> AddTeacher(DtoAddTeacherRequest Teacher)
+        //{
+        //    var Response = await teacher.AddTeacher(Teacher);
+        //    return Ok(Response);
+        //}
 
 
 

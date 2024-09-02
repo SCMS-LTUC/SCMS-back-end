@@ -71,6 +71,7 @@ namespace SCMS_back_end.Repositories.Services
                 CourseLoad=Teacher.CourseLoad,
                 PhoneNumber = Teacher.PhoneNumber,
                 DepartmentId = Teacher.DepartmentId,
+                
             };
             return TeacherDto;
         }
@@ -86,7 +87,8 @@ namespace SCMS_back_end.Repositories.Services
 
             TeacherToUpdate.PhoneNumber = Teacher.PhoneNumber;
             TeacherToUpdate.CourseLoad = Teacher.CourseLoad;
-          
+
+            await _context.SaveChangesAsync();
 
             return Teacher;
 
