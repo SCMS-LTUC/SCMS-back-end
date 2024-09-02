@@ -12,8 +12,8 @@ using SCMS_back_end.Data;
 namespace SCMS_back_end.Migrations
 {
     [DbContext(typeof(StudyCenterDbContext))]
-    [Migration("20240831183029_update-user")]
-    partial class updateuser
+    [Migration("20240901164743_N")]
+    partial class N
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -266,7 +266,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasKey("DepartmentId");
 
-                    b.ToTable("Departments");
+                    b.ToTable("Department");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Lecture", b =>

@@ -263,7 +263,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasKey("DepartmentId");
 
-                    b.ToTable("Departments");
+                    b.ToTable("Department");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Lecture", b =>

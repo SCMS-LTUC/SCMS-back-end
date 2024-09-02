@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SCMS_back_end.Migrations
 {
     /// <inheritdoc />
-    public partial class addtables : Migration
+    public partial class N : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -53,7 +53,7 @@ namespace SCMS_back_end.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Departments",
+                name: "Department",
                 columns: table => new
                 {
                     DepartmentId = table.Column<int>(type: "int", nullable: false)
@@ -62,7 +62,7 @@ namespace SCMS_back_end.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Departments", x => x.DepartmentId);
+                    table.PrimaryKey("PK_Department", x => x.DepartmentId);
                 });
 
             migrationBuilder.CreateTable(
@@ -235,9 +235,9 @@ namespace SCMS_back_end.Migrations
                 {
                     table.PrimaryKey("PK_Subjects", x => x.SubjectId);
                     table.ForeignKey(
-                        name: "FK_Subjects_Departments_DepartmentId",
+                        name: "FK_Subjects_Department_DepartmentId",
                         column: x => x.DepartmentId,
-                        principalTable: "Departments",
+                        principalTable: "Department",
                         principalColumn: "DepartmentId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -264,9 +264,9 @@ namespace SCMS_back_end.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Teachers_Departments_DepartmentId",
+                        name: "FK_Teachers_Department_DepartmentId",
                         column: x => x.DepartmentId,
-                        principalTable: "Departments",
+                        principalTable: "Department",
                         principalColumn: "DepartmentId",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -662,7 +662,7 @@ namespace SCMS_back_end.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Departments");
+                name: "Department");
         }
     }
 }

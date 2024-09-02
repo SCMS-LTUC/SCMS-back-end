@@ -45,10 +45,12 @@ namespace SCMS_back_end
             //Identity 
             builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
             builder.Services.AddScoped<IAccount, IdentityAccountService>();
+            builder.Services.AddScoped<IAssignment , AsignmentService>();
+            builder.Services.AddScoped<ITeacher, TeacherService>();
 
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
-            
+
 
             //JWT authentication
             builder.Services.AddAuthentication(
