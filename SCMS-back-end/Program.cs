@@ -45,6 +45,7 @@ namespace SCMS_back_end
             //Identity 
             builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
             builder.Services.AddScoped<IAccount, IdentityAccountService>();
+            builder.Services.AddScoped<ICourse, CourseService>();
 
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
