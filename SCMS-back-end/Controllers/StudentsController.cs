@@ -74,7 +74,8 @@ namespace SCMS_back_end.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
             }
         }
-
+        
+        
         // PUT: api/Students/5
         //[Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
