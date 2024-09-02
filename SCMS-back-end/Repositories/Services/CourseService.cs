@@ -217,6 +217,7 @@ namespace SCMS_back_end.Repositories.Services
             {
                 throw new Exception("Student not found");
             }
+            //var courses = await _context.StudentCourses.Where(sc => sc.StudentId == studentId).Select(sc => sc.Course).ToListAsync();
             var courses = await _context.StudentCourses.Where(sc => sc.StudentId == studentId).ToListAsync();
             var courseResponse = new List<DtoCourseResponse>();
             foreach (var course in courses)
@@ -225,8 +226,27 @@ namespace SCMS_back_end.Repositories.Services
                 courseResponse.Add(courseRes);
             }
             return courseResponse;
-        }
+            /*foreach (var c in courses)
+            {
+                courseResponse.Add(new DtoCourseResponse
+                {
+                    TeacherName = (c.Teacher != null? c.Teacher.FullName: ""),
+                    SubjectName = c.Subject.Name,
+                    StartDate = c.Schedule.StartDate,
+                    EndDate = c.Schedule.EndDate,
+                    StartTime = c.Schedule.StartTime,
+                    EndTime = c.Schedule.EndTime,
+                    Days= c.Schedule.ScheduleDays
+                    .Select(sd=>sd.WeekDay.Name).ToList(),
+                    ClassName=c.ClassName,
+                    Capacity=c.Capacity,
+                    Level=c.Level
+                });
+            }
+            return courseResponse;*/
 
+        }
+    
         public async Task<List<DtoCourseResponse>> GetCoursesOfTeacher(int teacherId)
         {
             var teacher = await _context.Teachers.FindAsync(teacherId);
@@ -243,7 +263,7 @@ namespace SCMS_back_end.Repositories.Services
             }
             return courseResponse;
         }
-
+    
         public async Task<List<DtoCourseResponse>> GetCurrentCoursesOfStudent(int studentId)
         {
             var student = await _context.Students.FindAsync(studentId);

@@ -312,6 +312,10 @@ namespace SCMS_back_end_Tests
             var scheduleDay = new ScheduleDay { ScheduleId = 1, WeekDayId = 1 };
             var weekDay = new WeekDay { WeekDayId = 1, Name = "Monday" };
 
+            var schedule1 = new Schedule { ScheduleId = 4, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1), StartTime = TimeSpan.FromHours(9), EndTime = TimeSpan.FromHours(10) };
+            var schedule2 = new Schedule { ScheduleId = 2, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1), StartTime = TimeSpan.FromHours(9), EndTime = TimeSpan.FromHours(10) };
+            var schedule3 = new Schedule { ScheduleId = 3, StartDate = DateTime.Now.AddDays(-1), EndDate = DateTime.Now.AddDays(1), StartTime = TimeSpan.FromHours(9), EndTime = TimeSpan.FromHours(10) };
+
             var course1 = new Course
             {
                 CourseId = 1,
@@ -320,7 +324,7 @@ namespace SCMS_back_end_Tests
                 Capacity = 30,
                 Level = 1,
                 SubjectId = 1,
-                ScheduleId = 1
+                ScheduleId = 4
             };
 
             var course2 = new Course
@@ -331,11 +335,23 @@ namespace SCMS_back_end_Tests
                 Capacity = 25,
                 Level = 1,
                 SubjectId = 1,
-                ScheduleId = 1
+                ScheduleId = 2
+            };
+
+            var course3 = new Course
+            {
+                CourseId = 3,
+                TeacherId = 1,
+                ClassName = "English 101",
+                Capacity = 25,
+                Level = 1,
+                SubjectId = 1,
+                ScheduleId = 3
             };
 
             var studentCourse1 = new StudentCourse { StudentId = 1, CourseId = 1 };
             var studentCourse2 = new StudentCourse { StudentId = 1, CourseId = 2 };
+            var studentCourse3 = new StudentCourse { StudentId = 1, CourseId = 3 };
 
             await _context.Students.AddAsync(student);
             await _context.Teachers.AddAsync(teacher);
@@ -346,8 +362,19 @@ namespace SCMS_back_end_Tests
             await _context.WeekDays.AddAsync(weekDay);
             await _context.Courses.AddAsync(course1);
             await _context.Courses.AddAsync(course2);
+           await _context.Courses.AddAsync(course3);
+
             await _context.StudentCourses.AddAsync(studentCourse1);
             await _context.StudentCourses.AddAsync(studentCourse2);
+            await _context.StudentCourses.AddAsync(studentCourse3);
+
+
+            await _context.Schedules.AddAsync(schedule1);
+            await _context.Schedules.AddAsync(schedule2);
+            await _context.Schedules.AddAsync(schedule3);
+
+
+
             await _context.SaveChangesAsync();
 
             // Act
@@ -355,9 +382,9 @@ namespace SCMS_back_end_Tests
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(2, result.Count);
+            Assert.Equal(3, result.Count);
             Assert.Contains(result, r => r.ClassName == course1.ClassName);
-            Assert.Contains(result, r => r.ClassName == course2.ClassName);
+             Assert.Contains(result, r => r.ClassName == course2.ClassName);
         }
         [Fact]
         public async Task GetCurrentCoursesOfStudent_ShouldReturnCurrentCourses()
