@@ -1,17 +1,17 @@
 ﻿using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request;
+using SCMS_back_end.Models.Dto.Response;
 
 namespace SCMS_back_end.Repositories.Interfaces
 {
     public interface IStudent
     {
-        void AddStudent(StudentDtoRequest student);
-        void DeleteStudent(int id);
-        void DropStudentFromCourse(int studentId, int courseId);
-        void EnrollStudentInCourse(int studentId, int courseId);
-        IEnumerable<Student> GetAllStudents();
-        Student GetStudentById(int id);
-        IEnumerable<Student> GetStudentsByCourseId(int courseId);
-        void UpdateStudent(int id, StudentDtoRequest student);
+        Task DeleteStudentAsync(int id);
+        Task DropStudentFromCourseAsync(int studentId, int courseId);
+        Task EnrollStudentInCourseAsync(int studentId, int courseId);
+        Task<IEnumerable<StudentDtoResponse>> GetAllStudentsAsync();
+        Task<StudentDtoResponse> GetStudentByIdAsync(int id);
+        Task<IEnumerable<StudentDtoResponse>> GetStudentsByCourseIdAsync(int courseId);
+        Task UpdateStudentAsync(int id, StudentDtoRequest student);
     }
 }

@@ -3,7 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using SCMS_back_end.Data;
 using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request;
+using SCMS_back_end.Models.Dto.Response;
 using SCMS_back_end.Repositories.Interfaces;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SCMS_back_end.Repositories.Services
 {
@@ -16,128 +20,231 @@ namespace SCMS_back_end.Repositories.Services
             _context = context;
         }
 
-        public void AddStudent(StudentDtoRequest studentDto)
+        public async Task DeleteStudentAsync(int id)
         {
-            if (_context.Students == null)
+            // Retrieve the student from the database, including their enrolled courses
+            var student = await _context.Students
+                                        .Include(s => s.StudentCourses)
+                                        .FirstOrDefaultAsync(s => s.StudentId == id);
+
+            if (student == null)
             {
-                throw new InvalidOperationException("Entity set 'StudyCenterDbContext.Students' is null.");
+                throw new KeyNotFoundException("Student not found.");
             }
 
-            // Validate the studentDto object
-            if (studentDto == null)
+            // Check if the student is enrolled in any courses
+            if (student.StudentCourses.Any())
             {
-                throw new ArgumentNullException(nameof(studentDto), "Student data is required.");
+                throw new InvalidOperationException("Cannot delete a student who is currently enrolled in a course.");
             }
 
-            if (string.IsNullOrWhiteSpace(studentDto.UserId))
+            // Remove the student from the database
+            _context.Students.Remove(student);
+            await _context.SaveChangesAsync();
+        }
+
+
+
+
+        public async Task DropStudentFromCourseAsync(int studentId, int courseId)
+        {
+            // Fetch the student
+            var student = await _context.Students
+                .Include(s => s.StudentCourses)
+                .SingleOrDefaultAsync(s => s.StudentId == studentId);
+
+            if (student == null)
             {
-                throw new ArgumentException("UserId is required and cannot be empty or whitespace.");
+                throw new KeyNotFoundException($"Student with ID {studentId} not found.");
             }
 
-            if (string.IsNullOrWhiteSpace(studentDto.FullName))
+            // Fetch the course
+            var course = await _context.Courses
+                .SingleOrDefaultAsync(c => c.CourseId == courseId);
+
+            if (course == null)
             {
-                throw new ArgumentException("FullName is required and cannot be empty or whitespace.");
+                throw new KeyNotFoundException($"Course with ID {courseId} not found.");
             }
 
-            if (studentDto.Level <= 0)
+            // Find the enrollment record
+            var enrollment = student.StudentCourses
+                .SingleOrDefault(sc => sc.CourseId == courseId);
+
+            if (enrollment == null)
             {
-                throw new ArgumentException("Level must be a positive integer.");
+                throw new InvalidOperationException($"Student with ID {studentId} is not enrolled in course {courseId}.");
             }
 
-            if (!string.IsNullOrWhiteSpace(studentDto.PhoneNumber) && studentDto.PhoneNumber.Length > 255)
+            // Update status to "Dropped"
+            enrollment.Status = "Dropped";
+
+            _context.StudentCourses.Update(enrollment);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task EnrollStudentInCourseAsync(int studentId, int courseId)
+        {
+            // Fetch the student
+            var student = await _context.Students
+                .Include(s => s.StudentCourses)
+                .SingleOrDefaultAsync(s => s.StudentId == studentId);
+
+            if (student == null)
             {
-                throw new ArgumentException("PhoneNumber cannot exceed 255 characters.");
+                throw new KeyNotFoundException($"Student with ID {studentId} not found.");
             }
 
-            // Map StudentDtoRequest to Student entity
-            var student = new Student
+            // Fetch the course
+            var course = await _context.Courses
+                .Include(c => c.StudentCourses)
+                .SingleOrDefaultAsync(c => c.CourseId == courseId);
+
+            if (course == null)
             {
-                UserId = studentDto.UserId,
-                FullName = studentDto.FullName,
-                Level = studentDto.Level,
-                PhoneNumber = studentDto.PhoneNumber
+                throw new KeyNotFoundException($"Course with ID {courseId} not found.");
+            }
+
+            // Check if the student is already enrolled in this course
+            var existingEnrollment = student.StudentCourses
+                .SingleOrDefault(sc => sc.CourseId == courseId);
+
+            if (existingEnrollment != null)
+            {
+                throw new InvalidOperationException($"Student with ID {studentId} is already enrolled in course {courseId}.");
+            }
+
+            // Check course capacity
+            if (course.StudentCourses.Count >= course.Capacity)
+            {
+                throw new InvalidOperationException($"Course with ID {courseId} is at full capacity.");
+            }
+
+            // Check if student level is appropriate
+            if (student.Level > course.Level)
+            {
+                throw new InvalidOperationException($"Student level ({student.Level}) is higher than the course level ({course.Level}).");
+            }
+
+            // Add new enrollment
+            var newEnrollment = new StudentCourse
+            {
+                StudentId = studentId,
+                CourseId = courseId,
+                EnrollmentDate = DateTime.UtcNow,
+                Status = "Enrolled"
             };
 
-            // Add the student to the context
-            _context.Students.Add(student);
-            _context.SaveChanges(); // Synchronously save changes to the database
+            _context.StudentCourses.Add(newEnrollment);
+            await _context.SaveChangesAsync();
         }
 
-
-        public void DeleteStudent(int id)
+        public async Task<IEnumerable<StudentDtoResponse>> GetAllStudentsAsync()
         {
-            throw new NotImplementedException();
-        }
-
-        public void DropStudentFromCourse(int studentId, int courseId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void EnrollStudentInCourse(int studentId, int courseId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Student> GetAllStudents()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Student GetStudentById(int id)
-        {
-            var student = _context.Students
+            // Fetch students from the database
+            var students = await _context.Students
                 .Include(s => s.StudentCourses)
                 .Include(s => s.StudentAssignments)
                 .Include(s => s.LectureAttendances)
-                .FirstOrDefault(s => s.StudentId == id);
+                .ToListAsync();
+
+            // Map students to StudentDtoResponse
+            var studentDtos = students.Select(s => new StudentDtoResponse
+            {
+                StudentId = s.StudentId.ToString(),  // Convert int to string if needed
+                Level = s.Level,
+                FullName = s.FullName,
+                PhoneNumber = s.PhoneNumber
+            }).ToList();
+
+            return studentDtos;
+        }
+
+        public async Task<StudentDtoResponse> GetStudentByIdAsync(int id)
+        {
+            var student = await _context.Students
+                .Include(s => s.StudentCourses)
+                .Include(s => s.StudentAssignments)
+                .Include(s => s.LectureAttendances)
+                .FirstOrDefaultAsync(s => s.StudentId == id);
 
             if (student == null)
             {
                 throw new KeyNotFoundException($"Student with ID {id} not found.");
             }
 
-            return student;
+            return new StudentDtoResponse
+            {
+                StudentId = student.StudentId.ToString(),  // Assuming StudentId is an int, convert to string if needed
+                Level = student.Level,
+                FullName = student.FullName,
+                PhoneNumber = student.PhoneNumber
+            };
         }
 
-
-        public IEnumerable<Student> GetStudentsByCourseId(int courseId)
+        public async Task<IEnumerable<StudentDtoResponse>> GetStudentsByCourseIdAsync(int courseId)
         {
-            throw new NotImplementedException();
+            // Fetch students who are enrolled in the specified course and are not dropped
+            var students = await _context.StudentCourses
+                .Where(sc => sc.CourseId == courseId && sc.Status != "Dropped")
+                .Select(sc => sc.Student)
+                .Include(s => s.StudentCourses) // To include related data if necessary
+                .Include(s => s.StudentAssignments)
+                .Include(s => s.LectureAttendances)
+                .ToListAsync();
+
+            // Convert to StudentDtoResponse
+            var studentDtos = students.Select(s => new StudentDtoResponse
+            {
+                StudentId = s.StudentId.ToString(),
+                Level = s.Level,
+                FullName = s.FullName,
+                PhoneNumber = s.PhoneNumber
+            });
+
+            return studentDtos;
         }
 
-        public void UpdateStudent(int id, StudentDtoRequest studentDto)
+        public async Task UpdateStudentAsync(int id, StudentDtoRequest studentDto)
         {
             if (_context.Students == null)
             {
                 throw new InvalidOperationException("Entity set 'StudyCenterDbContext.Students' is null.");
             }
 
-            // Validate the studentDto object
             if (studentDto == null)
             {
                 throw new ArgumentNullException(nameof(studentDto), "Student data is required.");
             }
 
-            // Retrieve the existing student by ID
-            var existingStudent = _context.Students.FirstOrDefault(s => s.StudentId == id);
+            var existingStudent = await _context.Students.FirstOrDefaultAsync(s => s.StudentId == id);
 
             if (existingStudent == null)
             {
                 throw new KeyNotFoundException($"Student with ID {id} was not found.");
             }
 
-            // Update the student's properties
-            existingStudent.UserId = studentDto.UserId;
+            // Update FullName
             existingStudent.FullName = studentDto.FullName;
-            existingStudent.Level = studentDto.Level;
-            existingStudent.PhoneNumber = studentDto.PhoneNumber;
 
-            // Save the changes to the database
+            // Update PhoneNumber if provided
+            if (!string.IsNullOrWhiteSpace(studentDto.PhoneNumber))
+            {
+                existingStudent.PhoneNumber = studentDto.PhoneNumber;
+            }
+
+            // Update Level only if the new level is greater than the current level
+            if (studentDto.Level > existingStudent.Level)
+            {
+                existingStudent.Level = studentDto.Level;
+            }
+            else
+            {
+                throw new ArgumentException("New level must be higher than the current level.");
+            }
+
             _context.Students.Update(existingStudent);
-            _context.SaveChanges(); // Synchronously save changes to the database
-
+            await _context.SaveChangesAsync();
         }
-
     }
 }

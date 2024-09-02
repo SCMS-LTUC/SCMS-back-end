@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SCMS_back_end.Models.Dto.Request
+namespace SCMS_back_end.Models.Dto.Response
 {
-    public class StudentDtoRequest
+    public class StudentDtoResponse
     {
-        //public string UserId { get; set; }
+        public string StudentId { get; set; }
         public int Level { get; set; }
 
         [Required]
