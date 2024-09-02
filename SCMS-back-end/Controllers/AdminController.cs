@@ -21,17 +21,17 @@ namespace SCMS_back_end.Controllers
         public async Task<ActionResult<DtoUserResponse>> Register(DtoAdminRegisterRequest registerDto)
         {
             var user = await _userService.Register(registerDto, this.ModelState);
-            if (ModelState.IsValid) return user;
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             if (user == null) return Unauthorized();
 
-            return BadRequest();
+            return Ok(user);
         }
 
         [HttpPost("Login")] //Login
         public async Task<ActionResult<DtoUserResponse>> Login(DtoUserLoginRequest loginDto)
         {
             var user = await _userService.Login(loginDto);
-            if (user == null) return Unauthorized();
+            if (user == null) return Unauthorized("Invalid username or password.");
             return Ok(user);
         }
 

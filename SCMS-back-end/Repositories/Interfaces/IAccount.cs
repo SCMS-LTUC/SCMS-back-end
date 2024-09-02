@@ -16,7 +16,7 @@ namespace SCMS_back_end.Repositories.Interfaces
         public Task<DtoUserResponse> Login(DtoUserLoginRequest loginDto);
         //public Task Logout();
 
-        public Task<string> GenerateToken(User user, TimeSpan expiryDate);
+        public Task<string> GenerateToken(User user);
 
         //for test 
         public Task<DtoUserResponse> userProfile(ClaimsPrincipal claimsPrincipal);
