@@ -13,7 +13,7 @@ namespace SCMS_back_end.Models
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
 
-        public Course Course { get; set; } = new Course();
+        public Course Course { get; set; } 
         public ICollection<ScheduleDay> ScheduleDays { get; set; } = new List<ScheduleDay>();
     }
 

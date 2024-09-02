@@ -13,8 +13,8 @@ namespace SCMS_back_end.Models
         [Required]
         public int WeekDayId { get; set; }
 
-        public Schedule Schedule { get; set; } = new Schedule(); // Navigation property
-        public WeekDay WeekDay { get; set; } = new WeekDay(); // Navigation property
+        public Schedule Schedule { get; set; }  // Navigation property
+        public WeekDay WeekDay { get; set; }  // Navigation property
     }
 
 }

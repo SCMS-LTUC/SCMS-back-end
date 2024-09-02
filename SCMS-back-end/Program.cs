@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
+//using Microsoft.Identity.Client;
 using Microsoft.OpenApi.Models;
 using SCMS_back_end.Data;
 using SCMS_back_end.Repositories.Services;
 using System.Text.Json.Serialization;
 using SCMS_back_end.Repositories.Interfaces;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using SCMS_back_end.Models;
 
 namespace SCMS_back_end
 {
@@ -18,7 +18,7 @@ namespace SCMS_back_end
             var builder = WebApplication.CreateBuilder(args);
 
             //service configuration
-            builder.Services.AddControllers();
+            //builder.Services.AddControllers();
 
             // Configure JSON options to handle object cycles
             builder.Services.AddControllers()
@@ -31,9 +31,9 @@ namespace SCMS_back_end
             {
                 options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
-                    Title = "Tunify API",
+                    Title = "SCMS API",
                     Version = "v1",
-                    Description = "API for managing playlists, songs, and artists in the Tunify Platform"
+                    Description = "API for managing students, courses and teachers in the study center"
                 });
             });
 
@@ -43,8 +43,8 @@ namespace SCMS_back_end
             builder.Services.AddDbContext<StudyCenterDbContext>(optionsX => optionsX.UseSqlServer(ConnectionStringVar));
 
             //Identity 
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
-            // builder.Services.AddScoped<IAccount, IdentityAccountService>();
+            builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
+            builder.Services.AddScoped<IAccount, IdentityAccountService>();
 
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
@@ -121,7 +121,7 @@ namespace SCMS_back_end
 
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/api/v1/swagger.json", "Tunify API v1");
+                options.SwaggerEndpoint("/api/v1/swagger.json", "SCMS API v1");
                 options.RoutePrefix = "";
             });
 
