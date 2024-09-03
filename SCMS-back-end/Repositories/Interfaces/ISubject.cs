@@ -7,11 +7,11 @@ namespace SCMS_back_end.Repositories.Interfaces
 {
     public interface ISubject
     {
-        Task<IEnumerable<Subject>> GetAllSubjectsAsync();
-        Task<Subject> GetSubjectByIdAsync(int id);
+        Task<IEnumerable<DtoSubjectResponse>> GetAllSubjectsAsync();
+        Task<DtoSubjectResponse> GetSubjectByIdAsync(int id);
         Task<DtoSubjectResponse> AddSubjectAsync(DtoSubjectRequest subjectDto);
         Task<DtoSubjectResponse> UpdateSubjectAsync(int id, DtoSubjectRequest subjectDto);
-        Task DeleteSubjectAsync(int id);
+        Task<bool> DeleteSubjectAsync(int id);
         
     }
 }

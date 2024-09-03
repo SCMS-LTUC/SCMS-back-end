@@ -65,7 +65,7 @@ namespace SCMS_back_end
                 );
 
             // Register custom services
-            builder.Services.AddScoped<ISubject, IdentitySubjectServices>();
+            builder.Services.AddScoped<ISubject, SubjectService>();
 
             //swagger configuration
             builder.Services.AddSwaggerGen

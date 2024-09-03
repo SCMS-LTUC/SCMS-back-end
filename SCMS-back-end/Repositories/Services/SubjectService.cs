@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SCMS_back_end.Repositories.Services
 {
-    public class IdentitySubjectServices : ISubject
+    public class SubjectService : ISubject
     {
         private readonly StudyCenterDbContext _context;
 
-        public IdentitySubjectServices(StudyCenterDbContext context)
+        public SubjectService(StudyCenterDbContext context)
         {
             _context = context;
         }
@@ -35,25 +35,49 @@ namespace SCMS_back_end.Repositories.Services
                 DepartmentId = subject.DepartmentId
             };
         }
-
-        public async Task DeleteSubjectAsync(int id)
+        private async Task<bool> _HasCurrentCourses(int subjectId)
+        {
+            var result = await _context.Subjects.Where(s => s.SubjectId == subjectId)
+                    .SelectMany(s => s.Courses)
+                    .Where(c => c.Schedule.EndDate > DateTime.Now).ToListAsync();
+            return result.Any();
+        }
+        public async Task<bool> DeleteSubjectAsync(int id)
         {
             var subject = await _context.Subjects.FindAsync(id);
-            if (subject != null)
+            if (subject != null && ! await _HasCurrentCourses(subject.SubjectId))
             {
                 _context.Subjects.Remove(subject);
                 await _context.SaveChangesAsync();
+                return true;
             }
+            return false;
+        }
+        public async Task<IEnumerable<DtoSubjectResponse>> GetAllSubjectsAsync()
+        {
+            var subjects= await _context.Subjects.ToListAsync();
+            var subjectsDto = subjects.Select(s => new DtoSubjectResponse
+            {
+                SubjectId = s.SubjectId,
+                Name = s.Name,
+                DepartmentId = s.DepartmentId
+            }).ToList();
+            return subjectsDto;
         }
 
-        public async Task<IEnumerable<Subject>> GetAllSubjectsAsync()
+        public async Task<DtoSubjectResponse> GetSubjectByIdAsync(int id)
         {
-            return await _context.Subjects.ToListAsync();
-        }
-
-        public async Task<Subject> GetSubjectByIdAsync(int id)
-        {
-            return await _context.Subjects.FindAsync(id);
+            var subject = await _context.Subjects.FindAsync(id);
+            if(subject != null)
+            {
+                return new DtoSubjectResponse
+                {
+                    SubjectId = subject.SubjectId,
+                    Name = subject.Name,
+                    DepartmentId = subject.DepartmentId
+                };
+            }
+            return null; 
         }
 
         public async Task<DtoSubjectResponse> UpdateSubjectAsync(int id,DtoSubjectRequest subjectDto)
