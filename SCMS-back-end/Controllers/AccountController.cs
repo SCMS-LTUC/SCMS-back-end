@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request;
@@ -33,11 +34,15 @@ namespace SCMS_back_end.Controllers
         {
             var user = await _userService.Login(loginDto);
             if (user == null) return Unauthorized();
+
+            if (user.Roles.Contains("Admin"))
+                return Unauthorized("Admin users are not allowed to log in here.");
+
             return Ok(user);
         }
 
         //for test only 
-        [Authorize(Roles = "Teacher, Admin")]
+        [Authorize(Roles = "Student")]
         [HttpGet("Profile")]
         public async Task<ActionResult<DtoUserResponse>> Profile()
         {

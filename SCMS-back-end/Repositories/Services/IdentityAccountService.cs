@@ -33,6 +33,12 @@ namespace SCMS_back_end.Repositories.Services
 
         public async Task<DtoUserResponse> Register(DtoUserRegisterRequest registerDto, ModelStateDictionary modelState)
         {
+            if (!IsValidRole(registerDto.Role))
+            {
+                modelState.AddModelError("Role", "Invalid role. Only 'Teacher' or 'Student' roles are allowed.");
+                return null;
+            }
+
             var user = new User
             {
                 UserName = registerDto.Username,
@@ -41,60 +47,15 @@ namespace SCMS_back_end.Repositories.Services
             var result = await _userManager.CreateAsync(user, registerDto.Password);
             if (result.Succeeded)
             {
-                //check if role exist before adding it 
-                if (await _roleManager.RoleExistsAsync(registerDto.Role) && registerDto.Role != "Admin")
                     await _userManager.AddToRoleAsync(user, registerDto.Role);
 
-                // save student/teacher info in their table
-                switch(registerDto.Role)
-                {
-                    case "Teacher":
-                        var teacher = new Teacher
-                        {
-                            UserId = user.Id,
-                            FullName = registerDto.FullName,
-                            CourseLoad = registerDto.CourseLoad,
-                            PhoneNumber = registerDto.PhoneNumber,
-                            DepartmentId = registerDto.DepartmentId,
-                        };
-                        user.Teacher = teacher;
-                        break;
-
-                    case "Student":
-                        var student = new Student
-                        {
-                            UserId = user.Id,
-                            FullName = registerDto.FullName,
-                            Level = registerDto.Level,
-                            PhoneNumber = registerDto.PhoneNumber,
-                        };
-                        user.Student = student;
-                        break;
-                }
-
-                //update database 
-                _context.Users.Update(user);
+                await AddRoleSpecificInfoAsync(registerDto, user);
                 await _context.SaveChangesAsync();
 
-                return new DtoUserResponse
-                {
-                    Id = user.Id,
-                    Username = user.Id,
-                    Roles = await _userManager.GetRolesAsync(user),
-                    Token = await GenerateToken(user, TimeSpan.FromMinutes(7))
-                };
+                return await CreateDtoUserResponseAsync(user);
             }
-            foreach (var error in result.Errors)
-            {
-                var errorCode = error.Code.Contains("Password") ? nameof(registerDto) :
-                                error.Code.Contains("Email") ? nameof(registerDto) :
-                                error.Code.Contains("Username") ? nameof(registerDto) : "";
-
-                modelState.AddModelError(errorCode, error.Description);
-            }
-
+            AddErrorsToModelState(result, modelState);
             return null;
-
         }
         public async Task<DtoUserResponse> Register(DtoAdminRegisterRequest registerDto, ModelStateDictionary modelState)
         {
@@ -104,29 +65,16 @@ namespace SCMS_back_end.Repositories.Services
                 Email = registerDto.Email
             };
             var result = await _userManager.CreateAsync(user, registerDto.Password);
+
             if (result.Succeeded)
             {
                     await _userManager.AddToRoleAsync(user, "Admin");
 
-                return new DtoUserResponse
-                {
-                    Id = user.Id,
-                    Username = user.Id,
-                    Roles = await _userManager.GetRolesAsync(user),
-                    Token = await GenerateToken(user, TimeSpan.FromMinutes(7))
-                };
-            }
-            foreach (var error in result.Errors)
-            {
-                var errorCode = error.Code.Contains("Password") ? nameof(registerDto) :
-                                error.Code.Contains("Email") ? nameof(registerDto) :
-                                error.Code.Contains("Username") ? nameof(registerDto) : "";
-
-                modelState.AddModelError(errorCode, error.Description);
+                return await CreateDtoUserResponseAsync(user);
             }
 
+            AddErrorsToModelState(result, modelState);
             return null;
-
         }
 
         public async Task<DtoUserResponse> Login(DtoUserLoginRequest loginDto)
@@ -157,16 +105,83 @@ namespace SCMS_back_end.Repositories.Services
                 return null;
             }
 
+            var tokenExpiryInMinutes = _configuration.GetValue<int>("JWT:ExpiryInMinutes");
+            var tokenExpiry = TimeSpan.FromMinutes(tokenExpiryInMinutes);
+
             var signInKey = JwtTokenService.GetSecurityKey(_configuration);
 
             var token = new JwtSecurityToken
                 (
-                expires: DateTime.UtcNow + expiryDate,
+                expires: DateTime.UtcNow.Add(tokenExpiry),
                 signingCredentials: new SigningCredentials(signInKey, SecurityAlgorithms.HmacSha256),
                 claims: userPrincliple.Claims
                 );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        
+        //Helper methods
+        private bool IsValidRole(string role)
+        {
+            return role == "Teacher" || role == "Student";
+        }
+
+        private async Task AddRoleSpecificInfoAsync(DtoUserRegisterRequest registerDto, User user)
+        {
+            switch (registerDto.Role)
+            {
+                case "Teacher":
+                    var teacher = new Teacher
+                    {
+                        UserId = user.Id,
+                        FullName = registerDto.FullName,
+                        CourseLoad = registerDto.CourseLoad,
+                        PhoneNumber = registerDto.PhoneNumber,
+                        DepartmentId = registerDto.DepartmentId,
+                    };
+                    user.Teacher = teacher;
+                    break;
+
+                case "Student":
+                    var student = new Student
+                    {
+                        UserId = user.Id,
+                        FullName = registerDto.FullName,
+                        Level = registerDto.Level,
+                        PhoneNumber = registerDto.PhoneNumber,
+                    };
+                    user.Student = student;
+                    break;
+            }
+
+            _context.Users.Update(user);
+        }
+
+        private void AddErrorsToModelState(IdentityResult result, ModelStateDictionary modelState)
+        {
+            foreach (var error in result.Errors)
+            {
+                var errorCode = error.Code switch
+                {
+                    string code when code.Contains("Password") => "Password",
+                    string code when code.Contains("Email") => "Email",
+                    string code when code.Contains("UserName") => "Username",
+                    _ => ""
+                };
+
+                modelState.AddModelError(errorCode, error.Description);
+            }
+        }
+
+        private async Task<DtoUserResponse> CreateDtoUserResponseAsync(User user)
+        {
+            return new DtoUserResponse
+            {
+                Id = user.Id,
+                Username = user.Id,
+                Roles = await _userManager.GetRolesAsync(user),
+                Token = await GenerateToken(user, TimeSpan.FromMinutes(7)) 
+            };
         }
 
         //for test 
@@ -182,6 +197,5 @@ namespace SCMS_back_end.Repositories.Services
             };
         }
 
-       
     }
 }

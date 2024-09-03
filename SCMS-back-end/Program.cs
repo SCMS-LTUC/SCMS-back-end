@@ -20,7 +20,6 @@ namespace SCMS_back_end
             //builder.Services.AddControllers();
 
             // Configure JSON options to handle object cycles
-            // Service configuration
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>
                 {
@@ -38,92 +37,105 @@ namespace SCMS_back_end
             });
 
             //connection string + DbContext
-            // Connection string + DbContext
             string ConnectionStringVar = builder.Configuration.GetConnectionString("DefaultConnection");
+
             builder.Services.AddDbContext<StudyCenterDbContext>(optionsX => optionsX.UseSqlServer(ConnectionStringVar));
 
             //Identity 
             builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
             builder.Services.AddScoped<IAccount, IdentityAccountService>();
+            builder.Services.AddScoped<IDepartment, DepartmentService>();
 
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
-            
-            // Identity configuration
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-                .AddEntityFrameworkStores<StudyCenterDbContext>();
 
-            // JWT authentication
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
+
+            //JWT authentication
+            builder.Services.AddAuthentication(
+                options =>
+                {
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddJwtBearer(
+                options =>
                 {
                     options.TokenValidationParameters = JwtTokenService.ValidateToken(builder.Configuration);
-                });
+                }
+                );
 
             // Register custom services
             builder.Services.AddScoped<ISubject, IdentitySubjectServices>();
 
-            // Swagger configuration
-            builder.Services.AddSwaggerGen(option =>
-            {
-                option.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Title = "StudyCenter API",
-                    Version = "v1",
-                    Description = "API for managing study center operations."
-                });
+            //swagger configuration
+            builder.Services.AddSwaggerGen
+                (
 
-                option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                option =>
                 {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Description = "Please enter your JWT token below."
-                });
-
-                option.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
+                    option.SwaggerDoc("employeesApi", new Microsoft.OpenApi.Models.OpenApiInfo()
                     {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
-            });
+                        Title = "Employees Api Doc",
+                        Version = "v1",
+                        Description = "Api for managing all emolyees"
+                    });
 
-            // Middleware configuration
+                    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                    {
+                        Name = "Authorization",
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        In = ParameterLocation.Header,
+                        Description = "Please enter user token below."
+                    });
+
+                    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            Array.Empty<string>()
+                        }
+                    });
+
+
+                });
+
+
+            //middleware configuration
             var app = builder.Build();
 
-            // Swagger middleware
-            app.UseSwagger(options =>
-            {
-                options.RouteTemplate = "api/{documentName}/swagger.json";
-            });
+            //swagger
+            app.UseSwagger(
+             options =>
+             {
+                 options.RouteTemplate = "api/{documentName}/swagger.json";
+             }
+             );
+
 
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint("/api/v1/swagger.json", "SCMS API v1");
-                options.SwaggerEndpoint("/api/v1/swagger.json", "StudyCenter API v1");
                 options.RoutePrefix = "";
             });
 
-            // Authentication & Authorization middleware
             app.UseAuthentication();
             app.UseAuthorization();
 
-            // Map controllers
             app.MapControllers();
+
 
             app.MapGet("/", () => "Hello World!");
             app.Run();
         }
     }
+    
 }
