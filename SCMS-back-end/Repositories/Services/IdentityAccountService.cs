@@ -33,6 +33,11 @@ namespace SCMS_back_end.Repositories.Services
 
         public async Task<DtoUserResponse> Register(DtoUserRegisterRequest registerDto, ModelStateDictionary modelState)
         {
+            if (!modelState.IsValid)
+            {
+                return null;
+            }
+
             if (!IsValidRole(registerDto.Role))
             {
                 modelState.AddModelError("Role", "Invalid role. Only 'Teacher' or 'Student' roles are allowed.");
@@ -59,6 +64,11 @@ namespace SCMS_back_end.Repositories.Services
         }
         public async Task<DtoUserResponse> Register(DtoAdminRegisterRequest registerDto, ModelStateDictionary modelState)
         {
+            if (!modelState.IsValid)
+            {
+                return null;
+            }
+
             var user = new User
             {
                 UserName = registerDto.Username,
@@ -68,7 +78,7 @@ namespace SCMS_back_end.Repositories.Services
 
             if (result.Succeeded)
             {
-                    await _userManager.AddToRoleAsync(user, "Admin");
+                await _userManager.AddToRoleAsync(user, "Admin");
 
                 return await CreateDtoUserResponseAsync(user);
             }
@@ -79,7 +89,7 @@ namespace SCMS_back_end.Repositories.Services
 
         public async Task<DtoUserResponse> Login(DtoUserLoginRequest loginDto)
         {
-            var user = await _userManager.FindByNameAsync(loginDto.Username);
+            var user = await _userManager.FindByNameAsync(loginDto.Username);           
             if (user != null)
             {
                 bool passValidation = await _userManager.CheckPasswordAsync(user, loginDto.Password);
@@ -90,14 +100,14 @@ namespace SCMS_back_end.Repositories.Services
                         Id = user.Id,
                         Username = user.Id,
                         Roles = await _userManager.GetRolesAsync(user),
-                        Token = await GenerateToken(user, TimeSpan.FromMinutes(7))
+                        Token = await GenerateToken(user)
                     };
                 }
             }
             return null;
         }
 
-        public async Task<string> GenerateToken(User user, TimeSpan expiryDate)
+        public async Task<string> GenerateToken(User user)
         {
             var userPrincliple = await _signInManager.CreateUserPrincipalAsync(user);
             if (userPrincliple == null)
@@ -180,7 +190,7 @@ namespace SCMS_back_end.Repositories.Services
                 Id = user.Id,
                 Username = user.Id,
                 Roles = await _userManager.GetRolesAsync(user),
-                Token = await GenerateToken(user, TimeSpan.FromMinutes(7)) 
+                Token = await GenerateToken(user) 
             };
         }
 
@@ -193,7 +203,7 @@ namespace SCMS_back_end.Repositories.Services
             {
                 Id = user.Id,
                 Username = user.UserName,
-                Token = await GenerateToken(user, System.TimeSpan.FromMinutes(7)) // just for development purposes
+                Token = await GenerateToken(user)
             };
         }
 
