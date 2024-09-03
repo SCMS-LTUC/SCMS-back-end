@@ -6,6 +6,7 @@ using SCMS_back_end.Data;
 using SCMS_back_end.Repositories.Services;
 using System.Text.Json.Serialization;
 using SCMS_back_end.Repositories.Interfaces;
+using SCMS_back_end.Models;
 
 namespace SCMS_back_end
 {
