@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using SCMS_back_end.Models;
 using SCMS_back_end.Repositories.Interfaces;
 using SCMS_back_end.Models.Dto.Request;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SCMS_back_end.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles ="Admin")]
     public class DepartmentController : ControllerBase
     {
         private readonly IDepartment _departmentService;

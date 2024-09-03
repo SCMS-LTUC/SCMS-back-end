@@ -15,72 +15,114 @@ namespace SCMS_back_end.Repositories.Services
         }
         public async Task<DtoDepartment> AddDepartmentAsync(string DepartmentName)
         {
-            var department= new Department{Name = DepartmentName};
-           await _context.Departments.AddAsync(department);
-            await _context.SaveChangesAsync();
-            return new DtoDepartment
+            try
             {
-                DepartmentId = department.DepartmentId,
-                DepartmentName = department.Name
-            };
+                var department = new Department { Name = DepartmentName };
+                await _context.Departments.AddAsync(department).ConfigureAwait(false);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+                return new DtoDepartment
+                {
+                    DepartmentId = department.DepartmentId,
+                    DepartmentName = department.Name
+                };
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new ApplicationException($"Error adding department: {DepartmentName}", ex);
+            }
         }
 
+        private async Task<bool> _IsThereCurrentCoursesInDepartment(int departmentId)
+        {
+            var result = await _context.Departments.Where(d => d.DepartmentId == departmentId)
+                    .SelectMany(d => d.Subjects).SelectMany(s => s.Courses)
+                    .Where(c => c.Schedule.EndDate > DateTime.Now).ToListAsync();
+            return result.Any();
+        }
         public async Task DeleteDepartmentAsync(int id)
         {
-            var department= await _context.Departments.FindAsync(id);
-            if (department != null)
+            try
             {
-                 _context.Departments.Remove(department);
-                await _context.SaveChangesAsync();
+                var department = await _context.Departments.FindAsync(id).ConfigureAwait(false);
+                
+                if (department != null && ! await _IsThereCurrentCoursesInDepartment(department.DepartmentId))
+                {
+                    _context.Departments.Remove(department);
+                    await _context.SaveChangesAsync().ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new ApplicationException($"Error deleting department with ID: {id}", ex);
             }
         }
 
         public async Task<IEnumerable<DtoDepartment>> GetAllDepartmentsAsync()
         {
-            var departments= await _context.Departments.ToListAsync();
-            List<DtoDepartment> departmentsDto= new List<DtoDepartment>();
-            foreach (var d in departments)
+            try
             {
-                departmentsDto.Add(
-                    new DtoDepartment
-                    {
-                        DepartmentId= d.DepartmentId,
-                        DepartmentName=d.Name
-                    }
-                    );
+                var departments = await _context.Departments.ToListAsync().ConfigureAwait(false);
+                var departmentsDto = departments.Select(d => new DtoDepartment
+                {
+                    DepartmentId = d.DepartmentId,
+                    DepartmentName = d.Name
+                }).ToList();
+                return departmentsDto;
             }
-            return departmentsDto;
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new ApplicationException("Error retrieving all departments", ex);
+            }
         }
 
         public async Task<DtoDepartment> GetDepartmentByIdAsync(int id)
         {
-            var department = await _context.Departments.FindAsync(id);
-           if(department != null)
-           {
-                return new DtoDepartment
+            try
+            {
+                var department = await _context.Departments.FindAsync(id).ConfigureAwait(false);
+                if (department != null)
                 {
-                    DepartmentId = department.DepartmentId,
-                    DepartmentName = department.Name
-                };
-           }
-            return null;
+                    return new DtoDepartment
+                    {
+                        DepartmentId = department.DepartmentId,
+                        DepartmentName = department.Name
+                    };
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new ApplicationException($"Error retrieving department with ID: {id}", ex);
+            }
         }
 
         public async Task<DtoDepartment> UpdateDepartmentAsync(int id, string DepartmentName)
         {
-            var department = await _context.Departments.FindAsync(id);
-            if(department != null)
+            try
             {
-                department.Name = DepartmentName;
-                _context.Departments.Update(department);
-                await _context.SaveChangesAsync();
-                return new DtoDepartment
+                var department = await _context.Departments.FindAsync(id).ConfigureAwait(false);
+                if (department != null)
                 {
-                    DepartmentId = department.DepartmentId,
-                    DepartmentName = department.Name
-                };
+                    department.Name = DepartmentName;
+                    _context.Departments.Update(department);
+                    await _context.SaveChangesAsync().ConfigureAwait(false);
+                    return new DtoDepartment
+                    {
+                        DepartmentId = department.DepartmentId,
+                        DepartmentName = department.Name
+                    };
+                }
+                return null;
             }
-            return null;
+            catch (Exception ex)
+            {
+                // Handle or log the exception as needed
+                throw new ApplicationException($"Error updating department with ID: {id}", ex);
+            }
         }
     }
 }
