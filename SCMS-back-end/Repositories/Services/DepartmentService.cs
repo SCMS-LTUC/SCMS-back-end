@@ -33,12 +33,20 @@ namespace SCMS_back_end.Repositories.Services
             }
         }
 
+        private async Task<bool> _IsThereCurrentCoursesInDepartment(int departmentId)
+        {
+            var result = await _context.Departments.Where(d => d.DepartmentId == departmentId)
+                    .SelectMany(d => d.Subjects).SelectMany(s => s.Courses)
+                    .Where(c => c.Schedule.EndDate > DateTime.Now).ToListAsync();
+            return result.Any();
+        }
         public async Task DeleteDepartmentAsync(int id)
         {
             try
             {
                 var department = await _context.Departments.FindAsync(id).ConfigureAwait(false);
-                if (department != null)
+                
+                if (department != null && ! await _IsThereCurrentCoursesInDepartment(department.DepartmentId))
                 {
                     _context.Departments.Remove(department);
                     await _context.SaveChangesAsync().ConfigureAwait(false);
