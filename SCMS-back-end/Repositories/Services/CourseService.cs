@@ -16,7 +16,6 @@ namespace SCMS_back_end.Repositories.Services
         {
             _context = context;
         }
-
         public async Task CalculateAverageGrade(int courseId)
         {
             var course = await _context.Courses.FindAsync(courseId);
@@ -28,139 +27,82 @@ namespace SCMS_back_end.Repositories.Services
             foreach (var studentCourse in studentCourses)
             {
                 await CalculateStudentGrade(courseId, studentCourse.StudentId);
-                //var student = await _context.Students.FindAsync(studentCourse.StudentId);
-                //var studentGrades = await _context.StudentAssignments.Where(sa => sa.StudentId == student.StudentId).ToListAsync();
-                //var courseAssignments = await _context.Assignments.Where(a => a.CourseId == courseId).ToListAsync();
-                //var courseGrades = studentGrades.Where(sg => courseAssignments.Select(ca => ca.AssignmentId).Contains(sg.AssignmentId)).ToList();
-                //double sum = 0;
-                //foreach (var grade in courseGrades)
-                //{
-                //    sum += grade.Grade;
-                //}
-                //double average = sum / courseGrades.Count;
-                //DtoCourseStudentGrade courseStudentGrade = new DtoCourseStudentGrade
-                //{
-                //    CourseName = course.ClassName,
-                //    StudentName = student.FullName,
-                //    Grade = average
-                //};
-                //courseStudentGrades.Add(courseStudentGrade);
-                //var courseGrades = studentGrades.Where(sg => sg.AssignmentId == courseId).ToList();
-                //double sum = 0;
-                //foreach (var grade in courseGrades)
-                //{
-                //    sum += grade.Grade;
-                //}
-                //double average = sum / courseGrades.Count;
-                //DtoCourseStudentGrade courseStudentGrade = new DtoCourseStudentGrade
-                //{
-                //    CourseName = course.ClassName,
-                //    StudentName = student.FullName,
-                //    Grade = average.Grade
-                //};
             }
         }
-
-        public async Task<Course> CreateCourseWithoutTeacher(DtoCreateCourseWTRequest course)
+        public async Task<Course> CreateCourseWithoutTeacher(DtoCreateCourseWTRequest courseRequest)
         {
-            var subject = await _context.Subjects.FindAsync(course.SubjectId);
-            if (subject == null)
+            var schedule = new Schedule
             {
-                throw new Exception("Subject not found");
-            }
-            var department = await _context.Departments.FindAsync(subject.DepartmentId);
-            if (department == null)
-            {
-                throw new Exception("Department not found");
-            }
-            var schedule = await _context.Schedules.FindAsync(course.ScheduleId);
-            if (schedule == null)
-            {
-                throw new Exception("Schedule not found");
-            }
-            var scheduleDay = await _context.ScheduleDays.FindAsync(schedule.ScheduleId);
-            if (scheduleDay == null)
-            {
-                throw new Exception("ScheduleDay not found");
-            }
-            var newCourse = new Course
-            {
-                SubjectId = course.SubjectId,
-                ScheduleId = course.ScheduleId,
-                ClassName = course.ClassName,
-                Capacity = course.Capacity,
-                Level = course.Level
+                StartDate = courseRequest.StartDate,
+                EndDate = courseRequest.EndDate,
+                StartTime = courseRequest.StartTime,
+                EndTime = courseRequest.EndTime,
             };
-            _context.Courses.Add(newCourse);
-            await _context.SaveChangesAsync();
-            return newCourse;
-        }
 
+            await _context.Schedules.AddAsync(schedule);
+            await _context.SaveChangesAsync();
+
+            var scheduleDays = courseRequest.WeekDays.Select(weekDayId => new ScheduleDay
+            {
+                WeekDayId = weekDayId,
+                ScheduleId = schedule.ScheduleId
+            }).ToList();
+
+            await _context.ScheduleDays.AddRangeAsync(scheduleDays);
+            await _context.SaveChangesAsync();
+
+            var course = new Course
+            {
+                SubjectId = courseRequest.SubjectId,
+                ClassName = courseRequest.ClassName,
+                Capacity = courseRequest.Capacity,
+                Level = courseRequest.Level,
+                ScheduleId = schedule.ScheduleId
+            };
+
+            await _context.Courses.AddAsync(course);
+
+            await _context.SaveChangesAsync();
+            return course;
+        }
         public Task<bool> DeleteCourse(int courseId)
         {
             throw new NotImplementedException();
         }
-
         public async Task<List<DtoCourseResponse>> GetAllCourses()
         {
             var courses = await _context.Courses.ToListAsync();
             var courseResponse = new List<DtoCourseResponse>();
             foreach (var course in courses)
             {
-                //var teacher = await _context.Teachers.FindAsync(course.TeacherId);
-                //var courseScheduleDays = await _context.ScheduleDays.Select(sd => sd.WeekDayId == course.ScheduleId).ToListAsync();
-                //var courseDays = new List<string>();
-                //foreach (var day in courseScheduleDays)
-                //{
-                //    var weekDay = await _context.WeekDays.FindAsync(day);
-                //    courseDays.Add(weekDay.Name);
-                //}
-                //DtoCourseResponse courseRes = new DtoCourseResponse
-                //{
-                //    TeacherName = teacher.FullName,
-                //    SubjectName = course.Subject.Name,
-                //    StartDate = course.Schedule.StartDate,
-                //    EndDate = course.Schedule.EndDate,
-                //    StartTime = course.Schedule.StartTime,
-                //    EndTime = course.Schedule.EndTime,
-                //    Days = courseDays,
-                //    ClassName = course.ClassName,
-                //    Capacity = course.Capacity,
-                //    Level = course.Level
-                //};
                 var courseRes = await GetCourseById(course.CourseId);
                 courseResponse.Add(courseRes);
             }
             return courseResponse;
         }
-
         public async Task<DtoCourseResponse> GetCourseById(int courseId)
         {
-            var course = await _context.Courses.FindAsync(courseId);
+            var course = await _context.Courses
+                .Include(c => c.Teacher)
+                .Include(c => c.Subject)
+                .Include(c => c.Schedule)
+                .ThenInclude(s => s.ScheduleDays)
+                .ThenInclude(sd => sd.WeekDay)
+                .FirstOrDefaultAsync(c => c.CourseId == courseId);
+
             if (course == null)
             {
                 throw new Exception("Course not found");
             }
-            var teacher = await _context.Teachers.FindAsync(course.TeacherId);
-            if (teacher == null)
+
+            var courseDays = course.Schedule.ScheduleDays
+                .Select(sd => sd.WeekDay.Name)
+                .ToList();
+
+            var courseResponse = new DtoCourseResponse
             {
-                throw new Exception("Teacher not found");
-            }
-            var courseScheduleDays = await _context.ScheduleDays.Where(sd => sd.WeekDayId == course.ScheduleId).ToListAsync();
-            var courseDays = new List<string>();
-            foreach (var day in courseScheduleDays)
-            {
-                var weekDay = await _context.WeekDays.FindAsync(day.WeekDayId);
-                if (weekDay == null)
-                {
-                    throw new Exception("WeekDay not found");
-                }
-                courseDays.Add(weekDay.Name);
-            }
-            DtoCourseResponse courseResponse = new DtoCourseResponse
-            {
-                TeacherName = teacher.FullName,
-                SubjectName = course.Subject.Name,
+                TeacherName = course.Teacher?.FullName,
+                SubjectName = course.Subject?.Name,
                 StartDate = course.Schedule.StartDate,
                 EndDate = course.Schedule.EndDate,
                 StartTime = course.Schedule.StartTime,
@@ -170,46 +112,44 @@ namespace SCMS_back_end.Repositories.Services
                 Capacity = course.Capacity,
                 Level = course.Level
             };
+
             return courseResponse;
         }
-
         public async Task<List<DtoCourseResponse>> GetCoursesNotStarted()
         {
-            var courses = await _context.Courses.ToListAsync();
+            var courses = await _context.Courses.Include(c => c.Teacher)
+                                                .Include(c => c.Subject)
+                                                .Include(c => c.Schedule)
+                                                .ThenInclude(s => s.ScheduleDays)
+                                                .ThenInclude(sd => sd.WeekDay)
+                                                .Where(c => c.Schedule.StartDate > DateTime.Now)
+                                                .ToListAsync();
+
             var courseResponse = new List<DtoCourseResponse>();
             foreach (var course in courses)
             {
-                if (course.Schedule.StartDate > DateTime.Now)
-                {
+                var courseDays = course.Schedule.ScheduleDays
+                    .Select(sd => sd.WeekDay.Name)
+                    .ToList();
 
-                    //var teacher = await _context.Teachers.FindAsync(course.TeacherId);
-                    //var courseScheduleDays = await _context.ScheduleDays.Select(sd => sd.WeekDayId == course.ScheduleId).ToListAsync();
-                    //var courseDays = new List<string>();
-                    //foreach (var day in courseScheduleDays)
-                    //{
-                    //    var weekDay = await _context.WeekDays.FindAsync(day);
-                    //    courseDays.Add(weekDay.Name);
-                    //}
-                    //DtoCourseResponse courseRes = new DtoCourseResponse
-                    //{
-                    //    TeacherName = teacher.FullName,
-                    //    SubjectName = course.Subject.Name,
-                    //    StartDate = course.Schedule.StartDate,
-                    //    EndDate = course.Schedule.EndDate,
-                    //    StartTime = course.Schedule.StartTime,
-                    //    EndTime = course.Schedule.EndTime,
-                    //    Days = courseDays,
-                    //    ClassName = course.ClassName,
-                    //    Capacity = course.Capacity,
-                    //    Level = course.Level
-                    //};
-                    var courseRes = await GetCourseById(course.CourseId);
-                    courseResponse.Add(courseRes);
-                }
+                var courseRes = new DtoCourseResponse
+                {
+                    TeacherName = course.Teacher?.FullName ?? "N/A",
+                    SubjectName = course.Subject?.Name ?? "N/A",
+                    StartDate = course.Schedule.StartDate,
+                    EndDate = course.Schedule.EndDate,
+                    StartTime = course.Schedule.StartTime,
+                    EndTime = course.Schedule.EndTime,
+                    Days = courseDays,
+                    ClassName = course.ClassName,
+                    Capacity = course.Capacity,
+                    Level = course.Level
+                };
+
+                courseResponse.Add(courseRes);
             }
             return courseResponse;
         }
-
         public async Task<List<DtoCourseResponse>> GetCoursesOfStudent(int studentId)
         {
             var student = await _context.Students.FindAsync(studentId);
@@ -217,16 +157,39 @@ namespace SCMS_back_end.Repositories.Services
             {
                 throw new Exception("Student not found");
             }
-            var courses = await _context.StudentCourses.Where(sc => sc.StudentId == studentId).ToListAsync();
-            var courseResponse = new List<DtoCourseResponse>();
+            var courses = await _context.Courses.Include(c => c.Teacher)
+                                                .Include(c => c.Subject)
+                                                .Include(c => c.Schedule)
+                                                .ThenInclude(s => s.ScheduleDays)
+                                                .ThenInclude(sd => sd.WeekDay)
+                                                .Where(c => c.StudentCourses.Any(s => s.StudentId == studentId))
+                                                .ToListAsync();
+
+            var courseResponses = new List<DtoCourseResponse>();
             foreach (var course in courses)
             {
-                var courseRes = await GetCourseById(course.CourseId);
-                courseResponse.Add(courseRes);
-            }
-            return courseResponse;
-        }
+                var courseDays = course.Schedule.ScheduleDays
+                    .Select(sd => sd.WeekDay.Name)
+                    .ToList();
 
+                var courseRes = new DtoCourseResponse
+                {
+                    TeacherName = course.Teacher?.FullName ?? "N/A",
+                    SubjectName = course.Subject?.Name ?? "N/A",
+                    StartDate = course.Schedule.StartDate,
+                    EndDate = course.Schedule.EndDate,
+                    StartTime = course.Schedule.StartTime,
+                    EndTime = course.Schedule.EndTime,
+                    Days = courseDays,
+                    ClassName = course.ClassName,
+                    Capacity = course.Capacity,
+                    Level = course.Level
+                };
+
+                courseResponses.Add(courseRes);
+            }
+            return courseResponses;
+        }
         public async Task<List<DtoCourseResponse>> GetCoursesOfTeacher(int teacherId)
         {
             var teacher = await _context.Teachers.FindAsync(teacherId);
@@ -243,7 +206,6 @@ namespace SCMS_back_end.Repositories.Services
             }
             return courseResponse;
         }
-
         public async Task<List<DtoCourseResponse>> GetCurrentCoursesOfStudent(int studentId)
         {
             var student = await _context.Students.FindAsync(studentId);
@@ -251,19 +213,39 @@ namespace SCMS_back_end.Repositories.Services
             {
                 throw new Exception("Student not found");
             }
-            var courses = await _context.StudentCourses.Where(sc => sc.StudentId == studentId).ToListAsync();
-            var courseResponse = new List<DtoCourseResponse>();
-            foreach (var course in courses)
-            {
-                if (course.Course.Schedule.StartDate < DateTime.Now && course.Course.Schedule.EndDate > DateTime.Now)
-                {
-                    var courseRes = await GetCourseById(course.CourseId);
-                    courseResponse.Add(courseRes);
-                }
-            }
-            return courseResponse;
-        }
+            var currentCourses = await _context.Courses.Include(c => c.Teacher)
+                                                       .Include(c => c.Subject)
+                                                       .Include(c => c.Schedule)
+                                                       .ThenInclude(s => s.ScheduleDays)
+                                                       .ThenInclude(sd => sd.WeekDay)
+                                                       .Where(c => c.StudentCourses.Any(s => s.StudentId == studentId) && c.Schedule.StartDate <= DateTime.Now && c.Schedule.EndDate >= DateTime.Now)
+                                                       .ToListAsync();
 
+            var currentCourseResponses = new List<DtoCourseResponse>();
+            foreach (var course in currentCourses)
+            {
+                var courseDays = course.Schedule.ScheduleDays
+                    .Select(sd => sd.WeekDay.Name)
+                    .ToList();
+
+                var courseRes = new DtoCourseResponse
+                {
+                    TeacherName = course.Teacher?.FullName ?? "N/A",
+                    SubjectName = course.Subject?.Name ?? "N/A",
+                    StartDate = course.Schedule.StartDate,
+                    EndDate = course.Schedule.EndDate,
+                    StartTime = course.Schedule.StartTime,
+                    EndTime = course.Schedule.EndTime,
+                    Days = courseDays,
+                    ClassName = course.ClassName,
+                    Capacity = course.Capacity,
+                    Level = course.Level
+                };
+
+                currentCourseResponses.Add(courseRes);
+            }
+            return currentCourseResponses;
+        }
         public async Task<List<DtoCourseResponse>> GetCurrentCoursesOfTeacher(int teacherId)
         {
             var teacher = await _context.Teachers.FindAsync(teacherId);
@@ -271,19 +253,39 @@ namespace SCMS_back_end.Repositories.Services
             {
                 throw new Exception("Teacher not found");
             }
-            var courses = await _context.Courses.Where(c => c.TeacherId == teacherId).ToListAsync();
-            var courseResponse = new List<DtoCourseResponse>();
-            foreach (var course in courses)
-            {
-                if (course.Schedule.StartDate < DateTime.Now && course.Schedule.EndDate > DateTime.Now)
-                {
-                    var courseRes = await GetCourseById(course.CourseId);
-                    courseResponse.Add(courseRes);
-                }
-            }
-            return courseResponse;
-        }
+            var currentCourses = await _context.Courses.Include(c => c.Teacher)
+                                                       .Include(c => c.Subject)
+                                                       .Include(c => c.Schedule)
+                                                       .ThenInclude(s => s.ScheduleDays)
+                                                       .ThenInclude(sd => sd.WeekDay)
+                                                       .Where(c => c.TeacherId == teacherId && c.Schedule.StartDate <= DateTime.Now && c.Schedule.EndDate >= DateTime.Now)
+                                                       .ToListAsync();
 
+            var currentCourseResponses = new List<DtoCourseResponse>();
+            foreach (var course in currentCourses)
+            {
+                var courseDays = course.Schedule.ScheduleDays
+                    .Select(sd => sd.WeekDay.Name)
+                    .ToList();
+
+                var courseRes = new DtoCourseResponse
+                {
+                    TeacherName = course.Teacher?.FullName ?? "N/A",
+                    SubjectName = course.Subject?.Name ?? "N/A",
+                    StartDate = course.Schedule.StartDate,
+                    EndDate = course.Schedule.EndDate,
+                    StartTime = course.Schedule.StartTime,
+                    EndTime = course.Schedule.EndTime,
+                    Days = courseDays,
+                    ClassName = course.ClassName,
+                    Capacity = course.Capacity,
+                    Level = course.Level
+                };
+
+                currentCourseResponses.Add(courseRes);
+            }
+            return currentCourseResponses;
+        }
         public async Task<List<DtoPreviousCourseResponse>> GetPreviousCoursesOfStudent(int studentId)
         {
             var student = await _context.Students.FindAsync(studentId);
@@ -291,25 +293,34 @@ namespace SCMS_back_end.Repositories.Services
             {
                 throw new Exception("Student not found");
             }
-            var courses = await _context.StudentCourses.Where(sc => sc.StudentId == studentId).ToListAsync();
-            var courseResponse = new List<DtoPreviousCourseResponse>();
-            foreach (var course in courses)
+            var previousCourses = await _context.Courses.Include(c => c.Teacher)
+                                                        .Include(c => c.Subject)
+                                                        .Include(c => c.Schedule)
+                                                        .ThenInclude(s => s.ScheduleDays)
+                                                        .ThenInclude(sd => sd.WeekDay)
+                                                        .Where(c => c.StudentCourses.Any(s => s.StudentId == studentId) && c.Schedule.EndDate < DateTime.Now)
+                                                        .ToListAsync();
+
+            var previousCourseResponses = new List<DtoPreviousCourseResponse>();
+            foreach (var course in previousCourses)
             {
-                if (course.Course.Schedule.EndDate < DateTime.Now)
+                var courseDays = course.Schedule.ScheduleDays
+                    .Select(sd => sd.WeekDay.Name)
+                    .ToList();
+
+                var courseRes = new DtoPreviousCourseResponse
                 {
-                    var courseRes = new DtoPreviousCourseResponse
-                    {
-                        CourseName = course.Course.ClassName,
-                        TeacherName = course.Course.Teacher.FullName,
-                        SubjectName = course.Course.Subject.Name,
-                        Grade = course.AverageGrades,
-                        Level = course.Course.Level,
-                        Status = course.Status
-                    };
-                    courseResponse.Add(courseRes);
-                }
+                    TeacherName = course.Teacher?.FullName ?? "N/A",
+                    SubjectName = course.Subject?.Name ?? "N/A",
+                    CourseName = course.ClassName,
+                    Level = course.Level,
+                    Grade = course.StudentCourses.FirstOrDefault(sc => sc.StudentId == studentId)?.AverageGrades ?? 0,
+                    Status = course.StudentCourses.FirstOrDefault(sc => sc.StudentId == studentId)?.Status ?? "N/A"
+                };
+
+                previousCourseResponses.Add(courseRes);
             }
-            return courseResponse;
+            return previousCourseResponses;
         }
         public async Task CalculateStudentGrade(int courseId, int studentId)
         {
@@ -341,81 +352,120 @@ namespace SCMS_back_end.Repositories.Services
             studentCourse.Status = average >= 50 ? "Pass" : "Fail";
             await _context.SaveChangesAsync();
         }
-
-        public async Task<Course> UpdateCourseInformation(int courseId, DtoUpdateCourseRequest course)
+        //done with 1 error: it doesn't check if the teacher has a course in the same weekdays and the same start time and end time
+        public async Task<Course> UpdateCourseInformation(int courseId, DtoUpdateCourseRequest courseRequest)
         {
-            var courseToUpdate = await _context.Courses.FindAsync(courseId);
-            if (courseToUpdate == null)
+            var course = await _context.Courses
+                .Include(c => c.Schedule)
+                .Include(c => c.Subject)
+                .FirstOrDefaultAsync(c => c.CourseId == courseId);
+            if (course == null)
             {
                 throw new Exception("Course not found");
             }
-            var teacher = await _context.Teachers.FindAsync(course.TeacherId);
-            if (teacher == null)
-            {
-                throw new Exception("Teacher not found");
-            }
-            if (teacher.CourseLoad >= 3)
-            {
-                throw new Exception("Teacher has reached the maximum course load");
-            }
-            var subject = await _context.Subjects.FindAsync(course.SubjectId);
-            if (subject == null)
-            {
-                throw new Exception("Subject not found");
-            }
-            var department = await _context.Departments.FindAsync(subject.DepartmentId);
-            if (department == null)
-            {
-                throw new Exception("Department not found");
-            }
-            if (department.DepartmentId != teacher.DepartmentId)
-            {
-                throw new Exception("Teacher and Subject are not in the same department");
-            }
-            var schedule = await _context.Schedules.FindAsync(course.ScheduleId);
-            if (schedule == null)
-            {
-                throw new Exception("Schedule not found");
-            }
-            var scheduleDay = await _context.ScheduleDays.FindAsync(schedule.ScheduleId);
-            if (scheduleDay == null)
-            {
-                throw new Exception("ScheduleDay not found");
-            }
-            //var teacherCoursesTime = teacher.Courses.Select(c => c.ScheduleId)
-            //                                        .Select(s => _context.Schedules.Find(s).ScheduleId)
-            //                                        .Select(sd => _context.ScheduleDays.Find(sd).WeekDayId).ToList();
 
-            //var teacherCoursesStartTime = teacher.Courses.Select(c => c.ScheduleId)
-            //                                        .Select(s => _context.Schedules.Find(s).StartTime).ToList();
-
-            //if (teacherCoursesTime.Contains(scheduleDay.WeekDayId))
-            //{
-            //    if (teacherCoursesStartTime.Contains(schedule.StartTime))
-            //    {
-            //        throw new Exception("Teacher has a course at the same time");
-            //    }
-            //}
-            foreach (var Tcourse in teacher.Courses)
+            if (courseRequest.SubjectId != 0)
             {
-                var courseSchedule = await _context.Schedules.FindAsync(Tcourse.ScheduleId);
-                var courseScheduleDay = await _context.ScheduleDays.FindAsync(courseSchedule.ScheduleId);
-                if (courseScheduleDay.WeekDayId == scheduleDay.WeekDayId)
+                var subjectExists = await _context.Subjects.AnyAsync(s => s.SubjectId == courseRequest.SubjectId);
+                if (!subjectExists)
                 {
-                    if (courseSchedule.StartTime == schedule.StartTime)
+                    throw new Exception("Subject not found");
+                }
+                course.SubjectId = courseRequest.SubjectId;
+            }
+
+            if (!string.IsNullOrEmpty(courseRequest.ClassName))
+            {
+                course.ClassName = courseRequest.ClassName;
+            }
+            if (courseRequest.Capacity != 0)
+            {
+                course.Capacity = courseRequest.Capacity;
+            }
+            if (courseRequest.Level != 0)
+            {
+                course.Level = courseRequest.Level;
+            }
+
+            if (courseRequest.TeacherId.HasValue)
+            {
+                var teacher = await _context.Teachers
+                    .Include(t => t.Courses)
+                    .ThenInclude(c => c.Schedule)
+                    .FirstOrDefaultAsync(t => t.TeacherId == courseRequest.TeacherId.Value);
+
+                if (teacher == null)
+                {
+                    throw new Exception("Teacher not found");
+                }
+
+                foreach (var teacherCourse in teacher.Courses)
+                {
+                    if (teacherCourse.CourseId != courseId && teacherCourse.Schedule != null)
                     {
-                        throw new Exception("Teacher has a course at the same time");
+                        var overlap = teacherCourse.Schedule.ScheduleDays.Any(sd => course.Schedule.ScheduleDays.Select(cs => cs.WeekDayId).Contains(sd.WeekDayId)) &&
+                                      teacherCourse.Schedule.StartTime == course.Schedule.StartTime &&
+                                      teacherCourse.Schedule.EndTime == course.Schedule.EndTime;
+
+                        if (overlap)
+                        {
+                            throw new Exception("Teacher has a conflicting course schedule.");
+                        }
                     }
                 }
+
+                if (teacher.Courses.Count >= teacher.CourseLoad)
+                {
+                    throw new Exception("Teacher has reached the maximum course load.");
+                }
+
+                var courseDepartment = await _context.Departments
+                    .FirstOrDefaultAsync(d => d.DepartmentId == course.Subject.DepartmentId);
+                var teacherDepartment = await _context.Departments
+                    .FirstOrDefaultAsync(d => d.DepartmentId == teacher.DepartmentId);
+
+                if (courseDepartment == null || teacherDepartment == null || courseDepartment.DepartmentId != teacherDepartment.DepartmentId)
+                {
+                    throw new Exception("Teacher's department does not match the course department.");
+                }
+
+                course.TeacherId = courseRequest.TeacherId;
             }
-            courseToUpdate.TeacherId = course.TeacherId;
-            courseToUpdate.SubjectId = course.SubjectId;
-            courseToUpdate.ScheduleId = course.ScheduleId;
-            courseToUpdate.ClassName = course.ClassName;
-            courseToUpdate.Capacity = course.Capacity;
-            courseToUpdate.Level = course.Level;
+
+            //if (courseRequest.StartDate.HasValue)
+            //{
+            //    course.Schedule.StartDate = courseRequest.StartDate.Value;
+            //}
+            //if (courseRequest.EndDate.HasValue)
+            //{
+            //    course.Schedule.EndDate = courseRequest.EndDate.Value;
+            //}
+            //if (courseRequest.StartTime.HasValue)
+            //{
+            //    course.Schedule.StartTime = courseRequest.StartTime.Value;
+            //}
+            //if (courseRequest.EndTime.HasValue)
+            //{
+            //    course.Schedule.EndTime = courseRequest.EndTime.Value;
+            //}
+
+            //if (courseRequest.WeekDays != null && courseRequest.WeekDays.Any())
+            //{
+            //    var existingScheduleDays = await _context.ScheduleDays.Where(sd => sd.ScheduleId == course.Schedule.ScheduleId).ToListAsync();
+            //    _context.ScheduleDays.RemoveRange(existingScheduleDays);
+
+            //    var newScheduleDays = courseRequest.WeekDays.Select(weekDayId => new ScheduleDay
+            //    {
+            //        WeekDayId = weekDayId,
+            //        ScheduleId = course.Schedule.ScheduleId
+            //    }).ToList();
+
+            //    await _context.ScheduleDays.AddRangeAsync(newScheduleDays);
+            //}
+
             await _context.SaveChangesAsync();
-            return courseToUpdate;
+
+            return course;
         }
     }
 }

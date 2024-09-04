@@ -76,14 +76,53 @@ namespace SCMS_back_end.Controllers
             return Ok(courses);
         }
 
-        // GET: api/Courses/5/PreviousCourses
-        [HttpGet("{id}/PreviousCourses")]
+        // GET: api/Courses/Student/5/PreviousCourses
+        [HttpGet("Student/{id}/PreviousCourses")]
         public async Task<ActionResult<List<DtoPreviousCourseResponse>>> GetPreviousCoursesOfStudent(int id)
         {
             var courses = await _course.GetPreviousCoursesOfStudent(id);
             return Ok(courses);
         }
 
+        // GET: api/Courses/Student/5/AllCourses
+        [HttpGet("Student/{id}/AllCourses")]
+        public async Task<ActionResult<List<DtoCourseResponse>>> GetCoursesOfStudent(int id)
+        {
+            var courses = await _course.GetCoursesOfStudent(id);
+            return Ok(courses);
+        }
+
+        // GET: api/Courses/Student/5/CurrentCourses
+        [HttpGet("Student/{id}/CurrentCourses")]
+        public async Task<ActionResult<List<DtoCourseResponse>>> GetCurrentCoursesOfStudent(int id)
+        {
+            var courses = await _course.GetCurrentCoursesOfStudent(id);
+            return Ok(courses);
+        }
+
+        // GET: api/Courses/Teacher/5/AllCourses
+        [HttpGet("Teacher/{id}/AllCourses")]
+        public async Task<ActionResult<List<DtoCourseResponse>>> GetCoursesOfTeacher(int id)
+        {
+            var courses = await _course.GetCoursesOfTeacher(id);
+            return Ok(courses);
+        }
+
+        // GET: api/Courses/Teacher/5/CurrentCourses
+        [HttpGet("Teacher/{id}/CurrentCourses")]
+        public async Task<ActionResult<List<DtoCourseResponse>>> GetCurrentCoursesOfTeacher(int id)
+        {
+            var courses = await _course.GetCurrentCoursesOfTeacher(id);
+            return Ok(courses);
+        }
+
+        // POST: api/Courses/5/CalculateAverageGrade
+        [HttpPost("{id}/CalculateAverageGrade")]
+        public async Task<ActionResult> CalculateAverageGrade(int id)
+        {
+            await _course.CalculateAverageGrade(id);
+            return Ok();
+        }
         private bool CourseExists(int id)
         {
             return _course.GetCourseById(id) != null;
