@@ -45,6 +45,7 @@ namespace SCMS_back_end
             //Identity 
             builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
             builder.Services.AddScoped<IAccount, IdentityAccountService>();
+            builder.Services.AddScoped<IDepartment, DepartmentService>();
             builder.Services.AddScoped<IAssignment , AsignmentService>();
             builder.Services.AddScoped<ITeacher, TeacherService>();
 
