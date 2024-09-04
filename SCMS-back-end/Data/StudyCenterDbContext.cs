@@ -50,96 +50,113 @@ namespace SCMS_back_end.Data
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Teacher)
                 .WithOne(t => t.User)
-                .HasForeignKey<Teacher>(t => t.UserId);
+                .HasForeignKey<Teacher>(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<User>()
                 .HasOne(u => u.Student)
                 .WithOne(s => s.User)
-                .HasForeignKey<Student>(s => s.UserId);
+                .HasForeignKey<Student>(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Department - Teacher relationship
             modelBuilder.Entity<Teacher>()
                 .HasOne(t => t.Department)
                 .WithMany(d => d.Teachers)
-                .HasForeignKey(t => t.DepartmentId);
+                .HasForeignKey(t => t.DepartmentId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Department - Subject relationship
             modelBuilder.Entity<Subject>()
                 .HasOne(s => s.Department)
                 .WithMany(d => d.Subjects)
-                .HasForeignKey(s => s.DepartmentId);
+                .HasForeignKey(s => s.DepartmentId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Course - Teacher/Subject/Schedule relationship
             modelBuilder.Entity<Course>()
                 .HasOne(c => c.Teacher)
                 .WithMany(t => t.Courses)
-                .HasForeignKey(c => c.TeacherId);
+                .HasForeignKey(c => c.TeacherId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Course>()
                 .HasOne(c => c.Subject)
                 .WithMany(s => s.Courses)
-                .HasForeignKey(c => c.SubjectId);
+                .HasForeignKey(c => c.SubjectId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Course>()
                 .HasOne(c => c.Schedule)
                 .WithOne(s => s.Course)
-                .HasForeignKey<Course>(c => c.ScheduleId);
+                .HasForeignKey<Course>(c => c.ScheduleId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // StudentCourse - Student/Course relationship
             modelBuilder.Entity<StudentCourse>()
                 .HasOne(sc => sc.Student)
                 .WithMany(s => s.StudentCourses)
-                .HasForeignKey(sc => sc.StudentId);
+                .HasForeignKey(sc => sc.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<StudentCourse>()
                 .HasOne(sc => sc.Course)
                 .WithMany(c => c.StudentCourses)
-                .HasForeignKey(sc => sc.CourseId);
+                .HasForeignKey(sc => sc.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Assignment - Course relationship
             modelBuilder.Entity<Assignment>()
                 .HasOne(a => a.Course)
                 .WithMany(c => c.Assignments)
-                .HasForeignKey(a => a.CourseId);
+                .HasForeignKey(a => a.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // StudentAssignment - Assignment/Student relationship
             modelBuilder.Entity<StudentAssignment>()
                 .HasOne(sa => sa.Assignment)
                 .WithMany(a => a.StudentAssignments)
-                .HasForeignKey(sa => sa.AssignmentId);
+                .HasForeignKey(sa => sa.AssignmentId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<StudentAssignment>()
                 .HasOne(sa => sa.Student)
                 .WithMany(s => s.StudentAssignments)
-                .HasForeignKey(sa => sa.StudentId);
+                .HasForeignKey(sa => sa.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Lecture - Course relationship
             modelBuilder.Entity<Lecture>()
                 .HasOne(l => l.Course)
                 .WithMany(c => c.Lectures)
-                .HasForeignKey(l => l.CourseId);
+                .HasForeignKey(l => l.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // LectureAttendance - Lecture/Student relationship
             modelBuilder.Entity<LectureAttendance>()
                 .HasOne(la => la.Lecture)
                 .WithMany(l => l.LectureAttendances)
-                .HasForeignKey(la => la.LectureId);
+                .HasForeignKey(la => la.LectureId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<LectureAttendance>()
                 .HasOne(la => la.Student)
                 .WithMany(s => s.LectureAttendances)
-                .HasForeignKey(la => la.StudentId);
+                .HasForeignKey(la => la.StudentId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // ScheduleDay - Schedule/WeekDay relationship
             modelBuilder.Entity<ScheduleDay>()
                 .HasOne(sd => sd.Schedule)
                 .WithMany(s => s.ScheduleDays)
-                .HasForeignKey(sd => sd.ScheduleId);
+                .HasForeignKey(sd => sd.ScheduleId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ScheduleDay>()
                 .HasOne(sd => sd.WeekDay)
                 .WithMany(wd => wd.ScheduleDays)
-                .HasForeignKey(sd => sd.WeekDayId);
+                .HasForeignKey(sd => sd.WeekDayId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<IdentityRole>().HasData(
            new IdentityRole { Id = "1", Name = "Admin", NormalizedName = "ADMIN" },
