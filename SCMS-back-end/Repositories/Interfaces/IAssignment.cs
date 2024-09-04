@@ -13,7 +13,15 @@ namespace SCMS_back_end.Repositories.Interfaces
 
         Task<DtoUpdateAssignmentResponse> UpdateAssignmentByID(int AssignmentID, DtoUpdateAssignmentRequest Assignment);
 
-        Task<DtoAddAssignmentResponse> GetAssignmentInfoByID(int AssignmentID);
+        Task<DtoAddAssignmentResponse> GetAllAssignmentInfoByAssignmentID(int AssignmentID);
 
+        Task DeleteAssignment(int AssignmentID);
+
+        Task<List<DtoGetAllStudentAssignmentsRequest>> 
+            GetAllStudentAssignments(int CourseID);
+        //,int AssignmentID,int StudentID
+
+        Task<List<DtoGetAllStudentRquest>>
+          GetAllStudentAssignmentByCourseID(int CourseID);
     }
 }

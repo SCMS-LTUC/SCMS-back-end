@@ -3,6 +3,7 @@ using SCMS_back_end.Data;
 using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request.Assignment;
 using SCMS_back_end.Models.Dto.Request.Teacher;
+using SCMS_back_end.Models.Dto.Response.Assignment;
 using SCMS_back_end.Models.Dto.Response.Teacher;
 using SCMS_back_end.Repositories.Interfaces;
 
@@ -91,6 +92,38 @@ namespace SCMS_back_end.Repositories.Services
             await _context.SaveChangesAsync();
 
             return Teacher;
+
+        }
+
+        public async Task DeleteTeacher(int TeacherID)
+        {
+            var TeacherToDelete = await _context.Courses
+                .FirstOrDefaultAsync(x => x.TeacherId == TeacherID);
+
+            if (TeacherToDelete != null)
+            {
+                throw new Exception("Teacher in course.");
+            }
+
+            var TeacherTo = await _context.Teachers
+    .FirstOrDefaultAsync(x => x.TeacherId == TeacherID);
+
+            if (TeacherTo== null)
+            {
+                throw new Exception("Teacher not found.");
+            }
+            // _context.Courses.Remove(TeacherTo);
+            _context.Teachers.Remove(TeacherTo);
+
+            await _context.SaveChangesAsync();
+
+            //var Response = new DtoDeleteAssignmentResponse()
+            //{
+            //    AssignmentName = AssignmentToDelete.AssignmentName,
+            //    DueDate = AssignmentToDelete.DueDate,
+            //    Description = AssignmentToDelete.Description,
+
+            //};
 
         }
 

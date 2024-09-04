@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request.Teacher;
 using SCMS_back_end.Models.Dto.Response;
@@ -60,6 +61,13 @@ namespace SCMS_back_end.Controllers
         public async Task<ActionResult<IEnumerable<DtoGetAllTeacherRequest>>> GetAllTeachers()
         {
             return await teacher.GetAllTeachers();
+        }
+
+        [HttpDelete("{TeacherID}")]
+        public async Task DeleteDepartment(int TeacherID)
+        {
+            await teacher.DeleteTeacher(TeacherID);
+            // return Ok();
         }
     }
 }

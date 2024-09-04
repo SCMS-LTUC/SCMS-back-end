@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SCMS_back_end.Migrations
 {
     /// <inheritdoc />
-    public partial class N : Migration
+    public partial class Mih : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

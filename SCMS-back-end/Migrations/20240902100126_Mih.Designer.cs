@@ -12,8 +12,8 @@ using SCMS_back_end.Data;
 namespace SCMS_back_end.Migrations
 {
     [DbContext(typeof(StudyCenterDbContext))]
-    [Migration("20240901164743_N")]
-    partial class N
+    [Migration("20240902100126_Mih")]
+    partial class Mih
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -692,7 +692,8 @@ namespace SCMS_back_end.Migrations
 
                     b.HasOne("SCMS_back_end.Models.Teacher", "Teacher")
                         .WithMany("Courses")
-                        .HasForeignKey("TeacherId");
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Schedule");
 
