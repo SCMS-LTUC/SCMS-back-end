@@ -190,6 +190,7 @@ namespace SCMS_back_end.Repositories.Services
             }
             return courseResponses;
         }
+
         public async Task<List<DtoCourseResponse>> GetCoursesOfTeacher(int teacherId)
         {
             var teacher = await _context.Teachers.FindAsync(teacherId);
@@ -206,6 +207,7 @@ namespace SCMS_back_end.Repositories.Services
             }
             return courseResponse;
         }
+
         public async Task<List<DtoCourseResponse>> GetCurrentCoursesOfStudent(int studentId)
         {
             var student = await _context.Students.FindAsync(studentId);
