@@ -1,6 +1,6 @@
 ﻿namespace SCMS_back_end.Models.Dto.Response.Assignment
 {
-    public class DtoAddAssignmentResponse
+    public class DtoLectureAttendanceResponse
     {
         public string AssignmentName { get; set; } = string.Empty;
 

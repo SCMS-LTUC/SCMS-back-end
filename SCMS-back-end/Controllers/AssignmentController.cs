@@ -24,7 +24,7 @@ namespace SCMS_back_end.Controllers
         // POST: api/Assignment
         //[Authorize(Roles ="Teacher")]
         [HttpPost("[action]")]
-        public async Task<ActionResult<DtoAddAssignmentResponse>> AddAssignment(DtoAddAssignmentRequest Assignment)
+        public async Task<ActionResult<DtoLectureAttendanceResponse>> AddAssignment(DtoAddAssignmentRequest Assignment)
         {
            var response= await _context.AddAssignment(Assignment);
             return Ok(response);
@@ -45,7 +45,7 @@ namespace SCMS_back_end.Controllers
         //[Authorize(Roles ="Teacher","Student")]
         // GET: api/Assignment/5
         [HttpGet("[action]/{id}")]
-        public async Task<ActionResult<DtoAddAssignmentResponse>> GetAssignmentInfoByID(int id)
+        public async Task<ActionResult<DtoLectureAttendanceResponse>> GetAssignmentInfoByID(int id)
         {
             var assignmentInfo = await _context.GetAllAssignmentInfoByAssignmentID(id);
 

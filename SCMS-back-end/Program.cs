@@ -48,6 +48,7 @@ namespace SCMS_back_end
             builder.Services.AddScoped<IDepartment, DepartmentService>();
             builder.Services.AddScoped<IAssignment , AsignmentService>();
             builder.Services.AddScoped<ITeacher, TeacherService>();
+            builder.Services.AddScoped<IlectureAttendance, LectureAttendanceService >();
 
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();

@@ -20,7 +20,7 @@ namespace SCMS_back_end.Repositories.Services
         }
 
 
-        public async Task<DtoAddAssignmentResponse> AddAssignment(DtoAddAssignmentRequest AssignmentDto)
+        public async Task<DtoLectureAttendanceResponse> AddAssignment(DtoAddAssignmentRequest AssignmentDto)
         {
             var NewAssignment = new Assignment()
             {
@@ -36,7 +36,7 @@ namespace SCMS_back_end.Repositories.Services
             _context.Assignments.Add(NewAssignment);
             await _context.SaveChangesAsync();
 
-            var Response = new DtoAddAssignmentResponse()
+            var Response = new DtoLectureAttendanceResponse()
             {
                 AssignmentName = AssignmentDto.AssignmentName,
                 DueDate = AssignmentDto.DueDate,
@@ -47,7 +47,7 @@ namespace SCMS_back_end.Repositories.Services
             return Response;
         }
 
-        public async Task<List<DtoAddAssignmentResponse>> GetAllAssignmentsByCourseID(int CourseID)
+        public async Task<List<DtoLectureAttendanceResponse>> GetAllAssignmentsByCourseID(int CourseID)
         {
             var allAssignments = await _context.Courses
              .Where(x => x.CourseId == CourseID)
@@ -61,7 +61,7 @@ namespace SCMS_back_end.Repositories.Services
             //}
 
             // Map assignments to DTOs
-            var assignmentDtos = allAssignments.Select(a => new DtoAddAssignmentResponse
+            var assignmentDtos = allAssignments.Select(a => new DtoLectureAttendanceResponse
             {
                 //AssignmentId = a.AssignmentId,
                 AssignmentName = a.AssignmentName,
@@ -102,7 +102,7 @@ namespace SCMS_back_end.Repositories.Services
 
 
 
-        public async Task<DtoAddAssignmentResponse> GetAllAssignmentInfoByAssignmentID(int AssignmentID)
+        public async Task<DtoLectureAttendanceResponse> GetAllAssignmentInfoByAssignmentID(int AssignmentID)
         {
             var Assignment = await _context.Assignments.FirstOrDefaultAsync(x => x.AssignmentId == AssignmentID);
 
@@ -110,7 +110,7 @@ namespace SCMS_back_end.Repositories.Services
             {
                 throw new KeyNotFoundException($"Song with ID {AssignmentID} not found.");
             }
-            var AssignmentDto = new DtoAddAssignmentResponse()
+            var AssignmentDto = new DtoLectureAttendanceResponse()
             {
                 AssignmentName = Assignment.AssignmentName,
                 DueDate = Assignment.DueDate,
