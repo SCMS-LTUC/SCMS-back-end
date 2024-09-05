@@ -121,9 +121,6 @@ namespace SCMS_back_end.Controllers
             }   
         }
 
-
-
-
         // POST: api/Students/drop
         [HttpPost("drop")]
         [Authorize(Roles = "Admin")]
