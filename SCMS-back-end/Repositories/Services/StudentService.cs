@@ -121,7 +121,7 @@ namespace SCMS_back_end.Repositories.Services
             }
 
             // Check if student level is appropriate
-            if (student.Level == course.Level)
+            if (student.Level > course.Level || student.Level < course.Level)
             {
                 throw new InvalidOperationException($"Student level ({student.Level}) is not equal the course level ({course.Level}).");
             }
