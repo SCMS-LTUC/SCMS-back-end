@@ -11,7 +11,7 @@ namespace SCMS_back_end.Repositories.Interfaces
         Task<DtoSubjectResponse> GetSubjectByIdAsync(int id);
         Task<DtoSubjectResponse> AddSubjectAsync(DtoSubjectRequest subjectDto);
         Task<DtoSubjectResponse> UpdateSubjectAsync(int id, DtoSubjectRequest subjectDto);
-        Task<bool> DeleteSubjectAsync(int id);
+        //Task<bool> DeleteSubjectAsync(int id);
         
     }
 }
