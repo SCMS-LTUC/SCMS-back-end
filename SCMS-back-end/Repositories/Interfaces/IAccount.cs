@@ -15,9 +15,9 @@ namespace SCMS_back_end.Repositories.Interfaces
         public Task<DtoUserResponse> Register(DtoAdminRegisterRequest registerDto, ModelStateDictionary modelState);
         public Task<DtoUserResponse> Login(DtoUserLoginRequest loginDto);
         //public Task Logout();
+        public Task<string> GenerateToken(User user);
 
-        public Task<string> GenerateToken(User user, TimeSpan expiryDate);
-
+        public Task<DtoUserResponse> RefreshToken(TokenDto tokenDto);
         //for test 
         public Task<DtoUserResponse> userProfile(ClaimsPrincipal claimsPrincipal);
     }
