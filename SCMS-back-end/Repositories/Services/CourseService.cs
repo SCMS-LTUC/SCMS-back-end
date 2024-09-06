@@ -12,6 +12,7 @@ namespace SCMS_back_end.Repositories.Services
     public class CourseService : ICourse
     {
         private readonly StudyCenterDbContext _context;
+
         public CourseService(StudyCenterDbContext context)
         {
             _context = context;
@@ -354,12 +355,13 @@ namespace SCMS_back_end.Repositories.Services
             studentCourse.Status = average >= 50 ? "Pass" : "Fail";
             await _context.SaveChangesAsync();
         }
-        //done with 1 error: it doesn't check if the teacher has a course in the same weekdays and the same start time and end time
+        
         public async Task<Course> UpdateCourseInformation(int courseId, DtoUpdateCourseRequest courseRequest)
         {
             var course = await _context.Courses
-                .Include(c => c.Schedule)
                 .Include(c => c.Subject)
+                .Include(c => c.Schedule)
+                .ThenInclude(s => s.ScheduleDays)
                 .FirstOrDefaultAsync(c => c.CourseId == courseId);
             if (course == null)
             {
@@ -394,6 +396,7 @@ namespace SCMS_back_end.Repositories.Services
                 var teacher = await _context.Teachers
                     .Include(t => t.Courses)
                     .ThenInclude(c => c.Schedule)
+                    .ThenInclude(s=>s.ScheduleDays)
                     .FirstOrDefaultAsync(t => t.TeacherId == courseRequest.TeacherId.Value);
 
                 if (teacher == null)
@@ -405,14 +408,38 @@ namespace SCMS_back_end.Repositories.Services
                 {
                     if (teacherCourse.CourseId != courseId && teacherCourse.Schedule != null)
                     {
-                        var overlap = teacherCourse.Schedule.ScheduleDays.Any(sd => course.Schedule.ScheduleDays.Select(cs => cs.WeekDayId).Contains(sd.WeekDayId)) &&
-                                      teacherCourse.Schedule.StartTime == course.Schedule.StartTime &&
-                                      teacherCourse.Schedule.EndTime == course.Schedule.EndTime;
-
-                        if (overlap)
+                        // check if there is an overlap between dates 
+                        if (teacherCourse.Schedule.StartDate < course.Schedule.EndDate &&
+                            teacherCourse.Schedule.EndDate > course.Schedule.StartDate)
                         {
-                            throw new Exception("Teacher has a conflicting course schedule.");
+                            //var overlap = teacherCourse.Schedule.ScheduleDays.Any(sd => course.Schedule.ScheduleDays.Select(cs => cs.WeekDayId).Contains(sd.WeekDayId)) &&
+                            //              teacherCourse.Schedule.StartTime == course.Schedule.StartTime &&
+                            //              teacherCourse.Schedule.EndTime == course.Schedule.EndTime;
+
+                            //if (overlap)
+                            //{
+                            //    throw new Exception("Teacher has a conflicting course schedule.");
+                            //}
+
+                            // check if there is an overlap between days 
+                            var course1Days = teacherCourse.Schedule.ScheduleDays.Select(sd => sd.WeekDayId).ToList();
+                            var course2Days = course.Schedule.ScheduleDays.Select(sd => sd.WeekDayId).ToList();
+                            var commonDays = course1Days.Intersect(course2Days).ToList();
+                        
+                            if (commonDays.Any())
+                            {
+                                // check if there is an overlap between times 
+                                var overlap = teacherCourse.Schedule.StartTime < course.Schedule.EndTime &&
+                                     teacherCourse.Schedule.EndTime > course.Schedule.StartTime;
+
+                                if (overlap)
+                                {
+                                    throw new Exception("Teacher has a conflicting course schedule.");
+                                }
+                            }
+
                         }
+                        
                     }
                 }
 
@@ -433,7 +460,7 @@ namespace SCMS_back_end.Repositories.Services
 
                 course.TeacherId = courseRequest.TeacherId;
             }
-
+            /*
             //if (courseRequest.StartDate.HasValue)
             //{
             //    course.Schedule.StartDate = courseRequest.StartDate.Value;
@@ -464,7 +491,7 @@ namespace SCMS_back_end.Repositories.Services
 
             //    await _context.ScheduleDays.AddRangeAsync(newScheduleDays);
             //}
-
+            */
             await _context.SaveChangesAsync();
 
             return course;

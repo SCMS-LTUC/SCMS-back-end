@@ -129,24 +129,6 @@ namespace SCMS_back_end.Controllers
             return _course.GetCourseById(id) != null;
         }
 
-        [HttpPut("{courseId}")]
-        public async Task<IActionResult> UpdateCourseInformation(int courseId, [FromBody] DtoUpdateCourseRequest courseRequest)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                var updatedCourse = await _course.UpdateCourseInformation(courseId, courseRequest);
-                return Ok(updatedCourse);
-            }
-            catch (Exception ex)
-            {
-                // Log the error message as needed.
-                return BadRequest(new { message = ex.Message });
-            }
-        }
+     
     }
 }

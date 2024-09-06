@@ -10,7 +10,7 @@ namespace SCMS_back_end.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles ="Admin")]
+    //[Authorize(Roles ="Admin")]
     public class DepartmentController : ControllerBase
     {
         private readonly IDepartment _departmentService;
@@ -57,16 +57,16 @@ namespace SCMS_back_end.Controllers
             return CreatedAtAction(nameof(GetDepartment), new { id = department.DepartmentId }, department);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDepartment(int id)
-        {
-            var department = await _departmentService.GetDepartmentByIdAsync(id);
-            if (department == null) return NotFound();
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteDepartment(int id)
+        //{
+        //    var department = await _departmentService.GetDepartmentByIdAsync(id);
+        //    if (department == null) return NotFound();
 
-            var result = await _departmentService.DeleteDepartmentAsync(id);
-            if (!result) return Conflict(new { Message = "Department has subjects with active courses" });
-            return NoContent();
-        }
+        //    var result = await _departmentService.DeleteDepartmentAsync(id);
+        //    if (!result) return Conflict(new { Message = "Department has subjects with active courses" });
+        //    return NoContent();
+        //}
 
 
     }

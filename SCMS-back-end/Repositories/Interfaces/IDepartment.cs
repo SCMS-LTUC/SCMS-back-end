@@ -9,6 +9,6 @@ namespace SCMS_back_end.Repositories.Interfaces
         Task<DtoDepartment> GetDepartmentByIdAsync(int id);
         Task<DtoDepartment> AddDepartmentAsync(string DepartmentName);
         Task<DtoDepartment> UpdateDepartmentAsync(int id, string DepartmentName);
-        Task<bool> DeleteDepartmentAsync(int id);
+        //Task<bool> DeleteDepartmentAsync(int id);
     }
 }
