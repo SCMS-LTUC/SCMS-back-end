@@ -32,7 +32,8 @@ namespace SCMS_back_end.Controllers
             var newCourse = await _course.CreateCourseWithoutTeacher(course);
             return Ok(newCourse);
         }
-
+        
+        // Tested
         // PUT: api/Courses/5
         [HttpPut("{id}")]
         public async Task<ActionResult<Course>> PutCourse(int id, DtoUpdateCourseRequest course)
@@ -47,6 +48,7 @@ namespace SCMS_back_end.Controllers
             return Ok(updatedCourse);
         }
 
+        // Tested
         // GET: api/Courses/5
         [HttpGet("{id}")]
         public async Task<ActionResult<DtoCourseResponse>> GetCourse(int id)
@@ -60,7 +62,8 @@ namespace SCMS_back_end.Controllers
 
             return Ok(course);
         }
-
+        
+        // Tested
         // GET: api/Courses
         [HttpGet]
         public async Task<ActionResult<List<DtoCourseResponse>>> GetCourses()
@@ -69,6 +72,7 @@ namespace SCMS_back_end.Controllers
             return Ok(courses);
         }
 
+        // Tested
         // GET: api/Courses/NotStarted
         [HttpGet("NotStarted")]
         public async Task<ActionResult<List<DtoCourseResponse>>> GetCoursesNotStarted()
@@ -129,6 +133,23 @@ namespace SCMS_back_end.Controllers
             return _course.GetCourseById(id) != null;
         }
 
-     
+        // Tested
+        //Delete: api/Courses/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCourse(int id)
+        {
+            var course = await _course.GetCourseById(id);
+            if (course == null) return NotFound();
+            try
+            {
+                await _course.DeleteCourse(id);
+                return NoContent();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
     }
 }

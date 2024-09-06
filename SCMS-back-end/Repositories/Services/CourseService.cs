@@ -66,9 +66,17 @@ namespace SCMS_back_end.Repositories.Services
             await _context.SaveChangesAsync();
             return course;
         }
-        public Task<bool> DeleteCourse(int courseId)
+        public async Task DeleteCourse(int courseId)
         {
-            throw new NotImplementedException();
+            var course= await _context.Courses.FindAsync(courseId);
+            if (course == null) return;
+
+            if(course.StudentCourses.Any())
+            {
+                throw new InvalidOperationException($"Cannot delete course {courseId}: students are enrolled.");
+            }
+             _context.Courses.Remove(course);
+            await _context.SaveChangesAsync();
         }
         public async Task<List<DtoCourseResponse>> GetAllCourses()
         {
@@ -191,7 +199,6 @@ namespace SCMS_back_end.Repositories.Services
             }
             return courseResponses;
         }
-
         public async Task<List<DtoCourseResponse>> GetCoursesOfTeacher(int teacherId)
         {
             var teacher = await _context.Teachers.FindAsync(teacherId);
@@ -352,10 +359,10 @@ namespace SCMS_back_end.Repositories.Services
             }
             double average = sum / courseGrades.Count;
             studentCourse.AverageGrades = (int)average;
-            studentCourse.Status = average >= 50 ? "Pass" : "Fail";
+            if (studentCourse.Status != "Drop")
+                studentCourse.Status = average >= 50 ? "Pass" : "Fail";
             await _context.SaveChangesAsync();
         }
-        
         public async Task<Course> UpdateCourseInformation(int courseId, DtoUpdateCourseRequest courseRequest)
         {
             var course = await _context.Courses

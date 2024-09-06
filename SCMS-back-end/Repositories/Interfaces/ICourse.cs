@@ -22,7 +22,7 @@ namespace SCMS_back_end.Repositories.Interfaces
         public Task<List<DtoCourseResponse>> GetCoursesNotStarted();
 
         // Delete Course
-        public Task<bool> DeleteCourse(int courseId);
+        public Task DeleteCourse(int courseId);
 
         // Get previous courses of a student
         public Task<List<DtoPreviousCourseResponse>> GetPreviousCoursesOfStudent(int studentId);
