@@ -205,7 +205,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("Assignments");
+                    b.ToTable("Assignments", (string)null);
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Course", b =>
@@ -245,10 +245,10 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Courses");
+                    b.ToTable("Courses", (string)null);
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.Department", b =>
+            modelBuilder.Entity("SCMS_back_end.Models.Departments", b =>
                 {
                     b.Property<int>("DepartmentId")
                         .ValueGeneratedOnAdd()
@@ -263,7 +263,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasKey("DepartmentId");
 
-                    b.ToTable("Department");
+                    b.ToTable("Departments", (string)null);
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Lecture", b =>
@@ -284,7 +284,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("Lectures");
+                    b.ToTable("Lectures", (string)null);
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.LectureAttendance", b =>
@@ -313,7 +313,7 @@ namespace SCMS_back_end.Migrations
                     b.HasIndex("LectureId", "StudentId")
                         .IsUnique();
 
-                    b.ToTable("LectureAttendances");
+                    b.ToTable("LectureAttendances", (string)null);
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Schedule", b =>
@@ -338,7 +338,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasKey("ScheduleId");
 
-                    b.ToTable("Schedules");
+                    b.ToTable("Schedules", (string)null);
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.ScheduleDay", b =>
@@ -361,7 +361,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("WeekDayId");
 
-                    b.ToTable("ScheduleDays");
+                    b.ToTable("ScheduleDays", (string)null);
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Student", b =>
@@ -394,7 +394,7 @@ namespace SCMS_back_end.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", (string)null);
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.StudentAssignment", b =>
@@ -432,7 +432,7 @@ namespace SCMS_back_end.Migrations
                     b.HasIndex("AssignmentId", "StudentId")
                         .IsUnique();
 
-                    b.ToTable("StudentAssignments");
+                    b.ToTable("StudentAssignments", (string)null);
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.StudentCourse", b =>
@@ -465,7 +465,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("StudentCourses");
+                    b.ToTable("StudentCourses", (string)null);
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Subject", b =>
@@ -489,7 +489,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Subjects");
+                    b.ToTable("Subjects", (string)null);
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Teacher", b =>
@@ -525,7 +525,7 @@ namespace SCMS_back_end.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Teachers");
+                    b.ToTable("Teachers", (string)null);
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.User", b =>
@@ -608,7 +608,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasKey("WeekDayId");
 
-                    b.ToTable("WeekDays");
+                    b.ToTable("WeekDays", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -799,18 +799,18 @@ namespace SCMS_back_end.Migrations
 
             modelBuilder.Entity("SCMS_back_end.Models.Subject", b =>
                 {
-                    b.HasOne("SCMS_back_end.Models.Department", "Department")
+                    b.HasOne("SCMS_back_end.Models.Departments", "Departments")
                         .WithMany("Subjects")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Department");
+                    b.Navigation("Departments");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Teacher", b =>
                 {
-                    b.HasOne("SCMS_back_end.Models.Department", "Department")
+                    b.HasOne("SCMS_back_end.Models.Departments", "Departments")
                         .WithMany("Teachers")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -822,7 +822,7 @@ namespace SCMS_back_end.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Department");
+                    b.Navigation("Departments");
 
                     b.Navigation("User");
                 });
@@ -841,7 +841,7 @@ namespace SCMS_back_end.Migrations
                     b.Navigation("StudentCourses");
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.Department", b =>
+            modelBuilder.Entity("SCMS_back_end.Models.Departments", b =>
                 {
                     b.Navigation("Subjects");
 

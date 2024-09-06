@@ -15,7 +15,7 @@ namespace SCMS_back_end.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Teacher> Teachers { get; set; }
         public DbSet<Student> Students { get; set; }
-        public DbSet<Department> Department { get; set; }
+        public DbSet<Department> Departments { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<StudentCourse> StudentCourses { get; set; }
@@ -59,14 +59,14 @@ namespace SCMS_back_end.Data
                 .HasForeignKey<Student>(s => s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Department - Teacher relationship
+            // Departments - Teacher relationship
             modelBuilder.Entity<Teacher>()
                 .HasOne(t => t.Department)
                 .WithMany(d => d.Teachers)
                 .HasForeignKey(t => t.DepartmentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Department - Subject relationship
+            // Departments - Subject relationship
             modelBuilder.Entity<Subject>()
                 .HasOne(s => s.Department)
                 .WithMany(d => d.Subjects)

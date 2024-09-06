@@ -251,7 +251,7 @@ namespace SCMS_back_end.Migrations
                     b.ToTable("Courses");
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.Department", b =>
+            modelBuilder.Entity("SCMS_back_end.Models.Departments", b =>
                 {
                     b.Property<int>("DepartmentId")
                         .ValueGeneratedOnAdd()
@@ -802,18 +802,18 @@ namespace SCMS_back_end.Migrations
 
             modelBuilder.Entity("SCMS_back_end.Models.Subject", b =>
                 {
-                    b.HasOne("SCMS_back_end.Models.Department", "Department")
+                    b.HasOne("SCMS_back_end.Models.Departments", "Departments")
                         .WithMany("Subjects")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Department");
+                    b.Navigation("Departments");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Teacher", b =>
                 {
-                    b.HasOne("SCMS_back_end.Models.Department", "Department")
+                    b.HasOne("SCMS_back_end.Models.Departments", "Departments")
                         .WithMany("Teachers")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -825,7 +825,7 @@ namespace SCMS_back_end.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Department");
+                    b.Navigation("Departments");
 
                     b.Navigation("User");
                 });
@@ -844,7 +844,7 @@ namespace SCMS_back_end.Migrations
                     b.Navigation("StudentCourses");
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.Department", b =>
+            modelBuilder.Entity("SCMS_back_end.Models.Departments", b =>
                 {
                     b.Navigation("Subjects");
 
