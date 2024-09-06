@@ -11,8 +11,10 @@ namespace SCMS_back_end.Repositories.Services
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = GetSecurityKey(configuration),
+                ClockSkew = TimeSpan.Zero,
                 ValidateIssuer = false,
-                ValidateAudience = false
+                ValidateLifetime = false,
+                ValidateAudience = false            
             };
 
         }
