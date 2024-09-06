@@ -10,6 +10,9 @@ namespace SCMS_back_end.Models
         //[AllowNull]
         //public string Address { get; set; } = string.Empty;
         //public Admin Admin { get; set; } = new Admin();// Navigation property
+
+        public string? RefreshToken { get; set; }
+        public DateTime RefreshTokenExpireTime { get; set; }
         public Teacher? Teacher { get; set; } // Navigation property
         public Student? Student { get; set; } // Navigation property
     }
