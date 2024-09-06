@@ -10,6 +10,7 @@ using SCMS_back_end.Models;
 using SCMS_back_end.Repositories.Interfaces;
 using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Models.Dto.Response;
+using SCMS_back_end.Repositories.Services;
 
 namespace SCMS_back_end.Controllers
 {
@@ -126,6 +127,26 @@ namespace SCMS_back_end.Controllers
         private bool CourseExists(int id)
         {
             return _course.GetCourseById(id) != null;
+        }
+
+        [HttpPut("{courseId}")]
+        public async Task<IActionResult> UpdateCourseInformation(int courseId, [FromBody] DtoUpdateCourseRequest courseRequest)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var updatedCourse = await _course.UpdateCourseInformation(courseId, courseRequest);
+                return Ok(updatedCourse);
+            }
+            catch (Exception ex)
+            {
+                // Log the error message as needed.
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }
