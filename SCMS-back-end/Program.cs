@@ -45,6 +45,13 @@ namespace SCMS_back_end
             builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
             builder.Services.AddScoped<IAccount, IdentityAccountService>();
             builder.Services.AddScoped<IDepartment, DepartmentService>();
+            // Register custom services
+            builder.Services.AddScoped<ISubject, SubjectService>();
+
+            builder.Services.AddScoped<ILecture, LectureService>();
+
+            builder.Services.AddHostedService<WeeklyTaskService>();
+
 
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
@@ -64,8 +71,8 @@ namespace SCMS_back_end
                 }
                 );
 
-            // Register custom services
-            builder.Services.AddScoped<ISubject, SubjectService>();
+           
+
 
             //swagger configuration
             builder.Services.AddSwaggerGen
