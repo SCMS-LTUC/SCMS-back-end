@@ -24,7 +24,7 @@ namespace SCMS_back_end.Repositories.Services
         {
             var NewAssignment = new Assignment()
             {
-               // AssignmentId = AssignmentDto.AssignmentId,
+               // assignmentId = AssignmentDto.assignmentId,
                 CourseId = AssignmentDto.CourseId,
                 AssignmentName = AssignmentDto.AssignmentName,
                 DueDate = AssignmentDto.DueDate,
@@ -63,10 +63,11 @@ namespace SCMS_back_end.Repositories.Services
             // Map assignments to DTOs
             var assignmentDtos = allAssignments.Select(a => new DtoAddAssignmentResponse
             {
-                //AssignmentId = a.AssignmentId,
+                //assignmentId = a.assignmentId,
                 AssignmentName = a.AssignmentName,
                 DueDate = a.DueDate,
-                Description = a.Description
+                Description = a.Description,
+                Visible = a.Visible
             }).ToList();
 
             return assignmentDtos;
@@ -82,9 +83,15 @@ namespace SCMS_back_end.Repositories.Services
                 throw new ArgumentException("Invalid Assignment ID", nameof(AssignmentID));
             }
 
-            Assignment.AssignmentName = AssignmentDto.AssignmentName;
-            Assignment.DueDate = AssignmentDto.DueDate;
-            Assignment.Description = AssignmentDto.Description;
+            if (string.IsNullOrEmpty(AssignmentDto.AssignmentName))
+                Assignment.AssignmentName = AssignmentDto.AssignmentName;
+
+            if (AssignmentDto.DueDate != Convert.ToDateTime("01/01/0001 00:00:00"))
+                Assignment.DueDate = AssignmentDto.DueDate;
+
+            if (string.IsNullOrEmpty(AssignmentDto.Description))
+                Assignment.Description = AssignmentDto.Description;
+
             Assignment.Visible = AssignmentDto.Visible;
 
             await _context.SaveChangesAsync();
@@ -208,31 +215,52 @@ namespace SCMS_back_end.Repositories.Services
         
         public async Task<List<DtoGetAllStudentRquest>> GetAllStudentAssignmentByCourseID(int CourseID)
         {
-           
-            var students = await _context.StudentCourses
-                .Where(sc => sc.CourseId == CourseID)
-                .Include(sc => sc.Student) 
-                    .ThenInclude(s => s.StudentAssignments) 
-                .Select(sc => sc.Student) 
-                .ToListAsync();
+            var assignmentId= CourseID;
+            //by assignment Id
 
-            if (students.Count <= 0)
-            {
-                throw new ArgumentException("Invalid Course ID", nameof(CourseID));
-            }
+            //var students = await _context.StudentCourses
+            //    .Where(sc => sc.CourseId == CourseID)
+            //    .Include(sc => sc.Student) 
+            //    .ThenInclude(s => s.StudentAssignments) 
+            //    .Select(sc => sc.Student) 
+            //    .ToListAsync();
 
-           
-            var studentDtos = students.Select(s => new DtoGetAllStudentRquest
-            {
-                FullName = s.FullName,
-                StudentAssignments = s.StudentAssignments.Select(sa => new DtoStudentAssignmentResponse
-                {
-                    StudentAssignmentId = sa.StudentAssignmentId,
-                       
-                    Feedback = sa.Feedback,
-                    Grade = sa.Grade
-                }).ToList()
-            }).ToList();
+            //if (students.Count <= 0)
+            //{
+            //    throw new ArgumentException("Invalid Course ID", nameof(CourseID));
+            //}
+
+            //var studentDtos = students.Select(s => new DtoGetAllStudentRquest
+            //{
+            //    StudentId= s.StudentId,
+            //    FullName = s.FullName,
+            //    StudentAssignments = new DtoStudentAssignmentResponse
+            //    {
+            //        StudentAssignmentId = s.StudentAssignments,
+            //        SubmissionDate = sa.SubmissionDate,   
+            //        Feedback = sa.Feedback,
+            //        Grade = sa.Grade
+            //    }
+            //}).ToList();
+
+            var course = _context.Courses
+                .Include(c => c.Assignments)
+                .Include(c => c.StudentCourses)
+                .FirstOrDefaultAsync(c => c.Assignments.Any(a => a.AssignmentId == assignmentId));
+
+
+            //var students= await _context.Students
+            //    .Include(x=>x.StudentAssignments)
+            //    .where
+
+
+
+
+
+
+
+
+
 
             return studentDtos;
         }

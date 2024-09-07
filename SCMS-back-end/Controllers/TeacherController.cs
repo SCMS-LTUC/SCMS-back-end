@@ -33,7 +33,7 @@ namespace SCMS_back_end.Controllers
 
         // PUT: api/Teacher/5
         //[Authorize(Roles ="Admin")]
-        [HttpPut("[action]/{ID}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTeacherInfo(int ID, DtoUpdateTeacherInfoByAdminRequest Teacher)
         {
             var ter= await teacher.UpdateTeacherInfoByID(ID, Teacher);
@@ -43,7 +43,7 @@ namespace SCMS_back_end.Controllers
 
         //[Authorize(Roles ="Admin")]
         // GET: api/Teacher/5
-        [HttpGet("[action]/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<DtoGetTeacherInfoByIDRequest>> GetTeacherInfoByID(int id)
         {
             var TeacherInfo = await teacher.GetTeacherInfoByID(id);
@@ -63,11 +63,11 @@ namespace SCMS_back_end.Controllers
             return await teacher.GetAllTeachers();
         }
 
-        [HttpDelete("{TeacherID}")]
-        public async Task DeleteDepartment(int TeacherID)
-        {
-            await teacher.DeleteTeacher(TeacherID);
-            // return Ok();
-        }
+        //[HttpDelete("{TeacherID}")]
+        //public async Task DeleteDepartment(int TeacherID)
+        //{
+        //    await teacher.DeleteTeacher(TeacherID);
+        //    // return Ok();
+        //}
     }
 }

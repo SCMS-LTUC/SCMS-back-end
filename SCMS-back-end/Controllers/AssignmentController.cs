@@ -75,7 +75,7 @@ namespace SCMS_back_end.Controllers
 
         //[Authorize(Roles ="Student")]
         [HttpGet("[action]/{CourseId}")]
-        public async Task<ActionResult> GetAllStudentAssignments(int StudentID)
+        public async Task<ActionResult<List<DtoGetAllStudentAssignmentsRequest>>> GetAllStudentAssignments(int StudentID)
         {
             var AllAssignments = await _context.GetAllStudentAssignments(StudentID);
 
@@ -87,7 +87,7 @@ namespace SCMS_back_end.Controllers
 
         //[Authorize(Roles ="Teacher")]
         [HttpGet("[action]/{CourseID}")]
-        public async Task<ActionResult> GetAllStudent(int CourseID)
+        public async Task<ActionResult<List<DtoGetAllStudentRquest>>> GetAllStudent(int CourseID)
         {
             var AllStudents = await _context.GetAllStudentAssignmentByCourseID(CourseID);
 

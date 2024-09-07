@@ -6,7 +6,7 @@ namespace SCMS_back_end.Models.Dto.Response.Assignment
     {
         [Key]
         public int StudentAssignmentId { get; set; }
-        public string AssignmentName { get; set; } = string.Empty;
+        public DateTime? SubmissionDate { get; set; }
         public int Grade { get; set; }
         public string Feedback { get; set; } = string.Empty;
       

@@ -95,37 +95,37 @@ namespace SCMS_back_end.Repositories.Services
 
         }
 
-        public async Task DeleteTeacher(int TeacherID)
-        {
-            var TeacherToDelete = await _context.Courses
-                .FirstOrDefaultAsync(x => x.TeacherId == TeacherID);
+    //    public async Task DeleteTeacher(int TeacherID)
+    //    {
+    //        var TeacherToDelete = await _context.Courses
+    //            .FirstOrDefaultAsync(x => x.TeacherId == TeacherID);
 
-            if (TeacherToDelete != null)
-            {
-                throw new Exception("Teacher in course.");
-            }
+    //        if (TeacherToDelete != null)
+    //        {
+    //            throw new Exception("Teacher in course.");
+    //        }
 
-            var TeacherTo = await _context.Teachers
-    .FirstOrDefaultAsync(x => x.TeacherId == TeacherID);
+    //        var TeacherTo = await _context.Teachers
+    //.FirstOrDefaultAsync(x => x.TeacherId == TeacherID);
 
-            if (TeacherTo== null)
-            {
-                throw new Exception("Teacher not found.");
-            }
-            // _context.Courses.Remove(TeacherTo);
-            _context.Teachers.Remove(TeacherTo);
+    //        if (TeacherTo== null)
+    //        {
+    //            throw new Exception("Teacher not found.");
+    //        }
+    //        // _context.Courses.Remove(TeacherTo);
+    //        _context.Teachers.Remove(TeacherTo);
 
-            await _context.SaveChangesAsync();
+    //        await _context.SaveChangesAsync();
 
-            //var Response = new DtoDeleteAssignmentResponse()
-            //{
-            //    AssignmentName = AssignmentToDelete.AssignmentName,
-            //    DueDate = AssignmentToDelete.DueDate,
-            //    Description = AssignmentToDelete.Description,
+    //        //var Response = new DtoDeleteAssignmentResponse()
+    //        //{
+    //        //    AssignmentName = AssignmentToDelete.AssignmentName,
+    //        //    DueDate = AssignmentToDelete.DueDate,
+    //        //    Description = AssignmentToDelete.Description,
 
-            //};
+    //        //};
 
-        }
+    //    }
 
 
     }
