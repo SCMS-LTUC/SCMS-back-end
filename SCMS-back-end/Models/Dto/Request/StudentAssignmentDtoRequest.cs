@@ -8,5 +8,7 @@
         public string Submission { get; set; } = string.Empty; // Optional for teachers
         public int? Grade { get; set; } // Optional for students
         public string Feedback { get; set; } = string.Empty; // Optional for students
+        public IFormFile? File { get; set; } // File upload
+
     }
 }

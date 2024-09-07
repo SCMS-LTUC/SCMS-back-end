@@ -29,13 +29,33 @@ namespace SCMS_back_end.Services
             var existingRecord = await _context.StudentAssignments
                 .FirstOrDefaultAsync(sa => sa.StudentId == studentAssignmentDto.StudentId && sa.AssignmentId == studentAssignmentDto.AssignmentId);
 
+            // Handle file upload
+            string filePath = null;
+            if (studentAssignmentDto.File != null)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+                filePath = Path.Combine(uploadsFolder, studentAssignmentDto.File.FileName);
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await studentAssignmentDto.File.CopyToAsync(fileStream);
+                }
+            }
+
             if (existingRecord != null)
             {
-                // Update existing record based on which fields are provided
+                // Update existing record
                 if (!string.IsNullOrEmpty(studentAssignmentDto.Submission))
                 {
                     existingRecord.Submission = studentAssignmentDto.Submission;
                     existingRecord.SubmissionDate = studentAssignmentDto.SubmissionDate ?? DateTime.Now;
+                    if (!string.IsNullOrEmpty(filePath))
+                    {
+                        existingRecord.Submission = filePath; // Store file path as submission
+                    }
                 }
 
                 if (studentAssignmentDto.Grade.HasValue)
@@ -54,7 +74,7 @@ namespace SCMS_back_end.Services
                     AssignmentId = studentAssignmentDto.AssignmentId,
                     StudentId = studentAssignmentDto.StudentId,
                     SubmissionDate = studentAssignmentDto.SubmissionDate ?? DateTime.Now,
-                    Submission = studentAssignmentDto.Submission,
+                    Submission = filePath ?? studentAssignmentDto.Submission, // Store file path as submission
                     Grade = studentAssignmentDto.Grade ?? 0,
                     Feedback = studentAssignmentDto.Feedback
                 };

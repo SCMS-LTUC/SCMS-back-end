@@ -16,10 +16,37 @@ namespace SCMS_back_end.Controllers
         {
             _studentAssignmentsService = studentAssignmentsService;
         }
+        [HttpGet("download/{studentAssignmentId}")]
+        public async Task<IActionResult> DownloadFile(int studentAssignmentId)
+        {
+            var studentAssignment = await _studentAssignmentsService.GetStudentAssignmentByIdAsync(studentAssignmentId);
+            if (studentAssignment == null || string.IsNullOrEmpty(studentAssignment.Submission))
+            {
+                return NotFound("File not found or no submission.");
+            }
+
+            var filePath = studentAssignment.Submission;
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("File does not exist.");
+            }
+
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(filePath, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+            var contentType = "APPLICATION/octet-stream";
+            var fileName = Path.GetFileName(filePath);
+
+            return File(memory, contentType, fileName);
+        }
 
         //[Authorize(Roles = "Teacher,Student")]
         [HttpPost("add")]
-        public async Task<IActionResult> AddOrUpdateStudentAssignment([FromBody] StudentAssignmentDtoRequest studentAssignmentDto)
+        public async Task<IActionResult> AddOrUpdateStudentAssignment([FromForm] StudentAssignmentDtoRequest studentAssignmentDto)
         {
             if (!ModelState.IsValid)
             {
