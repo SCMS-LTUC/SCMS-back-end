@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request.Assignment;
 using SCMS_back_end.Models.Dto.Response.Assignment;
 using SCMS_back_end.Repositories.Interfaces;
+using SCMS_back_end.Repositories.Services;
 using System.Runtime.InteropServices;
 
 namespace SCMS_back_end.Controllers
@@ -45,7 +47,7 @@ namespace SCMS_back_end.Controllers
         [HttpGet("[action]/{id}")]
         public async Task<ActionResult<DtoAddAssignmentResponse>> GetAssignmentInfoByID(int id)
         {
-            var assignmentInfo = await _context.GetAssignmentInfoByID(id);
+            var assignmentInfo = await _context.GetAllAssignmentInfoByAssignmentID(id);
 
             if (assignmentInfo == null)
             {
@@ -62,6 +64,37 @@ namespace SCMS_back_end.Controllers
         {
             var Response = await _context.UpdateAssignmentByID(ID, Assignment);
             return Ok(Response);
+        }
+
+        [HttpDelete("{AssignmentID}")]
+        public async Task DeleteDepartment(int AssignmentID)
+        {
+            await _context.DeleteAssignment(AssignmentID);
+           // return Ok();
+        }
+
+        //[Authorize(Roles ="Student")]
+        [HttpGet("[action]/{CourseId}")]
+        public async Task<ActionResult> GetAllStudentAssignments(int StudentID)
+        {
+            var AllAssignments = await _context.GetAllStudentAssignments(StudentID);
+
+            if (AllAssignments == null)
+                return NotFound();
+
+            return Ok(AllAssignments);
+        }
+
+        //[Authorize(Roles ="Teacher")]
+        [HttpGet("[action]/{CourseID}")]
+        public async Task<ActionResult> GetAllStudent(int CourseID)
+        {
+            var AllStudents = await _context.GetAllStudentAssignmentByCourseID(CourseID);
+
+            if (AllStudents == null)
+                return NotFound();
+
+            return Ok(AllStudents);
         }
 
     }

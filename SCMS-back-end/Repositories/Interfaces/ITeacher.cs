@@ -13,5 +13,6 @@ namespace SCMS_back_end.Repositories.Interfaces
         Task<DtoGetTeacherInfoByIDRequest> GetTeacherInfoByID(int TeacherID);
 
         Task<List<DtoGetAllTeacherRequest>>GetAllTeachers();
+        Task DeleteTeacher(int TeacherID);
     }
 }
