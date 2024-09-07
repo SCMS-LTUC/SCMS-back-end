@@ -10,7 +10,7 @@ namespace SCMS_back_end.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class SubjectController : ControllerBase
     {
         private readonly ISubject _subject;

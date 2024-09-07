@@ -35,11 +35,12 @@ namespace SCMS_back_end.Repositories.Services
                 DepartmentId = subject.DepartmentId
             };
         }
+        /* Delete subject
         //private async Task<bool> _HasCurrentCourses(int subjectId)
         //{
         //    var result = await _context.Subjects.Where(s => s.SubjectId == subjectId)
         //            .SelectMany(s => s.Courses)
-        //            .Where(c => c.Schedule.EndDate > DateTime.Now).ToListAsync();
+        //            .Where(c => c.Schedule.EndDate > currentDate).ToListAsync();
         //    return result.Any();
         //}
         //public async Task<bool> DeleteSubjectAsync(int id)
@@ -53,6 +54,7 @@ namespace SCMS_back_end.Repositories.Services
         //    }
         //    return false;
         //}
+        */
         public async Task<IEnumerable<DtoSubjectResponse>> GetAllSubjectsAsync()
         {
             var subjects= await _context.Subjects.ToListAsync();
