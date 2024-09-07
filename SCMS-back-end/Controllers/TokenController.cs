@@ -17,7 +17,7 @@ namespace SCMS_back_end.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<DtoUserResponse>> Refresh(TokenDto tokenDto)
+        private async Task<ActionResult<DtoUserResponse>> Refresh(TokenDto tokenDto)
         { 
             var result= await _userService.RefreshToken(tokenDto);
             return Ok(result);

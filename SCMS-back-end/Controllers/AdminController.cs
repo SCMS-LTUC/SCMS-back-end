@@ -42,5 +42,12 @@ namespace SCMS_back_end.Controllers
         {
             return await _userService.userProfile(User);
         }
+
+        [HttpPost]
+        public async Task<ActionResult<DtoUserResponse>> Refresh(TokenDto tokenDto)
+        {
+            var result = await _userService.RefreshToken(tokenDto);
+            return Ok(result);
+        }
     }
 }
