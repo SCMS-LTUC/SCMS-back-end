@@ -6,7 +6,7 @@ namespace SCMS_back_end.Repositories.Interfaces
 {
     public interface IStudent
     {
-        Task DeleteStudentAsync(int id);
+        //Task DeleteStudentAsync(int id);
         Task DropStudentFromCourseAsync(int studentId, int courseId);
         Task EnrollStudentInCourseAsync(int studentId, int courseId);
         Task<IEnumerable<StudentDtoResponse>> GetAllStudentsAsync();

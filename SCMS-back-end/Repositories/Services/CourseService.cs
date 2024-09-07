@@ -68,14 +68,29 @@ namespace SCMS_back_end.Repositories.Services
         }
         public async Task DeleteCourse(int courseId)
         {
-            var course= await _context.Courses.FindAsync(courseId);
+            var course = await _context.Courses
+                .Include(c => c.StudentCourses)
+                .FirstOrDefaultAsync(c => c.CourseId == courseId);
+            var scheduleDays = await _context.ScheduleDays
+                .Include(sd => sd.Schedule)
+                .ThenInclude(s => s.Course)
+                .Where(sd => sd.Schedule.Course.CourseId == courseId)
+                .ToListAsync();
+            var schedule = await _context.Schedules
+                .Include(s => s.Course)
+                .FirstOrDefaultAsync(s => s.Course.CourseId == courseId);
+               
+
+
             if (course == null) return;
 
             if(course.StudentCourses.Any())
             {
                 throw new InvalidOperationException($"Cannot delete course {courseId}: students are enrolled.");
             }
-             _context.Courses.Remove(course);
+            _context.ScheduleDays.RemoveRange(scheduleDays);
+            _context.Schedules.Remove(schedule);
+            _context.Courses.Remove(course);
             await _context.SaveChangesAsync();
         }
         public async Task<List<DtoCourseResponse>> GetAllCourses()
@@ -271,6 +286,7 @@ namespace SCMS_back_end.Repositories.Services
                                                        .Where(c => c.TeacherId == teacherId && c.Schedule.StartDate <= DateTime.Now && c.Schedule.EndDate >= DateTime.Now)
                                                        .ToListAsync();
 
+
             var currentCourseResponses = new List<DtoCourseResponse>();
             foreach (var course in currentCourses)
             {
@@ -367,23 +383,26 @@ namespace SCMS_back_end.Repositories.Services
         {
             var course = await _context.Courses
                 .Include(c => c.Subject)
+                .Include(c => c.StudentCourses)
                 .Include(c => c.Schedule)
                 .ThenInclude(s => s.ScheduleDays)
                 .FirstOrDefaultAsync(c => c.CourseId == courseId);
+            
+
             if (course == null)
             {
                 throw new Exception("Course not found");
             }
 
-            if (courseRequest.SubjectId != 0)
-            {
-                var subjectExists = await _context.Subjects.AnyAsync(s => s.SubjectId == courseRequest.SubjectId);
-                if (!subjectExists)
-                {
-                    throw new Exception("Subject not found");
-                }
-                course.SubjectId = courseRequest.SubjectId;
-            }
+            //if (courseRequest.SubjectId != 0)
+            //{
+            //    var subjectExists = await _context.Subjects.AnyAsync(s => s.SubjectId == courseRequest.SubjectId);
+            //    if (!subjectExists)
+            //    {
+            //        throw new Exception("Subject not found");
+            //    }
+            //    course.SubjectId = courseRequest.SubjectId;
+            //}
 
             if (!string.IsNullOrEmpty(courseRequest.ClassName))
             {
@@ -391,34 +410,44 @@ namespace SCMS_back_end.Repositories.Services
             }
             if (courseRequest.Capacity != 0)
             {
+                if (courseRequest.Capacity < course.StudentCourses.Count)
+                    throw new Exception("Capacity cannot be decreased below the number of registered students.");
                 course.Capacity = courseRequest.Capacity;
             }
-            if (courseRequest.Level != 0)
-            {
-                course.Level = courseRequest.Level;
-            }
+            //if (courseRequest.Level != 0)
+            //{
+            //    course.Level = courseRequest.Level;
+            //}
 
             if (courseRequest.TeacherId.HasValue)
             {
                 var teacher = await _context.Teachers
                     .Include(t => t.Courses)
                     .ThenInclude(c => c.Schedule)
-                    .ThenInclude(s=>s.ScheduleDays)
+                    .ThenInclude(s => s.ScheduleDays)
                     .FirstOrDefaultAsync(t => t.TeacherId == courseRequest.TeacherId.Value);
+
+                var TeacherCourses = await _context.Courses
+                .Include(c => c.Subject)
+                .Include(c => c.Schedule)
+                .ThenInclude(s => s.ScheduleDays)
+                .Where(c => c.TeacherId == courseRequest.TeacherId.Value && c.Schedule.StartDate < course.Schedule.EndDate &&
+                c.Schedule.EndDate > course.Schedule.StartDate).ToListAsync();
+
 
                 if (teacher == null)
                 {
                     throw new Exception("Teacher not found");
                 }
 
-                foreach (var teacherCourse in teacher.Courses)
+                foreach (var teacherCourse in TeacherCourses)
                 {
                     if (teacherCourse.CourseId != courseId && teacherCourse.Schedule != null)
                     {
                         // check if there is an overlap between dates 
-                        if (teacherCourse.Schedule.StartDate < course.Schedule.EndDate &&
-                            teacherCourse.Schedule.EndDate > course.Schedule.StartDate)
-                        {
+                        //if (teacherCourse.Schedule.StartDate < course.Schedule.EndDate &&
+                        //    teacherCourse.Schedule.EndDate > course.Schedule.StartDate)
+                        //{
                             //var overlap = teacherCourse.Schedule.ScheduleDays.Any(sd => course.Schedule.ScheduleDays.Select(cs => cs.WeekDayId).Contains(sd.WeekDayId)) &&
                             //              teacherCourse.Schedule.StartTime == course.Schedule.StartTime &&
                             //              teacherCourse.Schedule.EndTime == course.Schedule.EndTime;
@@ -445,12 +474,12 @@ namespace SCMS_back_end.Repositories.Services
                                 }
                             }
 
-                        }
+                        //}
                         
                     }
                 }
 
-                if (teacher.Courses.Count >= teacher.CourseLoad)
+                if (TeacherCourses.Count >= teacher.CourseLoad)
                 {
                     throw new Exception("Teacher has reached the maximum course load.");
                 }

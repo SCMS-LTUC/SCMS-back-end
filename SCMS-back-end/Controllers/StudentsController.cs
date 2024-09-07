@@ -103,27 +103,28 @@ namespace SCMS_back_end.Controllers
 
         // DELETE: api/Students/5
         //[Authorize(Roles = "Admin")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStudent(int id)
-        {
-            try
-            {
-                await _studentService.DeleteStudentAsync(id);
-                return NoContent(); // 204 No Content response
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(new { message = ex.Message }); // 404 Not Found
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message }); // 400 Bad Request
-            }   
-        }
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteStudent(int id)
+        //{
+        //    try
+        //    {
+        //        await _studentService.DeleteStudentAsync(id);
+        //        return NoContent(); // 204 No Content response
+        //    }
+        //    catch (KeyNotFoundException ex)
+        //    {
+        //        return NotFound(new { message = ex.Message }); // 404 Not Found
+        //    }
+        //    catch (InvalidOperationException ex)
+        //    {
+        //        return BadRequest(new { message = ex.Message }); // 400 Bad Request
+        //    }   
+        //}
 
         // POST: api/Students/drop
+
         [HttpPost("drop")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> DropStudentFromCourse([FromBody] EnrollmentDtoRequest enrollmentDto)
         {
             if (enrollmentDto == null)

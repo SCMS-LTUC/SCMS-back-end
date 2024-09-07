@@ -20,32 +20,28 @@ namespace SCMS_back_end.Repositories.Services
             _context = context;
         }
 
-        public async Task DeleteStudentAsync(int id)
-        {
-            // Retrieve the student from the database, including their enrolled courses
-            var student = await _context.Students
-                                        .Include(s => s.StudentCourses)
-                                        .FirstOrDefaultAsync(s => s.StudentId == id);
+        //public async Task DeleteStudentAsync(int id)
+        //{
+        //    // Retrieve the student from the database, including their enrolled courses
+        //    var student = await _context.Students
+        //                                .Include(s => s.StudentCourses)
+        //                                .FirstOrDefaultAsync(s => s.StudentId == id);
 
-            if (student == null)
-            {
-                throw new KeyNotFoundException("Student not found.");
-            }
+        //    if (student == null)
+        //    {
+        //        throw new KeyNotFoundException("Student not found.");
+        //    }
 
-            // Check if the student is enrolled in any courses
-            if (student.StudentCourses.Any())
-            {
-                throw new InvalidOperationException("Cannot delete a student who is currently enrolled in a course.");
-            }
+        //    // Check if the student is enrolled in any courses
+        //    if (student.StudentCourses.Any())
+        //    {
+        //        throw new InvalidOperationException("Cannot delete a student who is currently enrolled in a course.");
+        //    }
 
-            // Remove the student from the database
-            _context.Students.Remove(student);
-            await _context.SaveChangesAsync();
-        }
-
-
-
-
+        //    // Remove the student from the database
+        //    _context.Students.Remove(student);
+        //    await _context.SaveChangesAsync();
+        //}
         public async Task DropStudentFromCourseAsync(int studentId, int courseId)
         {
             // Fetch the student
@@ -77,17 +73,19 @@ namespace SCMS_back_end.Repositories.Services
             }
 
             // Update status to "Dropped"
-            enrollment.Status = "Dropped";
+            enrollment.Status = "Drop";
 
             _context.StudentCourses.Update(enrollment);
             await _context.SaveChangesAsync();
         }
-
         public async Task EnrollStudentInCourseAsync(int studentId, int courseId)
         {
             // Fetch the student
             var student = await _context.Students
                 .Include(s => s.StudentCourses)
+                .ThenInclude(sc => sc.Course)
+                .ThenInclude(c => c.Schedule)
+                .ThenInclude(s => s.ScheduleDays)
                 .SingleOrDefaultAsync(s => s.StudentId == studentId);
 
             if (student == null)
@@ -98,6 +96,8 @@ namespace SCMS_back_end.Repositories.Services
             // Fetch the course
             var course = await _context.Courses
                 .Include(c => c.StudentCourses)
+                .Include(c => c.Schedule)
+                .ThenInclude(s => s.ScheduleDays)
                 .SingleOrDefaultAsync(c => c.CourseId == courseId);
 
             if (course == null)
@@ -126,6 +126,41 @@ namespace SCMS_back_end.Repositories.Services
                 throw new InvalidOperationException($"Student level ({student.Level}) is not equal the course level ({course.Level}).");
             }
 
+            var studentCourses = await _context.Courses
+                .Include(c => c.StudentCourses)
+                .Include(c => c.Schedule)
+                .ThenInclude(s => s.ScheduleDays)
+                .Where(c => c.StudentCourses.Any(sc => sc.StudentId == student.StudentId) && c.Schedule.StartDate < course.Schedule.EndDate &&
+                c.Schedule.EndDate > course.Schedule.StartDate).ToListAsync();
+
+            foreach (var teacherCourse in studentCourses)
+            {
+                if (teacherCourse.CourseId != courseId && teacherCourse.Schedule != null)
+                {
+
+                    // check if there is an overlap between days 
+                    var course1Days = teacherCourse.Schedule.ScheduleDays.Select(sd => sd.WeekDayId).ToList();
+                    var course2Days = course.Schedule.ScheduleDays.Select(sd => sd.WeekDayId).ToList();
+                    var commonDays = course1Days.Intersect(course2Days).ToList();
+
+                    if (commonDays.Any())
+                    {
+                        // check if there is an overlap between times 
+                        var overlap = teacherCourse.Schedule.StartTime < course.Schedule.EndTime &&
+                             teacherCourse.Schedule.EndTime > course.Schedule.StartTime;
+
+                        if (overlap)
+                        {
+                            throw new Exception("Student has a conflicting course schedule.");
+                        }
+                    }
+                }
+            }
+
+
+
+
+
             // Add new enrollment
             var newEnrollment = new StudentCourse
             {
@@ -138,7 +173,6 @@ namespace SCMS_back_end.Repositories.Services
             _context.StudentCourses.Add(newEnrollment);
             await _context.SaveChangesAsync();
         }
-
         public async Task<IEnumerable<StudentDtoResponse>> GetAllStudentsAsync()
         {
             // Fetch students from the database
@@ -159,7 +193,6 @@ namespace SCMS_back_end.Repositories.Services
 
             return studentDtos;
         }
-
         public async Task<StudentDtoResponse> GetStudentByIdAsync(int id)
         {
             var student = await _context.Students
@@ -181,16 +214,13 @@ namespace SCMS_back_end.Repositories.Services
                 PhoneNumber = student.PhoneNumber
             };
         }
-
         public async Task<IEnumerable<StudentDtoResponse>> GetStudentsByCourseIdAsync(int courseId)
         {
             // Fetch students who are enrolled in the specified course and are not dropped
+            // To include related data if necessary
             var students = await _context.StudentCourses
-                .Where(sc => sc.CourseId == courseId && sc.Status != "Dropped")
+                .Where(sc => sc.CourseId == courseId && sc.Status != "Drop")
                 .Select(sc => sc.Student)
-                .Include(s => s.StudentCourses) // To include related data if necessary
-                .Include(s => s.StudentAssignments)
-                .Include(s => s.LectureAttendances)
                 .ToListAsync();
 
             // Convert to StudentDtoResponse
@@ -204,7 +234,6 @@ namespace SCMS_back_end.Repositories.Services
 
             return studentDtos;
         }
-
         public async Task UpdateStudentAsync(int id, StudentDtoRequest studentDto)
         {
             if (_context.Students == null)
@@ -225,7 +254,8 @@ namespace SCMS_back_end.Repositories.Services
             }
 
             // Update FullName
-            existingStudent.FullName = studentDto.FullName;
+            if (!string.IsNullOrEmpty(studentDto.FullName))
+                existingStudent.FullName = studentDto.FullName;
 
             // Update PhoneNumber if provided
             if (!string.IsNullOrWhiteSpace(studentDto.PhoneNumber))
@@ -234,14 +264,18 @@ namespace SCMS_back_end.Repositories.Services
             }
 
             // Update Level only if the new level is greater than the current level
-            if (studentDto.Level > existingStudent.Level)
+            if (studentDto.Level != 0)
             {
-                existingStudent.Level = studentDto.Level;
+                if (studentDto.Level > existingStudent.Level)
+                {
+                    existingStudent.Level = studentDto.Level;
+                }
+                else
+                {
+                    throw new ArgumentException("New level must be higher than the current level.");
+                }
             }
-            else
-            {
-                throw new ArgumentException("New level must be higher than the current level.");
-            }
+          
 
             _context.Students.Update(existingStudent);
             await _context.SaveChangesAsync();
