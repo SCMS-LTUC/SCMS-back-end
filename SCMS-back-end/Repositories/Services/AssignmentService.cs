@@ -11,11 +11,11 @@ using SCMS_back_end.Repositories.Interfaces;
 
 namespace SCMS_back_end.Repositories.Services
 {
-    public class AsignmentService : IAssignment
+    public class AssignmentService : IAssignment
     {
         private readonly StudyCenterDbContext _context;
 
-        public AsignmentService(StudyCenterDbContext context)
+        public AssignmentService(StudyCenterDbContext context)
         {
             _context = context;
         }
