@@ -12,7 +12,7 @@ namespace SCMS_back_end.Migrations
         {
             migrationBuilder.AlterColumn<int>(
                 name: "Grade",
-                table: "StudentAssignments",
+                table: "StudentAssignment",
                 type: "int",
                 nullable: false,
                 defaultValue: 0,
@@ -26,7 +26,7 @@ namespace SCMS_back_end.Migrations
         {
             migrationBuilder.AlterColumn<int>(
                 name: "Grade",
-                table: "StudentAssignments",
+                table: "StudentAssignment",
                 type: "int",
                 nullable: true,
                 oldClrType: typeof(int),

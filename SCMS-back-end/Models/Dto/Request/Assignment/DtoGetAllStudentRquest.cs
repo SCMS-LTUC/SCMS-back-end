@@ -6,6 +6,6 @@ namespace SCMS_back_end.Models.Dto.Request.Assignment
     {
         public int StudentId { get; set; }
         public string FullName { get; set; } = string.Empty;
-        public DtoStudentAssignmentResponse StudentAssignments { get; set; }
+        public DtoStudentAssignmentResponse StudentAssignment { get; set; }
     }
 }

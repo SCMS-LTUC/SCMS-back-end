@@ -77,7 +77,7 @@ namespace SCMS_back_end.Controllers
         [HttpGet("[action]/{CourseId}")]
         public async Task<ActionResult<List<DtoGetAllStudentAssignmentsRequest>>> GetAllStudentAssignments(int StudentID)
         {
-            var AllAssignments = await _context.GetAllStudentAssignments(StudentID);
+            var AllAssignments = await _context.GetStudentAssignmentsByCourseId(StudentID);
 
             if (AllAssignments == null)
                 return NotFound();
@@ -89,7 +89,7 @@ namespace SCMS_back_end.Controllers
         [HttpGet("[action]/{CourseID}")]
         public async Task<ActionResult<List<DtoGetAllStudentRquest>>> GetAllStudent(int CourseID)
         {
-            var AllStudents = await _context.GetAllStudentAssignmentByCourseID(CourseID);
+            var AllStudents = await _context.GetAllStudentsSubmissionByAssignmentId(CourseID);
 
             if (AllStudents == null)
                 return NotFound();
