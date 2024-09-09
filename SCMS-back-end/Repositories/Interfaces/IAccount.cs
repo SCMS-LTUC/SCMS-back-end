@@ -18,7 +18,6 @@ namespace SCMS_back_end.Repositories.Interfaces
         public Task<string> GenerateToken(User user);
 
         public Task<DtoUserResponse> RefreshToken(TokenDto tokenDto);
-        //for test 
-        public Task<DtoUserResponse> userProfile(ClaimsPrincipal claimsPrincipal);
+        
     }
 }

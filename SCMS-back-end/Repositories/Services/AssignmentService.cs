@@ -99,7 +99,6 @@ namespace SCMS_back_end.Repositories.Services
 
             var Response = new DtoUpdateAssignmentResponse()
             {
-                CourseId = Assignment.CourseId,
                 AssignmentName = Assignment.AssignmentName,
                 DueDate = AssignmentDto.DueDate,
                 Description = AssignmentDto.Description,
@@ -107,8 +106,6 @@ namespace SCMS_back_end.Repositories.Services
             };
             return Response;
         }
-
-
 
         public async Task<DtoAddAssignmentResponse> GetAllAssignmentInfoByAssignmentID(int AssignmentID)
         {
@@ -128,7 +125,6 @@ namespace SCMS_back_end.Repositories.Services
             return AssignmentDto;
 
         }
-
         public async Task DeleteAssignment(int AssignmentID)
         {
             var AssignmentToDelete =await _context.Assignments
@@ -152,7 +148,7 @@ namespace SCMS_back_end.Repositories.Services
            
         }
 
-        public async Task<List<DtoGetAllStudentAssignmentsRequest>> GetStudentAssignmentsByCourseId(int courseId, int studentId)
+        public async Task<List<DtoStudentAssignmentResponse>> GetStudentAssignmentsByCourseId(int courseId, int studentId)
         {
             /*//, int AssignmentID, int CourseID
             var Assignment = await _context.Courses.Where(x => x.CourseId == CourseID)
@@ -187,10 +183,10 @@ namespace SCMS_back_end.Repositories.Services
                 .Where(a => a.CourseId==courseId)
                 .ToListAsync();
 
-            var allAssignments = new List<DtoGetAllStudentAssignmentsRequest>();
+            var allAssignments = new List<DtoStudentAssignmentResponse>();
             foreach (var a in assignments)
             {
-                allAssignments.Add(new DtoGetAllStudentAssignmentsRequest
+                allAssignments.Add(new DtoStudentAssignmentResponse
                 {
                     AssignmentId = a.AssignmentId,
                     AssignmentName = a.AssignmentName,
@@ -232,7 +228,7 @@ namespace SCMS_back_end.Repositories.Services
              return assignmentDtos;
          }*/
         
-        public async Task<List<DtoGetAllStudentRquest>> GetAllStudentsSubmissionByAssignmentId(int assignmentId)
+        public async Task<List<DtoStudentSubmissionResponse>> GetAllStudentsSubmissionByAssignmentId(int assignmentId)
         {
             //get all students with the student assignment record for each student 
             /*
@@ -285,10 +281,10 @@ namespace SCMS_back_end.Repositories.Services
                 .Where(sc => sc.Course.Assignments.Any(a => a.AssignmentId == assignmentId))
                 .Select(sc => sc.Student).ToListAsync();
 
-            var allStudents = new List<DtoGetAllStudentRquest>();
+            var allStudents = new List<DtoStudentSubmissionResponse>();
             foreach (var s in students)
             {
-                allStudents.Add(new DtoGetAllStudentRquest
+                allStudents.Add(new DtoStudentSubmissionResponse
                 { 
                     StudentId= s.StudentId,
                     FullName = s.FullName,
@@ -297,12 +293,12 @@ namespace SCMS_back_end.Repositories.Services
             }
             return allStudents;
         }
-        private async Task<DtoStudentAssignmentResponse> _GetStudentAssignment(int studentId, int assignmentId)
+        private async Task<DtoStudentAssignmentDetails> _GetStudentAssignment(int studentId, int assignmentId)
         {
             var studentAssignment = await _context.StudentAssignments
                 .FirstOrDefaultAsync(sc => sc.AssignmentId == assignmentId && sc.StudentId == studentId);
             if (studentAssignment != null)
-                return new DtoStudentAssignmentResponse
+                return new DtoStudentAssignmentDetails
                 {
                     StudentAssignmentId = studentAssignment.StudentAssignmentId,
                     SubmissionDate = studentAssignment.SubmissionDate,

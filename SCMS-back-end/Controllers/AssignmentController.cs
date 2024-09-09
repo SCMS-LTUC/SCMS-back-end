@@ -23,18 +23,18 @@ namespace SCMS_back_end.Controllers
 
         // POST: api/Assignment
         //[Authorize(Roles ="Teacher")]
-        [HttpPost("[action]")]
-        public async Task<ActionResult<DtoAddAssignmentResponse>> AddAssignment(DtoAddAssignmentRequest Assignment)
+        [HttpPost]
+        public async Task<ActionResult<DtoAddAssignmentResponse>> PostAssignment(DtoAddAssignmentRequest Assignment)
         {
            var response= await _context.AddAssignment(Assignment);
             return Ok(response);
         }
 
         //[Authorize(Roles ="Teacher")]
-        [HttpGet("GetAllAssignmentsByCourse/{id}")]
-        public async Task<ActionResult> GetAllAssignmentsByCourseID(int id)
+        [HttpGet("courses/{courseId}/assignments")]
+        public async Task<ActionResult> GetAssignmentsByCourseID(int courseId)
         {
-            var AllAssignments = await _context.GetAllAssignmentsByCourseID(id);
+            var AllAssignments = await _context.GetAllAssignmentsByCourseID(courseId);
 
             if (AllAssignments == null)
                 return NotFound();
@@ -44,8 +44,8 @@ namespace SCMS_back_end.Controllers
 
         //[Authorize(Roles ="Teacher","Student")]
         // GET: api/Assignment/5
-        [HttpGet("[action]/{id}")]
-        public async Task<ActionResult<DtoAddAssignmentResponse>> GetAssignmentInfoByID(int id)
+        [HttpGet("{assignmentId}")]
+        public async Task<ActionResult<DtoAddAssignmentResponse>> GetAssignment(int id)
         {
             var assignmentInfo = await _context.GetAllAssignmentInfoByAssignmentID(id);
 
@@ -59,25 +59,26 @@ namespace SCMS_back_end.Controllers
 
         // PUT: api/Assignment/5
         //[Authorize(Roles ="Teacher")]
-        [HttpPut("[action]/{ID}")]
-        public async Task<ActionResult<DtoUpdateAssignmentResponse>> UpdateAssignmentInfo(int ID, DtoUpdateAssignmentRequest Assignment)
+        [HttpPut("{assignmentId}")]
+        public async Task<ActionResult<DtoUpdateAssignmentResponse>> PutAssignment(int ID, DtoUpdateAssignmentRequest Assignment)
         {
             var Response = await _context.UpdateAssignmentByID(ID, Assignment);
             return Ok(Response);
         }
 
-        [HttpDelete("{AssignmentID}")]
-        public async Task DeleteDepartment(int AssignmentID)
+        [HttpDelete("{assignmentId}")]
+        public async Task<IActionResult> DeleteAssignment(int AssignmentID)
         {
             await _context.DeleteAssignment(AssignmentID);
-           // return Ok();
+            return NoContent();
         }
 
+        //rename the url 
         //[Authorize(Roles ="Student")]
         [HttpGet("[action]/{CourseId}")]
-        public async Task<ActionResult<List<DtoGetAllStudentAssignmentsRequest>>> GetAllStudentAssignments(int StudentID)
+        public async Task<ActionResult<List<DtoStudentAssignmentResponse>>> GetAllStudentAssignmentsInCourse(int StudentID, int CourseId)
         {
-            var AllAssignments = await _context.GetStudentAssignmentsByCourseId(StudentID);
+            var AllAssignments = await _context.GetStudentAssignmentsByCourseId(CourseId, StudentID);
 
             if (AllAssignments == null)
                 return NotFound();
@@ -86,10 +87,10 @@ namespace SCMS_back_end.Controllers
         }
 
         //[Authorize(Roles ="Teacher")]
-        [HttpGet("[action]/{CourseID}")]
-        public async Task<ActionResult<List<DtoGetAllStudentRquest>>> GetAllStudent(int CourseID)
+        [HttpGet("assignments/{assignmentId}/submissions")]
+        public async Task<ActionResult<List<DtoStudentSubmissionResponse>>> GetAllStudentSubmissionForAssignment(int AssignmentId)
         {
-            var AllStudents = await _context.GetAllStudentsSubmissionByAssignmentId(CourseID);
+            var AllStudents = await _context.GetAllStudentsSubmissionByAssignmentId(AssignmentId);
 
             if (AllStudents == null)
                 return NotFound();

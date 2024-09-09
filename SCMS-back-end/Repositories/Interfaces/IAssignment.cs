@@ -17,8 +17,8 @@ namespace SCMS_back_end.Repositories.Interfaces
 
         Task DeleteAssignment(int AssignmentID);
 
-        Task<List<DtoGetAllStudentAssignmentsRequest>> GetStudentAssignmentsByCourseId(int courseId, int studentId);
+        Task<List<DtoStudentAssignmentResponse>> GetStudentAssignmentsByCourseId(int courseId, int studentId);
 
-        Task<List<DtoGetAllStudentRquest>> GetAllStudentsSubmissionByAssignmentId(int assignmentId);
+        Task<List<DtoStudentSubmissionResponse>> GetAllStudentsSubmissionByAssignmentId(int assignmentId);
     }
 }
