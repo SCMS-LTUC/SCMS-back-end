@@ -248,7 +248,7 @@ namespace SCMS_back_end.Migrations
                     b.ToTable("Courses", (string)null);
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.Departments", b =>
+            modelBuilder.Entity("SCMS_back_end.Models.Department", b =>
                 {
                     b.Property<int>("DepartmentId")
                         .ValueGeneratedOnAdd()
@@ -411,7 +411,7 @@ namespace SCMS_back_end.Migrations
                     b.Property<string>("Feedback")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Grade")
+                    b.Property<int?>("Grade")
                         .HasColumnType("int");
 
                     b.Property<int>("StudentId")
@@ -803,18 +803,18 @@ namespace SCMS_back_end.Migrations
 
             modelBuilder.Entity("SCMS_back_end.Models.Subject", b =>
                 {
-                    b.HasOne("SCMS_back_end.Models.Departments", "Departments")
+                    b.HasOne("SCMS_back_end.Models.Department", "Department")
                         .WithMany("Subjects")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Departments");
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Teacher", b =>
                 {
-                    b.HasOne("SCMS_back_end.Models.Departments", "Departments")
+                    b.HasOne("SCMS_back_end.Models.Department", "Department")
                         .WithMany("Teachers")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -826,7 +826,7 @@ namespace SCMS_back_end.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Departments");
+                    b.Navigation("Department");
 
                     b.Navigation("User");
                 });
@@ -845,7 +845,7 @@ namespace SCMS_back_end.Migrations
                     b.Navigation("StudentCourses");
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.Departments", b =>
+            modelBuilder.Entity("SCMS_back_end.Models.Department", b =>
                 {
                     b.Navigation("Subjects");
 
