@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-//using Microsoft.Identity.Client;
 using Microsoft.OpenApi.Models;
 using SCMS_back_end.Data;
 using SCMS_back_end.Repositories.Services;
@@ -46,9 +45,11 @@ namespace SCMS_back_end
             //Identity 
             builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
             builder.Services.AddScoped<IAccount, IdentityAccountService>();
+            builder.Services.AddScoped<IDepartment, DepartmentService>();
 
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
+
             builder.Services.AddScoped<IStudent, StudentService>();
             builder.Services.AddScoped<IStudentAssignments, StudentAssignmentsService>();
 
@@ -66,6 +67,8 @@ namespace SCMS_back_end
                 }
                 );
 
+            // Register custom services
+            builder.Services.AddScoped<ISubject, SubjectService>();
 
             //swagger configuration
             builder.Services.AddSwaggerGen
