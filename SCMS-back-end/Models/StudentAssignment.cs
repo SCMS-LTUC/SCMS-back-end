@@ -18,6 +18,7 @@ namespace SCMS_back_end.Models
         public string? Feedback { get; set; } = string.Empty;
         public string? Submission { get; set; }= string.Empty;
 
+        public string? FilePath { get; set; } = string.Empty;
         public Assignment Assignment { get; set; }  // Navigation property
         public Student Student { get; set; }  // Navigation property
     }
