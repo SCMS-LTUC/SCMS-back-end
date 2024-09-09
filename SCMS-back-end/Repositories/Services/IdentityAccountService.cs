@@ -236,18 +236,7 @@ namespace SCMS_back_end.Repositories.Services
             return principle;
         }
 
-        //for test 
-        public async Task<DtoUserResponse> userProfile(ClaimsPrincipal claimsPrincipal)
-        {
-            var user = await _userManager.GetUserAsync(claimsPrincipal);
-
-            return new DtoUserResponse()
-            {
-                Id = user.Id,
-                Username = user.UserName,
-                AccessToken = await GenerateToken(user)
-            };
-        }
+     
 
        
     }

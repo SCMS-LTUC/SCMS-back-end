@@ -68,12 +68,5 @@ namespace SCMS_back_end.Controllers
             }
         }
 
-        //for test only 
-        [Authorize(Roles = "Student, Teacher")]
-        [HttpGet("Profile")]
-        public async Task<ActionResult<DtoUserResponse>> Profile()
-        {
-            return await _userService.userProfile(User);
-        }
     }
 }

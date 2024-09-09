@@ -17,7 +17,6 @@ namespace SCMS_back_end.Repositories.Interfaces
         public Task Logout(ClaimsPrincipal userPrincipal);
         public Task<string> GenerateToken(User userPrincipal);
         public Task<DtoUserResponse> RefreshToken(TokenDto tokenDto);
-        //for test 
-        public Task<DtoUserResponse> userProfile(ClaimsPrincipal claimsPrincipal);
+ 
     }
 }
