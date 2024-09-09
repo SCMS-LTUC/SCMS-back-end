@@ -17,8 +17,8 @@ namespace SCMS_back_end.Repositories.Services
     {
         private UserManager<User> _userManager;
         private SignInManager<User> _signInManager;
-        private  RoleManager<IdentityRole> _roleManager;
-        private StudyCenterDbContext _context; 
+        private RoleManager<IdentityRole> _roleManager;
+        private StudyCenterDbContext _context;
 
         private readonly IConfiguration _configuration;
 
@@ -90,13 +90,13 @@ namespace SCMS_back_end.Repositories.Services
         }
         public async Task<DtoUserResponse> Login(DtoUserLoginRequest loginDto)
         {
-            var user = await _userManager.FindByNameAsync(loginDto.Username);           
+            var user = await _userManager.FindByNameAsync(loginDto.Username);
             if (user != null)
             {
                 bool passValidation = await _userManager.CheckPasswordAsync(user, loginDto.Password);
                 if (passValidation)
                 {
-                   return await CreateDtoUserResponseAsync(user, true);
+                    return await CreateDtoUserResponseAsync(user, true);
                 }
             }
             return null;
@@ -123,12 +123,20 @@ namespace SCMS_back_end.Repositories.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
+        public async Task Logout(ClaimsPrincipal userPrincipal)
+        {
+            var user = await _userManager.GetUserAsync(userPrincipal);
+            if (user != null)
+            {
+                user.RefreshTokenExpireTime = DateTime.UtcNow;
+                await _userManager.UpdateAsync(user);
+            }
+        }
         public async Task<DtoUserResponse> RefreshToken(TokenDto tokenDto)
         {
             var principle = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
             var user = await _userManager.FindByNameAsync(principle.Identity.Name);
-            if(user == null || user.RefreshToken != tokenDto.RefreshToken ||
+            if (user == null || user.RefreshToken != tokenDto.RefreshToken ||
                 user.RefreshTokenExpireTime <= DateTime.Now)
             {
                 throw new UnauthorizedAccessException("Invalid or expired refresh token.");
@@ -190,7 +198,7 @@ namespace SCMS_back_end.Repositories.Services
         {
             var refreshToken = GenerateRefreshToken();
             user.RefreshToken = refreshToken;
-            if(populateExp)
+            if (populateExp)
                 user.RefreshTokenExpireTime = DateTime.UtcNow.AddDays(7);
             await _userManager.UpdateAsync(user);
 
@@ -202,12 +210,12 @@ namespace SCMS_back_end.Repositories.Services
                 AccessToken = await GenerateToken(user),
                 RefreshToken = refreshToken
             };
-           
+
         }
         private string GenerateRefreshToken()
         {
-            var randomNumber= new byte[32];
-            using(var rng= RandomNumberGenerator.Create())
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
             {
                 rng.GetBytes(randomNumber);
                 return Convert.ToBase64String(randomNumber);
@@ -215,19 +223,18 @@ namespace SCMS_back_end.Repositories.Services
         }
         private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
-           var tokenValidationParameters = JwtTokenService.ValidateToken(_configuration);
-           var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenValidationParameters = JwtTokenService.ValidateToken(_configuration);
+            var tokenHandler = new JwtSecurityTokenHandler();
             SecurityToken securityToken;
             var principle = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
-            var jwtSecurityToken= securityToken as JwtSecurityToken;
+            var jwtSecurityToken = securityToken as JwtSecurityToken;
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
                 StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new SecurityTokenException("Invalid Token");
             }
-            return principle; 
+            return principle;
         }
-
 
         //for test 
         public async Task<DtoUserResponse> userProfile(ClaimsPrincipal claimsPrincipal)

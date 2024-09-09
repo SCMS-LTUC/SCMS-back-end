@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Models.Dto.Response;
@@ -26,7 +27,7 @@ namespace SCMS_back_end.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (user == null) return Unauthorized();
 
-            return Ok(user);
+            return Ok($"{user.Username} registered successfully.");
         }
 
         [HttpPost("Login")] //Login
@@ -41,21 +42,38 @@ namespace SCMS_back_end.Controllers
             return Ok(user);
         }
 
+        [Authorize(Roles = "Student, Teacher")]
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _userService.Logout(User);
+            return Ok(new { message = "Successfully logged out" });
+        }
+
+        [HttpPost("Refresh")]
+        public async Task<ActionResult<DtoUserResponse>> Refresh(TokenDto tokenDto)
+        {
+            try
+            {
+                var result = await _userService.RefreshToken(tokenDto);
+                return Ok(result);
+            }
+            catch (SecurityTokenException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         //for test only 
-        [Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student, Teacher")]
         [HttpGet("Profile")]
         public async Task<ActionResult<DtoUserResponse>> Profile()
         {
             return await _userService.userProfile(User);
         }
-
-
-        [HttpPost]
-        public async Task<ActionResult<DtoUserResponse>> Refresh(TokenDto tokenDto)
-        {
-            var result = await _userService.RefreshToken(tokenDto);
-            return Ok(result);
-        }
-
     }
 }
