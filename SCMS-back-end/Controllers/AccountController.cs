@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using NuGet.Common;
 using SCMS_back_end.Models;
+using SCMS_back_end.Models.Dto;
 using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Models.Dto.Response;
 using SCMS_back_end.Repositories.Interfaces;
+using System.Security.Policy;
 
 namespace SCMS_back_end.Controllers
 {
@@ -68,15 +71,49 @@ namespace SCMS_back_end.Controllers
             }
         }
 
-        //for test only 
-        [Authorize(Roles = "Student")]
-        [HttpGet("Profile")]
-        public async Task<ActionResult<DtoUserResponse>> Profile()
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordReqDTO forgotPasswordDto)
         {
-            return await _userService.userProfile(User);
+            var result = await _userService.ForgotPasswordAsync(forgotPasswordDto);
+            if (!result)
+            {
+                return BadRequest("Failed to send reset email.");
+            }
+
+            return Ok("Password reset link sent.");
         }
 
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordReqDTO resetPasswordDto)
+        {
+            var result = await _userService.ResetPasswordAsync(resetPasswordDto);
+            if (!result)
+            {
+                return BadRequest("Error resetting password.");
+            }
 
+            return Ok("Password reset successfully.");
+        }
 
+        [HttpGet("reset-password")]
+        public async Task<IActionResult> ResetPassword(string email, string token)
+        {
+            //return Ok(new
+            //{
+            //    Email = email,
+            //    Token = token
+            //});
+            //return Ok("done successfully");
+            var res = new ResetPasswordResDTO
+            {
+                Email = email,
+                Token = token
+            };
+
+            return Ok(new
+            {
+                res,
+            });
+        }
     }
 }

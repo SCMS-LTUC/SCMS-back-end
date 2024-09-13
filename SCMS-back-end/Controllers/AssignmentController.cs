@@ -74,11 +74,11 @@ namespace SCMS_back_end.Controllers
         }
 
         //rename the url 
-        //[Authorize(Roles ="Student")]
+        [Authorize(Roles ="Student")]
         [HttpGet("[action]/{CourseId}")]
-        public async Task<ActionResult<List<DtoStudentAssignmentResponse>>> GetAllStudentAssignmentsInCourse(int StudentID, int CourseId)
+        public async Task<ActionResult<List<DtoStudentAssignmentResponse>>> GetAllStudentAssignmentsInCourse(int CourseId)
         {
-            var AllAssignments = await _context.GetStudentAssignmentsByCourseId(CourseId, StudentID);
+            var AllAssignments = await _context.GetStudentAssignmentsByCourseId(CourseId, User);
 
             if (AllAssignments == null)
                 return NotFound();

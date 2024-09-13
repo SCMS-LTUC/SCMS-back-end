@@ -2,6 +2,7 @@
 using SCMS_back_end.Models.Dto.Request.Assignment;
 using SCMS_back_end.Models.Dto.Response;
 using SCMS_back_end.Models.Dto.Response.Assignment;
+using System.Security.Claims;
 
 namespace SCMS_back_end.Repositories.Interfaces
 {
@@ -17,7 +18,7 @@ namespace SCMS_back_end.Repositories.Interfaces
 
         Task DeleteAssignment(int AssignmentID);
 
-        Task<List<DtoStudentAssignmentResponse>> GetStudentAssignmentsByCourseId(int courseId, int studentId);
+        Task<List<DtoStudentAssignmentResponse>> GetStudentAssignmentsByCourseId(int courseId, ClaimsPrincipal userPrincipal);
 
         Task<List<DtoStudentSubmissionResponse>> GetAllStudentsSubmissionByAssignmentId(int assignmentId);
     }

@@ -42,7 +42,10 @@ namespace SCMS_back_end
             builder.Services.AddDbContext<StudyCenterDbContext>(optionsX => optionsX.UseSqlServer(ConnectionStringVar));
 
             //Identity 
-            builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
+            builder.Services.AddScoped<IEmail, EmailService>();
+            builder.Services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<StudyCenterDbContext>()
+                .AddDefaultTokenProviders();
             builder.Services.AddScoped<IAccount, IdentityAccountService>();
             builder.Services.AddScoped<IDepartment, DepartmentService>();
             builder.Services.AddScoped<ICourse, CourseService>();
