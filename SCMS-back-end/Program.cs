@@ -7,6 +7,7 @@ using SCMS_back_end.Repositories.Services;
 using System.Text.Json.Serialization;
 using SCMS_back_end.Repositories.Interfaces;
 using SCMS_back_end.Models;
+using SCMS_back_end.Services;
 
 namespace SCMS_back_end
 {
@@ -55,6 +56,7 @@ namespace SCMS_back_end
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
             builder.Services.AddScoped<IStudent, StudentService>();
+            builder.Services.AddScoped<IStudentAssignments, StudentAssignmentsService>();
 
             //JWT authentication
             builder.Services.AddAuthentication(
