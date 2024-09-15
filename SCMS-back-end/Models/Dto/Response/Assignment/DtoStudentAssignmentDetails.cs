@@ -8,7 +8,7 @@ namespace SCMS_back_end.Models.Dto.Response.Assignment
         public int StudentAssignmentId { get; set; }
         public DateTime? SubmissionDate { get; set; }
         public int Grade { get; set; }
-        public string Feedback { get; set; } = string.Empty;
+        public string? Feedback { get; set; }
       
     }
 }

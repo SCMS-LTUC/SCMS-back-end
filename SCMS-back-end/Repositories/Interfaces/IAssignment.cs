@@ -20,6 +20,6 @@ namespace SCMS_back_end.Repositories.Interfaces
 
         Task<List<DtoStudentAssignmentResponse>> GetStudentAssignmentsByCourseId(int courseId, ClaimsPrincipal userPrincipal);
 
-        Task<List<DtoStudentSubmissionResponse>> GetAllStudentsSubmissionByAssignmentId(int assignmentId);
+        Task<List<DtoStudentSubmissionResponse>> GetStudentsSubmissionByAssignmentId(int assignmentId);
     }
 }

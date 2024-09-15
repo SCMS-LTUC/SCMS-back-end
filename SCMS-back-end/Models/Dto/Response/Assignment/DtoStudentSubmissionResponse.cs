@@ -4,6 +4,6 @@
     {
         public int StudentId { get; set; }
         public string FullName { get; set; } = string.Empty;
-        public DtoStudentAssignmentDetails StudentAssignment { get; set; }
+        public DtoStudentAssignmentDetails? StudentAssignment { get; set; }
     }
 }

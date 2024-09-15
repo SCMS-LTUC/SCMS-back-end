@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using SCMS_back_end.Data;
 using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request.Assignment;
@@ -163,6 +164,13 @@ namespace SCMS_back_end.Repositories.Services
             {
                 throw new InvalidOperationException("Student not found.");
             }
+
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
+            if (course == null)
+            {
+                throw new InvalidOperationException("Course not found.");
+            }
+
             var assignmentsWithStudentAssignment = await _context.Assignments
                 .Include(a => a.StudentAssignments)
                 .Where(a => a.CourseId == courseId)
@@ -185,34 +193,57 @@ namespace SCMS_back_end.Repositories.Services
             return assignmentsWithStudentAssignment;
         }
         
-        public async Task<List<DtoStudentSubmissionResponse>> GetAllStudentsSubmissionByAssignmentId(int assignmentId)
+        public async Task<List<DtoStudentSubmissionResponse>> GetStudentsSubmissionByAssignmentId(int assignmentId)
         {
             //get all studentsWithStudentAssignment with the student assignment record for each student 
 
             //get studentsWithStudentAssignment in s course 
             //get student assignment reocrd for each student by student id and assignment id 
-            /* var assignment= _context.Assignments.FirstOrDefault(a => a.AssignmentId == assignmentId);
+             var assignment= _context.Assignments.FirstOrDefault(a => a.AssignmentId == assignmentId);
              if(assignment == null)
              {
                  throw new InvalidOperationException("Assignment not found.");
              }
 
-             var studentsWithStudentAssignment = await _context.Students
-                 .Include(s => s.StudentAssignments)
-                 .Where()
+            //var students = await _context.Students
+            //    //.Include(s => s.StudentCourses)
+            //    //.ThenInclude(sc => sc.Course)
+            //    //.ThenInclude(c => c.Assignments)
+            //    .Where(s => s.StudentCourses.Any(sc => sc.Course.Assignments.Any(a => a.AssignmentId == assignmentId)))
+            //    .Include(s => s.StudentAssignments)
+            //    .ToListAsync();
+                
+            var studentsWithStudentAssignment = await _context.Students
+                .Where(s => s.StudentCourses.Any(sc => sc.Course.Assignments.Any(a => a.AssignmentId == assignmentId)))
+                .Include(s => s.StudentAssignments)
+                .Select(s => new DtoStudentSubmissionResponse
+                {
+                    StudentId = s.StudentId,
+                    FullName = s.FullName,
+                    StudentAssignment = s.StudentAssignments
+                    .Where(sa => sa.AssignmentId == assignmentId && sa.StudentId == s.StudentId)
+                    .Select(sa => new DtoStudentAssignmentDetails
+                    {
+                        StudentAssignmentId = sa.AssignmentId,
+                        SubmissionDate = sa.SubmissionDate,
+                        Grade = sa.Grade,
+                        Feedback = sa.Feedback
+                    }).FirstOrDefault()
+                }).ToListAsync();
 
-             var allStudents = new List<DtoStudentSubmissionResponse>();
-             foreach (var s in studentsWithStudentAssignment)
-             {
-                 allStudents.Add(new DtoStudentSubmissionResponse
-                 { 
-                     StudentId= s.StudentId,
-                     FullName = s.FullName,
-                     StudentAssignment= await _GetStudentAssignment(s.StudentId, assignmentId)
-                 });
-             }
-             return allStudents;*/
-            return null;
+
+            //var allStudents = new List<DtoStudentSubmissionResponse>();
+            //foreach (var s in studentsWithStudentAssignment)
+            //{
+            //    allStudents.Add(new DtoStudentSubmissionResponse
+            //    {
+            //        StudentId = s.StudentId,
+            //        FullName = s.FullName,
+            //        StudentAssignment = await _GetStudentAssignment(s.StudentId, assignmentId)
+            //    });
+            //}
+            //return allStudents;
+            return studentsWithStudentAssignment;
         }
         private async Task<DtoStudentAssignmentDetails> _GetStudentAssignment(int studentId, int assignmentId)
         {

@@ -73,29 +73,41 @@ namespace SCMS_back_end.Controllers
             return NoContent();
         }
 
-        //rename the url 
         [Authorize(Roles ="Student")]
-        [HttpGet("[action]/{CourseId}")]
-        public async Task<ActionResult<List<DtoStudentAssignmentResponse>>> GetAllStudentAssignmentsInCourse(int CourseId)
+        [HttpGet("courses/{courseId}/assignments")]
+        public async Task<ActionResult<List<DtoStudentAssignmentResponse>>> GetStudentAssignmentsForCourse(int CourseId)
         {
-            var AllAssignments = await _context.GetStudentAssignmentsByCourseId(CourseId, User);
+            try
+            {
+                var AllAssignments = await _context.GetStudentAssignmentsByCourseId(CourseId, User);
+                if (AllAssignments == null)
+                    return NotFound("No assignments found for this course.");
 
-            if (AllAssignments == null)
-                return NotFound();
+                return Ok(AllAssignments);
+            }
+            catch(InvalidOperationException ex) 
+            {
+                return NotFound(ex.Message);
+            }
 
-            return Ok(AllAssignments);
         }
 
         //[Authorize(Roles ="Teacher")]
         [HttpGet("assignments/{assignmentId}/submissions")]
-        public async Task<ActionResult<List<DtoStudentSubmissionResponse>>> GetAllStudentSubmissionForAssignment(int AssignmentId)
+        public async Task<ActionResult<List<DtoStudentSubmissionResponse>>> GetStudentsSubmissionForAssignment(int AssignmentId)
         {
-            var AllStudents = await _context.GetAllStudentsSubmissionByAssignmentId(AssignmentId);
+            try
+            {
+                var AllStudents = await _context.GetStudentsSubmissionByAssignmentId(AssignmentId);
+                if (AllStudents == null)
+                    return NotFound();
 
-            if (AllStudents == null)
-                return NotFound();
-
-            return Ok(AllStudents);
+                return Ok(AllStudents);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
     }
