@@ -74,7 +74,7 @@ namespace SCMS_back_end.Controllers
         }
 
         [Authorize(Roles ="Student")]
-        [HttpGet("courses/{courseId}/assignments")]
+        [HttpGet("courses/{courseId}/student/assignments")]
         public async Task<ActionResult<List<DtoStudentAssignmentResponse>>> GetStudentAssignmentsForCourse(int CourseId)
         {
             try
