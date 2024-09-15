@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SCMS_back_end.Data;
 using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request;
+using SCMS_back_end.Models.Dto.Response;
 namespace SCMS_back_end.Services
 {
     public class StudentAssignmentsService : IStudentAssignments
@@ -15,11 +16,11 @@ namespace SCMS_back_end.Services
             _context = context;
         }
 
-        public async Task<StudentAssignment> AddOrUpdateStudentAssignmentAsync(StudentAssignmentDtoRequest studentAssignmentDto)
+        // Student Submission Method
+        public async Task<StudentAssignment> AddStudentAssignmentSubmissionAsync(StudentAssignmentSubmissionDtoRequest dto)
         {
-            // Validate if the AssignmentId exists
             var assignmentExists = await _context.Assignments
-                .AnyAsync(a => a.AssignmentId == studentAssignmentDto.AssignmentId);
+                .AnyAsync(a => a.AssignmentId == dto.AssignmentId);
 
             if (!assignmentExists)
             {
@@ -27,56 +28,48 @@ namespace SCMS_back_end.Services
             }
 
             var existingRecord = await _context.StudentAssignments
-                .FirstOrDefaultAsync(sa => sa.StudentId == studentAssignmentDto.StudentId && sa.AssignmentId == studentAssignmentDto.AssignmentId);
+                .FirstOrDefaultAsync(sa => sa.StudentId == dto.StudentId && sa.AssignmentId == dto.AssignmentId);
+
+            if (existingRecord != null && !string.IsNullOrEmpty(existingRecord.Submission))
+            {
+                throw new Exception("Submission already exists. You cannot submit more than once.");
+            }
 
             // Handle file upload
             string filePath = null;
-            if (studentAssignmentDto.File != null)
+            if (dto.File != null)
             {
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
                 }
-                filePath = Path.Combine(uploadsFolder, studentAssignmentDto.File.FileName);
+                filePath = Path.Combine(uploadsFolder, dto.File.FileName);
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    await studentAssignmentDto.File.CopyToAsync(fileStream);
+                    await dto.File.CopyToAsync(fileStream);
                 }
             }
 
             if (existingRecord != null)
             {
-                // Update existing record
-                if (!string.IsNullOrEmpty(studentAssignmentDto.Submission))
+                existingRecord.Submission = dto.Submission;
+                existingRecord.SubmissionDate = dto.SubmissionDate ?? DateTime.Now;
+                if (!string.IsNullOrEmpty(filePath))
                 {
-                    existingRecord.Submission = studentAssignmentDto.Submission;
-                    existingRecord.SubmissionDate = studentAssignmentDto.SubmissionDate ?? DateTime.Now;
-                    if (!string.IsNullOrEmpty(filePath))
-                    {
-                        existingRecord.Submission = filePath; // Store file path as submission
-                    }
+                    existingRecord.FilePath = filePath; // Store file path
                 }
-
-                if (studentAssignmentDto.Grade.HasValue)
-                {
-                    existingRecord.Grade = studentAssignmentDto.Grade.Value;
-                    existingRecord.Feedback = studentAssignmentDto.Feedback;
-                }
-
                 _context.StudentAssignments.Update(existingRecord);
             }
             else
             {
-                // Add new record
                 var newAssignment = new StudentAssignment
                 {
-                    AssignmentId = studentAssignmentDto.AssignmentId,
-                    StudentId = studentAssignmentDto.StudentId,
-                    SubmissionDate = studentAssignmentDto.SubmissionDate ?? DateTime.Now,
-                    Submission = filePath ?? studentAssignmentDto.Submission, // Store file path as submission
-                    Grade = studentAssignmentDto.Grade ?? 0,
-                    Feedback = studentAssignmentDto.Feedback
+                    AssignmentId = dto.AssignmentId,
+                    StudentId = dto.StudentId,
+                    SubmissionDate = dto.SubmissionDate ?? DateTime.Now,
+                    Submission = dto.Submission,
+                    FilePath = filePath // Store file path
                 };
 
                 await _context.StudentAssignments.AddAsync(newAssignment);
@@ -86,7 +79,31 @@ namespace SCMS_back_end.Services
             await _context.SaveChangesAsync();
             return existingRecord;
         }
+        // Teacher Feedback Method
+        public async Task<StudentAssignment> AddStudentAssignmentFeedbackAsync(TeacherAssignmentFeedbackDtoRequest dto)
+        {
+            var studentAssignment = await _context.StudentAssignments.FindAsync(dto.StudentAssignmentId);
 
+            if (studentAssignment == null)
+            {
+                throw new Exception("Student assignment not found.");
+            }
+
+            if (dto.Grade.HasValue)
+            {
+                studentAssignment.Grade = dto.Grade.Value;
+            }
+
+            if (!string.IsNullOrEmpty(dto.Feedback))
+            {
+                studentAssignment.Feedback = dto.Feedback;
+            }
+
+            _context.StudentAssignments.Update(studentAssignment);
+            await _context.SaveChangesAsync();
+
+            return studentAssignment;
+        }
 
         public async Task<StudentAssignment> UpdateStudentAssignmentAsync(int studentAssignmentId, int? grade, string feedback)
         {
@@ -107,20 +124,59 @@ namespace SCMS_back_end.Services
             return studentAssignment;
         }
 
-        public async Task<StudentAssignment> GetStudentAssignmentByIdAsync(int studentAssignmentId)
+        public async Task<StudentAssignmentDtoResponse> GetStudentAssignmentByIdAsync(int studentAssignmentId)
         {
-            return await _context.StudentAssignments
+            var studentAssignment = await _context.StudentAssignments
                 .Include(sa => sa.Assignment)
                 .Include(sa => sa.Student)
                 .FirstOrDefaultAsync(sa => sa.StudentAssignmentId == studentAssignmentId);
+
+            if (studentAssignment == null)
+            {
+                return null;
+            }
+
+            var responseDto = new StudentAssignmentDtoResponse
+            {
+                StudentAssignmentId = studentAssignment.StudentAssignmentId,
+                AssignmentId = studentAssignment.AssignmentId,
+                StudentId = studentAssignment.StudentId,
+                SubmissionDate = studentAssignment.SubmissionDate, // No error now
+                Submission = studentAssignment.Submission,
+                Grade = studentAssignment.Grade,
+                Feedback = studentAssignment.Feedback,
+                FilePath = studentAssignment.FilePath
+            };
+
+            return responseDto;
         }
 
-        public async Task<StudentAssignment> GetStudentAssignmentByAssignmentAndStudentAsync(int assignmentId, int studentId)
+        public async Task<StudentAssignmentDtoResponse> GetStudentAssignmentByAssignmentAndStudentAsync(int assignmentId, int studentId)
         {
-            return await _context.StudentAssignments
+            var studentAssignment = await _context.StudentAssignments
                 .Include(sa => sa.Assignment)
                 .Include(sa => sa.Student)
                 .FirstOrDefaultAsync(sa => sa.AssignmentId == assignmentId && sa.StudentId == studentId);
+
+            if (studentAssignment == null)
+            {
+                return null;
+            }
+
+            var responseDto = new StudentAssignmentDtoResponse
+            {
+                StudentAssignmentId = studentAssignment.StudentAssignmentId,
+                AssignmentId = studentAssignment.AssignmentId,
+                StudentId = studentAssignment.StudentId,
+                SubmissionDate = studentAssignment.SubmissionDate, // No error now
+                Submission = studentAssignment.Submission,
+                Grade = studentAssignment.Grade,
+                Feedback = studentAssignment.Feedback,
+                FilePath = studentAssignment.FilePath
+            };
+
+            return responseDto;
         }
     }
 }
+    
