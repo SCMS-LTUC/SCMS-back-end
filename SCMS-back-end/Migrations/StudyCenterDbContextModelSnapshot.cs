@@ -433,7 +433,7 @@ namespace SCMS_back_end.Migrations
                     b.HasIndex("AssignmentId", "StudentId")
                         .IsUnique();
 
-                    b.ToTable("StudentAssignment", (string)null);
+                    b.ToTable("StudentAssignments", (string)null);
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.StudentCourse", b =>
@@ -769,13 +769,13 @@ namespace SCMS_back_end.Migrations
             modelBuilder.Entity("SCMS_back_end.Models.StudentAssignment", b =>
                 {
                     b.HasOne("SCMS_back_end.Models.Assignment", "Assignment")
-                        .WithMany("StudentAssignment")
+                        .WithMany("StudentAssignments")
                         .HasForeignKey("AssignmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SCMS_back_end.Models.Student", "Student")
-                        .WithMany("StudentAssignment")
+                        .WithMany("StudentAssignments")
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -836,7 +836,7 @@ namespace SCMS_back_end.Migrations
 
             modelBuilder.Entity("SCMS_back_end.Models.Assignment", b =>
                 {
-                    b.Navigation("StudentAssignment");
+                    b.Navigation("StudentAssignments");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Course", b =>
@@ -872,7 +872,7 @@ namespace SCMS_back_end.Migrations
                 {
                     b.Navigation("LectureAttendances");
 
-                    b.Navigation("StudentAssignment");
+                    b.Navigation("StudentAssignments");
 
                     b.Navigation("StudentCourses");
                 });
