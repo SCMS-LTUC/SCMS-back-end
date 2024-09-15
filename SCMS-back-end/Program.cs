@@ -55,6 +55,7 @@ namespace SCMS_back_end
 
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
+<<<<<<<<< Temporary merge branch 1
             builder.Services.AddScoped<IStudent, StudentService>();
             builder.Services.AddScoped<IStudentAssignments, StudentAssignmentsService>();
 
