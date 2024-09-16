@@ -25,26 +25,27 @@ namespace SCMS_back_end.Repositories.Services
             };
         }
 
-        private async Task<bool> _HasCurrentCoursesInDepartment(int departmentId)
-        {
-            var result = await _context.Departments.Where(d => d.DepartmentId == departmentId)
-                    .SelectMany(d => d.Subjects).SelectMany(s => s.Courses)
-                    .Where(c => c.Schedule.EndDate > DateTime.Now).ToListAsync();
-            return result.Any();
-        }
-        public async Task<bool> DeleteDepartmentAsync(int id)
-        {
-            var department = await _context.Departments.FindAsync(id).ConfigureAwait(false);
+        /* //Delete department
+         * //private async Task<bool> _HasCurrentCoursesInDepartment(int departmentId)
+        //{
+        //    var result = await _context.Departments.Where(d => d.DepartmentId == departmentId)
+        //            .SelectMany(d => d.Subjects).SelectMany(s => s.Courses)
+        //            .Where(c => c.Schedule.EndDate > DateTime.Now).ToListAsync();
+        //    return result.Any();
+        //}
+        //public async Task<bool> DeleteDepartmentAsync(int id)
+        //{
+        //    var department = await _context.Departments.FindAsync(id).ConfigureAwait(false);
 
-            if (department != null && !await _HasCurrentCoursesInDepartment(department.DepartmentId))
-            {
-                _context.Departments.Remove(department);
-                await _context.SaveChangesAsync().ConfigureAwait(false);
-                return true;
-            }
-            return false;
-        }
-
+        //    if (department != null && !await _HasCurrentCoursesInDepartment(department.DepartmentId))
+        //    {
+        //        _context.Departments.Remove(department);
+        //        await _context.SaveChangesAsync().ConfigureAwait(false);
+        //        return true;
+        //    }
+        //    return false;
+        //}
+        */
         public async Task<IEnumerable<DtoDepartment>> GetAllDepartmentsAsync()
         {
             var departments = await _context.Departments.ToListAsync().ConfigureAwait(false);

@@ -4,6 +4,7 @@ using System.Security.Claims;
 using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Models.Dto.Response;
 using SCMS_back_end.Models;
+using SCMS_back_end.Models.Dto;
 
 
 
@@ -17,7 +18,8 @@ namespace SCMS_back_end.Repositories.Interfaces
         public Task Logout(ClaimsPrincipal userPrincipal);
         public Task<string> GenerateToken(User userPrincipal);
         public Task<DtoUserResponse> RefreshToken(TokenDto tokenDto);
-        //for test 
-        public Task<DtoUserResponse> userProfile(ClaimsPrincipal claimsPrincipal);
+        Task<bool> ResetPasswordAsync(ResetPasswordReqDTO resetPasswordDto);
+        Task<bool> ForgotPasswordAsync(ForgotPasswordReqDTO forgotPasswordDto);
+
     }
 }

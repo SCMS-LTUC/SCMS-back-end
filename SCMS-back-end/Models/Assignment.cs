@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SCMS_back_end.Models.Dto.Response.Assignment;
+using System.ComponentModel.DataAnnotations;
 
 namespace SCMS_back_end.Models
 {
@@ -20,8 +21,11 @@ namespace SCMS_back_end.Models
         public bool Visible { get; set; }
 
         // Navigation property
-        public Course Course { get; set; } 
+        public Course Course { get; set; }
+
         public ICollection<StudentAssignment> StudentAssignments { get; set; }= new List<StudentAssignment>();
+    
+
     }
 
 }

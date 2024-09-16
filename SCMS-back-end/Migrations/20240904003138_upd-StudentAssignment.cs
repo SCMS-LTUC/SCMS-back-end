@@ -13,7 +13,7 @@ namespace SCMS_back_end.Migrations
         {
             migrationBuilder.AlterColumn<DateTime>(
                 name: "SubmissionDate",
-                table: "StudentAssignments",
+                table: "StudentAssignment",
                 type: "datetime2",
                 nullable: true,
                 oldClrType: typeof(DateTime),
@@ -21,7 +21,7 @@ namespace SCMS_back_end.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "Submission",
-                table: "StudentAssignments",
+                table: "StudentAssignment",
                 type: "nvarchar(max)",
                 nullable: true,
                 oldClrType: typeof(string),
@@ -29,7 +29,7 @@ namespace SCMS_back_end.Migrations
 
             migrationBuilder.AlterColumn<int>(
                 name: "Grade",
-                table: "StudentAssignments",
+                table: "StudentAssignment",
                 type: "int",
                 nullable: true,
                 oldClrType: typeof(int),
@@ -37,7 +37,7 @@ namespace SCMS_back_end.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "Feedback",
-                table: "StudentAssignments",
+                table: "StudentAssignment",
                 type: "nvarchar(max)",
                 nullable: true,
                 oldClrType: typeof(string),
@@ -49,7 +49,7 @@ namespace SCMS_back_end.Migrations
         {
             migrationBuilder.AlterColumn<DateTime>(
                 name: "SubmissionDate",
-                table: "StudentAssignments",
+                table: "StudentAssignment",
                 type: "datetime2",
                 nullable: false,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -59,7 +59,7 @@ namespace SCMS_back_end.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "Submission",
-                table: "StudentAssignments",
+                table: "StudentAssignment",
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "",
@@ -69,7 +69,7 @@ namespace SCMS_back_end.Migrations
 
             migrationBuilder.AlterColumn<int>(
                 name: "Grade",
-                table: "StudentAssignments",
+                table: "StudentAssignment",
                 type: "int",
                 nullable: false,
                 defaultValue: 0,
@@ -79,7 +79,7 @@ namespace SCMS_back_end.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "Feedback",
-                table: "StudentAssignments",
+                table: "StudentAssignment",
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "",
