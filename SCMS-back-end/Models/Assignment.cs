@@ -18,6 +18,7 @@ namespace SCMS_back_end.Models
 
         public string Description { get; set; }= string.Empty;
         public bool Visible { get; set; }
+        public string? FilePath { get; set; } = string.Empty;
 
         // Navigation property
         public Course Course { get; set; } 
