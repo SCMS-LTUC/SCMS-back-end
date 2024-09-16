@@ -60,9 +60,9 @@ namespace SCMS_back_end.Controllers
         // PUT: api/Assignment/5
         //[Authorize(Roles ="Teacher")]
         [HttpPut("{assignmentId}")]
-        public async Task<ActionResult<DtoUpdateAssignmentResponse>> PutAssignment(int ID, DtoUpdateAssignmentRequest Assignment)
+        public async Task<ActionResult<DtoUpdateAssignmentResponse>> PutAssignment(int assignmentId, DtoUpdateAssignmentRequest Assignment)
         {
-            var Response = await _context.UpdateAssignmentByID(ID, Assignment);
+            var Response = await _context.UpdateAssignmentByID(assignmentId, Assignment);
             return Ok(Response);
         }
 
