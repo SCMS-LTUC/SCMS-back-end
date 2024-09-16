@@ -44,7 +44,10 @@ namespace SCMS_back_end.Services
                 {
                     Directory.CreateDirectory(uploadsFolder);
                 }
-                filePath = Path.Combine(uploadsFolder, dto.File.FileName);
+                //filePath = Path.Combine(uploadsFolder, dto.File.FileName);
+                var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(dto.File.FileName)}";
+                filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await dto.File.CopyToAsync(fileStream);
@@ -79,6 +82,7 @@ namespace SCMS_back_end.Services
             await _context.SaveChangesAsync();
             return existingRecord;
         }
+        
         // Teacher Feedback Method
         public async Task<StudentAssignment> AddStudentAssignmentFeedbackAsync(TeacherAssignmentFeedbackDtoRequest dto)
         {
