@@ -1,0 +1,33 @@
+- handle log out function with Jwt. 
+
+
+-should I create a route for refresh token in both admin and account controller?
+or I can use the common route Token Controller
+
+
+
+
+- routes to test:  
+-- calculate the average grade 
+-- check if delete assignment >> delete the student assignment record 
+-- get all student assignments 
+-- get all student assignment records for an assignment 
+
+- for alzoubi 
+-- edit request dto in update course (no edit for class name)
+-- Teacher butoon for calculate avergae; does it check if the due date pass before continue in the 
+process? (it should be)
+
+
+-- for falifel 
+-- edit request dto in update assignment
+-- change name to be more descriptive
+-- rename the 2 assignment url
+
+ 
+- for dima 
+-- edit grade in student asssignment to >> nullable 
+-- edit the date time to >> date time offset 
+
+- for alfarwan 
+-- delete student assignment

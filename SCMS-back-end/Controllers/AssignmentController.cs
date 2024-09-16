@@ -75,11 +75,11 @@ namespace SCMS_back_end.Controllers
 
         [Authorize(Roles ="Student")]
         [HttpGet("courses/{courseId}/student/assignments")]
-        public async Task<ActionResult<List<DtoStudentAssignmentResponse>>> GetStudentAssignmentsForCourse(int CourseId)
+        public async Task<ActionResult<List<DtoStudentAssignmentResponse>>> GetStudentAssignmentsForCourse(int courseId)
         {
             try
             {
-                var AllAssignments = await _context.GetStudentAssignmentsByCourseId(CourseId, User);
+                var AllAssignments = await _context.GetStudentAssignmentsByCourseId(courseId, User);
                 if (AllAssignments == null)
                     return NotFound("No assignments found for this course.");
 
@@ -93,7 +93,7 @@ namespace SCMS_back_end.Controllers
         }
 
         //[Authorize(Roles ="Teacher")]
-        [HttpGet("assignments/{assignmentId}/submissions")]
+        [HttpGet("{assignmentId}/submissions")]
         public async Task<ActionResult<List<DtoStudentSubmissionResponse>>> GetStudentsSubmissionForAssignment(int assignmentId)
         {
             try
