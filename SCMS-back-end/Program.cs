@@ -73,6 +73,13 @@ namespace SCMS_back_end
                 }
                 );
 
+            builder.Services.AddAuthorization(options =>
+            {
+                // You can define policies if needed, or use the default policy
+                options.AddPolicy("DefaultPolicy", policy =>
+                    policy.RequireAuthenticatedUser());
+            });
+
             // Register custom services
             builder.Services.AddScoped<ISubject, SubjectService>();
 
