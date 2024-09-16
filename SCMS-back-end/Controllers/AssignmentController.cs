@@ -94,11 +94,11 @@ namespace SCMS_back_end.Controllers
 
         //[Authorize(Roles ="Teacher")]
         [HttpGet("assignments/{assignmentId}/submissions")]
-        public async Task<ActionResult<List<DtoStudentSubmissionResponse>>> GetStudentsSubmissionForAssignment(int AssignmentId)
+        public async Task<ActionResult<List<DtoStudentSubmissionResponse>>> GetStudentsSubmissionForAssignment(int assignmentId)
         {
             try
             {
-                var AllStudents = await _context.GetStudentsSubmissionByAssignmentId(AssignmentId);
+                var AllStudents = await _context.GetStudentsSubmissionByAssignmentId(assignmentId);
                 if (AllStudents == null)
                     return NotFound();
 
