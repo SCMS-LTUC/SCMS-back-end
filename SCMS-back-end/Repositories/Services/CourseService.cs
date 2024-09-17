@@ -368,10 +368,10 @@ namespace SCMS_back_end.Repositories.Services
             var studentGrades = await _context.StudentAssignments.Where(sa => sa.StudentId == studentId).ToListAsync();
             var courseAssignments = await _context.Assignments.Where(a => a.CourseId == courseId).ToListAsync();
             var courseGrades = studentGrades.Where(sg => courseAssignments.Select(ca => ca.AssignmentId).Contains(sg.AssignmentId)).ToList();
-            double sum = 0;
+            int sum = 0;
             foreach (var grade in courseGrades)
             {
-                sum += grade.Grade;
+                sum += grade.Grade ?? 0;
             }
             double average = sum / courseGrades.Count;
             studentCourse.AverageGrades = (int)average;

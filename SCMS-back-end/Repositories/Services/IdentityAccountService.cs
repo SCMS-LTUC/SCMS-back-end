@@ -280,9 +280,7 @@ namespace SCMS_back_end.Repositories.Services
                 throw new SecurityTokenException("Invalid Token");
             }
             return principle;
-        }
-
-
+        }      
 
        
     }

@@ -21,6 +21,8 @@ namespace SCMS_back_end.Models
         public ICollection<StudentCourse> StudentCourses { get; set; } = new List<StudentCourse>();
         public ICollection<StudentAssignment> StudentAssignments { get; set; } = new List<StudentAssignment>();
         public ICollection<LectureAttendance> LectureAttendances { get; set; } = new List<LectureAttendance>();
+        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
     }
 
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SCMS_back_end.Data;
 
@@ -11,9 +12,11 @@ using SCMS_back_end.Data;
 namespace SCMS_back_end.Migrations
 {
     [DbContext(typeof(StudyCenterDbContext))]
-    partial class StudyCenterDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240916081058_Add-FilePath-toAssignment")]
+    partial class AddFilePathtoAssignment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,41 +178,6 @@ namespace SCMS_back_end.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.Announcement", b =>
-                {
-                    b.Property<int>("AnnouncementId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AnnouncementId"));
-
-                    b.Property<int>("AudienceId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("AnnouncementId");
-
-                    b.HasIndex("AudienceId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Announcements");
-                });
-
             modelBuilder.Entity("SCMS_back_end.Models.Assignment", b =>
                 {
                     b.Property<int>("AssignmentId")
@@ -243,74 +211,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("Assignments", (string)null);
-                });
-
-            modelBuilder.Entity("SCMS_back_end.Models.Audience", b =>
-                {
-                    b.Property<int>("AudienceId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AudienceId"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("AudienceId");
-
-                    b.ToTable("Audiences");
-                });
-
-            modelBuilder.Entity("SCMS_back_end.Models.Certificate", b =>
-                {
-                    b.Property<int>("CertificateId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CertificateId"));
-
-                    b.Property<string>("CertificatePath")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CompletionDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CertificateId");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("Certificates");
-                });
-
-            modelBuilder.Entity("SCMS_back_end.Models.Classroom", b =>
-                {
-                    b.Property<int>("ClassroomId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ClassroomId"));
-
-                    b.Property<int>("Capacity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("RoomNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ClassroomId");
-
-                    b.ToTable("Classrooms");
+                    b.ToTable("Assignments");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Course", b =>
@@ -329,9 +230,6 @@ namespace SCMS_back_end.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<int>("ClassroomId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
@@ -346,8 +244,6 @@ namespace SCMS_back_end.Migrations
 
                     b.HasKey("CourseId");
 
-                    b.HasIndex("ClassroomId");
-
                     b.HasIndex("ScheduleId")
                         .IsUnique();
 
@@ -355,31 +251,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Courses", (string)null);
-                });
-
-            modelBuilder.Entity("SCMS_back_end.Models.CourseAnnouncement", b =>
-                {
-                    b.Property<int>("CourseAnnouncementId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CourseAnnouncementId"));
-
-                    b.Property<int>("AnnouncementId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CourseAnnouncementId");
-
-                    b.HasIndex("AnnouncementId")
-                        .IsUnique();
-
-                    b.HasIndex("CourseId");
-
-                    b.ToTable("CourseAnnouncements");
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Department", b =>
@@ -397,7 +269,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasKey("DepartmentId");
 
-                    b.ToTable("Departments", (string)null);
+                    b.ToTable("Departments");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Lecture", b =>
@@ -418,7 +290,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("Lectures", (string)null);
+                    b.ToTable("Lectures");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.LectureAttendance", b =>
@@ -447,48 +319,7 @@ namespace SCMS_back_end.Migrations
                     b.HasIndex("LectureId", "StudentId")
                         .IsUnique();
 
-                    b.ToTable("LectureAttendances", (string)null);
-                });
-
-            modelBuilder.Entity("SCMS_back_end.Models.Payment", b =>
-                {
-                    b.Property<int>("PaymentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset>("Date")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Method")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ReferenceNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PaymentId");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("Payments");
+                    b.ToTable("LectureAttendances");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Schedule", b =>
@@ -513,7 +344,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasKey("ScheduleId");
 
-                    b.ToTable("Schedules", (string)null);
+                    b.ToTable("Schedules");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.ScheduleDay", b =>
@@ -536,7 +367,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("WeekDayId");
 
-                    b.ToTable("ScheduleDays", (string)null);
+                    b.ToTable("ScheduleDays");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Student", b =>
@@ -569,7 +400,7 @@ namespace SCMS_back_end.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.StudentAssignment", b =>
@@ -608,7 +439,7 @@ namespace SCMS_back_end.Migrations
                     b.HasIndex("AssignmentId", "StudentId")
                         .IsUnique();
 
-                    b.ToTable("StudentAssignments", (string)null);
+                    b.ToTable("StudentAssignments");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.StudentCourse", b =>
@@ -641,7 +472,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("StudentCourses", (string)null);
+                    b.ToTable("StudentCourses");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Subject", b =>
@@ -665,7 +496,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Subjects", (string)null);
+                    b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Teacher", b =>
@@ -701,7 +532,7 @@ namespace SCMS_back_end.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Teachers", (string)null);
+                    b.ToTable("Teachers");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.User", b =>
@@ -790,7 +621,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasKey("WeekDayId");
 
-                    b.ToTable("WeekDays", (string)null);
+                    b.ToTable("WeekDays");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -844,25 +675,6 @@ namespace SCMS_back_end.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.Announcement", b =>
-                {
-                    b.HasOne("SCMS_back_end.Models.Audience", "Audience")
-                        .WithMany("Annoumcements")
-                        .HasForeignKey("AudienceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SCMS_back_end.Models.User", "User")
-                        .WithMany("Annoumcements")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Audience");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("SCMS_back_end.Models.Assignment", b =>
                 {
                     b.HasOne("SCMS_back_end.Models.Course", "Course")
@@ -874,33 +686,8 @@ namespace SCMS_back_end.Migrations
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.Certificate", b =>
-                {
-                    b.HasOne("SCMS_back_end.Models.Course", "Course")
-                        .WithMany("Certificates")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SCMS_back_end.Models.Student", "Student")
-                        .WithMany("Certificates")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("SCMS_back_end.Models.Course", b =>
                 {
-                    b.HasOne("SCMS_back_end.Models.Classroom", "Classroom")
-                        .WithMany("Courses")
-                        .HasForeignKey("ClassroomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("SCMS_back_end.Models.Schedule", "Schedule")
                         .WithOne("Course")
                         .HasForeignKey("SCMS_back_end.Models.Course", "ScheduleId")
@@ -918,32 +705,11 @@ namespace SCMS_back_end.Migrations
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.Navigation("Classroom");
-
                     b.Navigation("Schedule");
 
                     b.Navigation("Subject");
 
                     b.Navigation("Teacher");
-                });
-
-            modelBuilder.Entity("SCMS_back_end.Models.CourseAnnouncement", b =>
-                {
-                    b.HasOne("SCMS_back_end.Models.Announcement", "Announcement")
-                        .WithOne("CourseAnnouncement")
-                        .HasForeignKey("SCMS_back_end.Models.CourseAnnouncement", "AnnouncementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SCMS_back_end.Models.Course", "Course")
-                        .WithMany("Announcements")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Announcement");
-
-                    b.Navigation("Course");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Lecture", b =>
@@ -972,25 +738,6 @@ namespace SCMS_back_end.Migrations
                         .IsRequired();
 
                     b.Navigation("Lecture");
-
-                    b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("SCMS_back_end.Models.Payment", b =>
-                {
-                    b.HasOne("SCMS_back_end.Models.Course", "Course")
-                        .WithMany("Payments")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SCMS_back_end.Models.Student", "Student")
-                        .WithMany("Payments")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
 
                     b.Navigation("Student");
                 });
@@ -1093,38 +840,16 @@ namespace SCMS_back_end.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.Announcement", b =>
-                {
-                    b.Navigation("CourseAnnouncement")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("SCMS_back_end.Models.Assignment", b =>
                 {
                     b.Navigation("StudentAssignments");
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.Audience", b =>
-                {
-                    b.Navigation("Annoumcements");
-                });
-
-            modelBuilder.Entity("SCMS_back_end.Models.Classroom", b =>
-                {
-                    b.Navigation("Courses");
-                });
-
             modelBuilder.Entity("SCMS_back_end.Models.Course", b =>
                 {
-                    b.Navigation("Announcements");
-
                     b.Navigation("Assignments");
 
-                    b.Navigation("Certificates");
-
                     b.Navigation("Lectures");
-
-                    b.Navigation("Payments");
 
                     b.Navigation("StudentCourses");
                 });
@@ -1151,11 +876,7 @@ namespace SCMS_back_end.Migrations
 
             modelBuilder.Entity("SCMS_back_end.Models.Student", b =>
                 {
-                    b.Navigation("Certificates");
-
                     b.Navigation("LectureAttendances");
-
-                    b.Navigation("Payments");
 
                     b.Navigation("StudentAssignments");
 
@@ -1174,8 +895,6 @@ namespace SCMS_back_end.Migrations
 
             modelBuilder.Entity("SCMS_back_end.Models.User", b =>
                 {
-                    b.Navigation("Annoumcements");
-
                     b.Navigation("Student");
 
                     b.Navigation("Teacher");

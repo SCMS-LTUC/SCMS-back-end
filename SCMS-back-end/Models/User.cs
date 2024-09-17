@@ -15,6 +15,7 @@ namespace SCMS_back_end.Models
         public DateTime RefreshTokenExpireTime { get; set; }
         public Teacher? Teacher { get; set; } // Navigation property
         public Student? Student { get; set; } // Navigation property
+        public ICollection<Announcement> Annoumcements { get; set; } = new List<Announcement>();
     }
 
 }
