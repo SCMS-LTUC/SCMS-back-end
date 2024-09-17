@@ -32,26 +32,50 @@ namespace SCMS_back_end.Repositories.Services
         }
         public async Task<Course> CreateCourseWithoutTeacher(DtoCreateCourseWTRequest courseRequest)
         {
+            // Check if the classroom exists
+            var classroom = await _context.Classrooms.FindAsync(courseRequest.ClassroomId);
+            if (classroom == null)
+            {
+                throw new Exception("Classroom not found");
+            }
+
+            // Check if the course capacity is less than or equal to the classroom capacity
+            if (courseRequest.Capacity > classroom.Capacity)
+            {
+                throw new Exception("Course capacity exceeds classroom capacity");
+            }
+
+            // Check if the classroom is available
+            var overlappingCourses = await _context.Courses
+                .Include(c => c.Schedule)
+                .ThenInclude(s => s.ScheduleDays)
+                .Where(c => c.ClassroomId == courseRequest.ClassroomId &&
+                            c.Schedule.StartDate < courseRequest.EndDate &&
+                            c.Schedule.EndDate > courseRequest.StartDate &&
+                            c.Schedule.ScheduleDays.Any(sd => courseRequest.WeekDays.Contains(sd.WeekDayId)) &&
+                            c.Schedule.StartTime == courseRequest.StartTime &&
+                            c.Schedule.EndTime == courseRequest.EndTime)
+                .ToListAsync();
+
+            if (overlappingCourses.Any())
+            {
+                throw new Exception("Classroom is not available at the specified time");
+            }
+
+            // Create the schedule
             var schedule = new Schedule
             {
                 StartDate = courseRequest.StartDate,
                 EndDate = courseRequest.EndDate,
                 StartTime = courseRequest.StartTime,
                 EndTime = courseRequest.EndTime,
+                ScheduleDays = courseRequest.WeekDays.Select(id => new ScheduleDay { WeekDayId = id }).ToList()
             };
 
             await _context.Schedules.AddAsync(schedule);
             await _context.SaveChangesAsync();
 
-            var scheduleDays = courseRequest.WeekDays.Select(weekDayId => new ScheduleDay
-            {
-                WeekDayId = weekDayId,
-                ScheduleId = schedule.ScheduleId
-            }).ToList();
-
-            await _context.ScheduleDays.AddRangeAsync(scheduleDays);
-            await _context.SaveChangesAsync();
-
+            // Create the course
             var course = new Course
             {
                 SubjectId = courseRequest.SubjectId,
@@ -59,16 +83,16 @@ namespace SCMS_back_end.Repositories.Services
                 Capacity = courseRequest.Capacity,
                 Level = courseRequest.Level,
                 ScheduleId = schedule.ScheduleId,
-
-                //for test you should edit it
-                ClassroomId= 1
+                ClassroomId = courseRequest.ClassroomId
             };
 
             await _context.Courses.AddAsync(course);
             await _context.SaveChangesAsync();
 
-            LectureService lectureService = new LectureService(_context);
-            lectureService.AddLecturesAsync(course.CourseId);
+            // Add lectures
+            var lectureService = new LectureService(_context);
+            await lectureService.AddLecturesAsync(course.CourseId);
+
             return course;
         }
         public async Task DeleteCourse(int courseId)
@@ -112,12 +136,12 @@ namespace SCMS_back_end.Repositories.Services
         public async Task<DtoCourseResponse> GetCourseById(int courseId)
         {
             var course = await _context.Courses
-                .Include(c => c.Teacher)
-                .Include(c => c.Subject)
-                .Include(c => c.Schedule)
-                .ThenInclude(s => s.ScheduleDays)
-                .ThenInclude(sd => sd.WeekDay)
-                .FirstOrDefaultAsync(c => c.CourseId == courseId);
+        .Include(c => c.Teacher)
+        .Include(c => c.Subject)
+        .Include(c => c.Schedule)
+        .ThenInclude(s => s.ScheduleDays)
+        .Include(c => c.Classroom)
+        .FirstOrDefaultAsync(c => c.CourseId == courseId);
 
             if (course == null)
             {
@@ -139,7 +163,8 @@ namespace SCMS_back_end.Repositories.Services
                 Days = courseDays,
                 ClassName = course.ClassName,
                 Capacity = course.Capacity,
-                Level = course.Level
+                Level = course.Level,
+                ClassroomNumber = course.Classroom?.RoomNumber // Include classroom name
             };
 
             return courseResponse;
@@ -409,16 +434,6 @@ namespace SCMS_back_end.Repositories.Services
             //    course.SubjectId = courseRequest.SubjectId;
             //}
 
-            if (!string.IsNullOrEmpty(courseRequest.ClassName))
-            {
-                course.ClassName = courseRequest.ClassName;
-            }
-            if (courseRequest.Capacity != 0)
-            {
-                if (courseRequest.Capacity < course.StudentCourses.Count)
-                    throw new Exception("Capacity cannot be decreased below the number of registered students.");
-                course.Capacity = courseRequest.Capacity;
-            }
             //if (courseRequest.Level != 0)
             //{
             //    course.Level = courseRequest.Level;
