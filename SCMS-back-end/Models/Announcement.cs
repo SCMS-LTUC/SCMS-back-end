@@ -8,7 +8,7 @@ namespace SCMS_back_end.Models
         public string UserId { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
-        public DateTimeOffset CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
         public int AudienceId { get; set; }
         public User User { get; set; }
         public Audience Audience { get; set; }

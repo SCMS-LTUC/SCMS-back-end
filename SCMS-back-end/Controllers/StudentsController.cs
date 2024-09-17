@@ -41,7 +41,9 @@ namespace SCMS_back_end.Controllers
                     return NotFound("No students found.");
                 }
 
-                return Ok(students);
+                //return Ok(students);
+                return Ok(new { message = "Request successful", data = students, timestamp = DateTime.Now });
+
             }
             catch (Exception ex)
             {

@@ -7,7 +7,7 @@ namespace SCMS_back_end.Models
         public int PaymentId { get; set; }
         public int StudentId { get; set; }
         public int CourseId { get; set; }
-        public DateTimeOffset Date { get; set; }
+        public DateTime Date { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
