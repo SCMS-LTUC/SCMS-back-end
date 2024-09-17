@@ -45,9 +45,9 @@ namespace SCMS_back_end.Controllers
         //[Authorize(Roles ="Teacher","Student")]
         // GET: api/Assignment/5
         [HttpGet("{assignmentId}")]
-        public async Task<ActionResult<DtoAddAssignmentResponse>> GetAssignment(int id)
+        public async Task<ActionResult<DtoAddAssignmentResponse>> GetAssignment(int assignmentId)
         {
-            var assignmentInfo = await _context.GetAllAssignmentInfoByAssignmentID(id);
+            var assignmentInfo = await _context.GetAllAssignmentInfoByAssignmentID(assignmentId);
 
             if (assignmentInfo == null)
             {

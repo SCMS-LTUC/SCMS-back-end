@@ -17,7 +17,7 @@ namespace SCMS_back_end.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Teacher, Student")]
+    //[Authorize(Roles = "Teacher, Student")]
 
     public class CoursesController : ControllerBase
     {

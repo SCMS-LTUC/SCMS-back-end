@@ -118,7 +118,7 @@ namespace SCMS_back_end.Repositories.Services
 
             if (Assignment == null)
             {
-                throw new KeyNotFoundException($"Song with ID {AssignmentID} not found.");
+                throw new KeyNotFoundException($"Assignment with ID {AssignmentID} not found.");
             }
             var AssignmentDto = new DtoAddAssignmentResponse()
             {
