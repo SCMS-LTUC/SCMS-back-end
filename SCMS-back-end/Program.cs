@@ -53,6 +53,13 @@ namespace SCMS_back_end
             builder.Services.AddScoped<IAssignment , AssignmentService>();
             builder.Services.AddScoped<ITeacher, TeacherService>();
 
+            builder.Services.AddScoped<IQuizRepository, QuizService>();
+            builder.Services.AddScoped<IQuestionRepository, QuestionService>();
+            builder.Services.AddScoped<IAnswerOptionRepository, AnswerOptionService>();
+            builder.Services.AddScoped<IStudentQuizRepository, StudentQuizService>();
+
+
+
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
 

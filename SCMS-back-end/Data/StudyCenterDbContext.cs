@@ -27,9 +27,54 @@ namespace SCMS_back_end.Data
         public DbSet<WeekDay> WeekDays { get; set; }
         public DbSet<ScheduleDay> ScheduleDays { get; set; }
 
+        // For Quiz
+        public DbSet<Quiz> Quizzes { get; set; }
+        public DbSet<Question> Questions { get; set; }
+        public DbSet<AnswerOption> AnswerOptions { get; set; }
+        public DbSet<CourseQuiz> CourseQuizzes { get; set; }
+        public DbSet<StudentQuiz> StudentQuizzes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+
+            // Many-to-many relationship between Course and Quiz
+            modelBuilder.Entity<CourseQuiz>()
+                .HasKey(cq => new { cq.CourseId, cq.QuizId });
+
+            modelBuilder.Entity<CourseQuiz>()
+                .HasOne(cq => cq.Course)
+                .WithMany(c => c.CourseQuizzes)
+                .HasForeignKey(cq => cq.CourseId);
+
+            modelBuilder.Entity<CourseQuiz>()
+                .HasOne(cq => cq.Quiz)
+                .WithMany(q => q.CourseQuizzes)
+                .HasForeignKey(cq => cq.QuizId);
+
+            // One-to-many relationships
+            modelBuilder.Entity<Question>()
+                .HasOne(q => q.Quiz)
+                .WithMany(qz => qz.Questions)
+                .HasForeignKey(q => q.QuizId);
+
+            modelBuilder.Entity<AnswerOption>()
+                .HasOne(ao => ao.Question)
+                .WithMany(q => q.AnswerOptions)
+                .HasForeignKey(ao => ao.QuestionId);
+
+            // One-to-many between Student and StudentQuiz
+            modelBuilder.Entity<StudentQuiz>()
+                .HasOne(sq => sq.Student)
+                .WithMany(s => s.StudentQuizzes)
+                .HasForeignKey(sq => sq.StudentId);
+
+            modelBuilder.Entity<StudentQuiz>()
+                .HasOne(sq => sq.Quiz)
+                .WithMany(q => q.StudentQuizzes)
+                .HasForeignKey(sq => sq.QuizId);
+
 
             // Unique constraint on LectureAttendance (LectureId, StudentId)
             modelBuilder.Entity<LectureAttendance>()
