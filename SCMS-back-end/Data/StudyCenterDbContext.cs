@@ -65,14 +65,14 @@ namespace SCMS_back_end.Data
                 .HasForeignKey<Student>(s => s.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Department - Teacher relationship
+            // Departments - Teacher relationship
             modelBuilder.Entity<Teacher>()
                 .HasOne(t => t.Department)
                 .WithMany(d => d.Teachers)
                 .HasForeignKey(t => t.DepartmentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Department - Subject relationship
+            // Departments - Subject relationship
             modelBuilder.Entity<Subject>()
                 .HasOne(s => s.Department)
                 .WithMany(d => d.Subjects)
@@ -230,6 +230,16 @@ namespace SCMS_back_end.Data
            new IdentityRole { Id = "3", Name = "Student", NormalizedName = "STUDENT" }
             );
 
+            //modelBuilder.Entity<WeekDay>().HasData(
+            //    new WeekDay { WeekDayId = 1,   Name="Saturday" },
+            //    new WeekDay { WeekDayId = 2, Name = "Sunday" },
+            //    new WeekDay { WeekDayId = 3, Name = "Monday" },
+            //    new WeekDay { WeekDayId = 4, Name = "Tuesday" },
+            //    new WeekDay { WeekDayId = 5, Name = "Wednesday" },
+            //    new WeekDay { WeekDayId = 6, Name = "Thursday" },
+            //    new WeekDay { WeekDayId = 7, Name = "Friday" }
+
+            //    );
 
         }
 

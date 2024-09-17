@@ -10,7 +10,7 @@ namespace SCMS_back_end.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class SubjectController : ControllerBase
     {
         private readonly ISubject _subject;
@@ -58,15 +58,15 @@ namespace SCMS_back_end.Controllers
             return Ok(updatedSubjectDto);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSubject(int id)
-        {
-            var subject = await _subject.GetSubjectByIdAsync(id);
-            if (subject == null) return NotFound();
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteSubject(int id)
+        //{
+        //    var subject = await _subject.GetSubjectByIdAsync(id);
+        //    if (subject == null) return NotFound();
 
-            var result= await _subject.DeleteSubjectAsync(id);
-            if(!result) return Conflict(new { Message = "Subject is assigned to active courses" });
-            return NoContent();
-        }
+        //    var result= await _subject.DeleteSubjectAsync(id);
+        //    if(!result) return Conflict(new { Message = "Subject is assigned to active courses" });
+        //    return NoContent();
+        //}
     }
 }

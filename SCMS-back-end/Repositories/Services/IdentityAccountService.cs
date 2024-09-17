@@ -10,6 +10,9 @@ using SCMS_back_end.Repositories.Interfaces;
 using SCMS_back_end.Models;
 using SCMS_back_end.Data;
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.WebUtilities;
+using SCMS_back_end.Models.Dto;
+using System.Text;
 
 namespace SCMS_back_end.Repositories.Services
 {
@@ -19,17 +22,21 @@ namespace SCMS_back_end.Repositories.Services
         private SignInManager<User> _signInManager;
         private RoleManager<IdentityRole> _roleManager;
         private StudyCenterDbContext _context;
+        private readonly IEmail _emailService;
+        private readonly string? _appUrl;
 
         private readonly IConfiguration _configuration;
 
         public IdentityAccountService(UserManager<User> userManager, SignInManager<User> signInManager,
-            IConfiguration configuration, RoleManager<IdentityRole> roleManager, StudyCenterDbContext context)
+            IConfiguration configuration, RoleManager<IdentityRole> roleManager, StudyCenterDbContext context, IEmail emailService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _configuration = configuration;
             _roleManager = roleManager;
             _context = context;
+            _emailService = emailService;
+            _appUrl = _configuration["App:Url"];
         }
 
         public async Task<DtoUserResponse> Register(DtoUserRegisterRequest registerDto, ModelStateDictionary modelState)
@@ -144,6 +151,45 @@ namespace SCMS_back_end.Repositories.Services
             return await CreateDtoUserResponseAsync(user, false);
         }
 
+        public async Task<bool> ForgotPasswordAsync(ForgotPasswordReqDTO forgotPasswordDto)
+        {
+            var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
+            if (user == null)
+            {
+                return false;
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+            //var baseUrl = "http://localhost:5085/api/Account";
+            var resetLink = $"{_appUrl}/api/Account/reset-password?email={user.Email}&token={code}";
+            var subject = "Reset Password";
+            var emailBody = $@"
+            <p>To reset your password, please click the following link:</p>
+            <p><a href='{resetLink}'>Reset Password</a></p>";
+
+            await _emailService.SendEmailAsync(user.Email, subject, emailBody);
+
+            return true;
+        }
+
+        public async Task<bool> ResetPasswordAsync(ResetPasswordReqDTO resetPasswordDto)
+        {
+            var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
+            if (user == null)
+            {
+                return false;
+            }
+            var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(resetPasswordDto.Token));
+
+
+            var result = await _userManager.ResetPasswordAsync(user, decodedToken, resetPasswordDto.NewPassword);
+            return result.Succeeded;
+        }
+
+
+
         //Helper methods
         private bool IsValidRole(string role)
         {
@@ -234,9 +280,7 @@ namespace SCMS_back_end.Repositories.Services
                 throw new SecurityTokenException("Invalid Token");
             }
             return principle;
-        }
-
-     
+        }      
 
        
     }

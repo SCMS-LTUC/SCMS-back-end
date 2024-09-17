@@ -7,6 +7,7 @@ using SCMS_back_end.Repositories.Services;
 using System.Text.Json.Serialization;
 using SCMS_back_end.Repositories.Interfaces;
 using SCMS_back_end.Models;
+using SCMS_back_end.Services;
 
 namespace SCMS_back_end
 {
@@ -42,13 +43,21 @@ namespace SCMS_back_end
             builder.Services.AddDbContext<StudyCenterDbContext>(optionsX => optionsX.UseSqlServer(ConnectionStringVar));
 
             //Identity 
-            builder.Services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<StudyCenterDbContext>();
+            builder.Services.AddScoped<IEmail, EmailService>();
+            builder.Services.AddIdentity<User, IdentityRole>()
+                .AddEntityFrameworkStores<StudyCenterDbContext>()
+                .AddDefaultTokenProviders();
             builder.Services.AddScoped<IAccount, IdentityAccountService>();
             builder.Services.AddScoped<IDepartment, DepartmentService>();
+            builder.Services.AddScoped<ICourse, CourseService>();
+            builder.Services.AddScoped<IAssignment , AssignmentService>();
+            builder.Services.AddScoped<ITeacher, TeacherService>();
 
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
 
+            builder.Services.AddScoped<IStudent, StudentService>();
+            builder.Services.AddScoped<IStudentAssignments, StudentAssignmentsService>();
 
             //JWT authentication
             builder.Services.AddAuthentication(
