@@ -49,9 +49,16 @@ namespace SCMS_back_end
                 .AddDefaultTokenProviders();
             builder.Services.AddScoped<IAccount, IdentityAccountService>();
             builder.Services.AddScoped<IDepartment, DepartmentService>();
+            // Register custom services
+            builder.Services.AddScoped<ISubject, SubjectService>();
+
+            builder.Services.AddScoped<ILecture, LectureService>();
+
+            builder.Services.AddHostedService<WeeklyTaskService>();
             builder.Services.AddScoped<ICourse, CourseService>();
             builder.Services.AddScoped<IAssignment , AssignmentService>();
             builder.Services.AddScoped<ITeacher, TeacherService>();
+
 
             // Register repositories
             //builder.Services.AddScoped<IPlaylist, PlaylistService>();
@@ -72,6 +79,13 @@ namespace SCMS_back_end
                     options.TokenValidationParameters = JwtTokenService.ValidateToken(builder.Configuration);
                 }
                 );
+
+            builder.Services.AddAuthorization(options =>
+            {
+                // You can define policies if needed, or use the default policy
+                options.AddPolicy("DefaultPolicy", policy =>
+                    policy.RequireAuthenticatedUser());
+            });
 
             // Register custom services
             builder.Services.AddScoped<ISubject, SubjectService>();

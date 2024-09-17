@@ -53,6 +53,7 @@ namespace SCMS_back_end.Controllers
             return Ok(new { message = "Successfully logged out" });
         }
 
+        [AllowAnonymous]
         [HttpPost("Refresh")]
         public async Task<ActionResult<DtoUserResponse>> Refresh(TokenDto tokenDto)
         {

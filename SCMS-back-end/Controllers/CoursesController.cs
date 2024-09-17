@@ -11,11 +11,14 @@ using SCMS_back_end.Repositories.Interfaces;
 using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Models.Dto.Response;
 using SCMS_back_end.Repositories.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SCMS_back_end.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize(Roles = "Teacher, Student")]
+
     public class CoursesController : ControllerBase
     {
         private readonly ICourse _course;
