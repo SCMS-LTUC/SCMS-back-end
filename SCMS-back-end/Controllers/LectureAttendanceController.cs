@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request.LectureAttendance;
 using SCMS_back_end.Models.Dto.Response.LectureAttendance;
 using SCMS_back_end.Repositories.Interfaces;
@@ -11,6 +12,7 @@ namespace SCMS_back_end.Controllers
     public class LectureAttendanceController : ControllerBase
     {
         private readonly IlectureAttendance _attendance;
+
         public LectureAttendanceController(IlectureAttendance attendance)
         {
             _attendance = attendance;
@@ -22,8 +24,18 @@ namespace SCMS_back_end.Controllers
         [HttpPost("[action]")]
         public async Task<ActionResult<DtoAddLectureAttendanceResponse>> AddLectureAttendance(DtoAddLectureAttendanceRequest Attendance)
         {
-            var response = await _attendance.AddLectureAttendance(Attendance);
-            return Ok(response);
+            //var response = await _attendance.AddLectureAttendance(Attendance);
+            //return Ok(response);
+
+            try
+            {
+                var response = await _attendance.AddLectureAttendance(Attendance);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error. Please try again later.");
+            }
         }
 
 
@@ -31,8 +43,19 @@ namespace SCMS_back_end.Controllers
         [HttpGet("[action]/{CourseId}")]
         public async Task<List<DtoGetAbsenceRateAndStudentResponse>> GetStudentAndAbsenceRate(int CourseId)
         {
-            var response = await _attendance.GetStudentAndAbsenceRate(CourseId);
-            return response;
+            //var response = await _attendance.GetStudentAndAbsenceRate(CourseId);
+            //return response;
+
+            try
+            {
+                var response = await _attendance.GetStudentAndAbsenceRate(CourseId);
+                return response;
+            }
+
+            catch (Exception ex)
+            {
+                return new List<DtoGetAbsenceRateAndStudentResponse>();
+            }
         }
 
 
@@ -40,10 +63,20 @@ namespace SCMS_back_end.Controllers
         [HttpGet("[action]/{CourseId}/{StudentId}")]
         public async Task<List<DtoGetAbsenceDateResponse>> GetAbsenceDate(int CourseId, int StudentId)
         {
-            var response = await _attendance.GetAbsenceDate(CourseId, StudentId);
-            return response;
-        }
+            try
+            {
+                var response = await _attendance.GetAbsenceDate(CourseId, StudentId);
+                return response;
+            }
 
+            catch (Exception ex)
+            {
+
+
+                return new List<DtoGetAbsenceDateResponse>();
+            }
+          
+        }
 
         //[HttpPost("[action]")]
         //public async Task<ActionResult<DtoLectureAttendanceResponse>> GetStudentAndAbsenceRate(DtoAddLectureAttendanceRequest request)
@@ -66,8 +99,5 @@ namespace SCMS_back_end.Controllers
         //        return StatusCode(500, "An unexpected error occurred.");
         //    }
         //}
-
-
-
     }
 }
