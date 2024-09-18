@@ -16,7 +16,6 @@ namespace SCMS_back_end.Repositories.Interfaces
         public Task<DtoUserResponse> Register(DtoAdminRegisterRequest registerDto, ModelStateDictionary modelState);
         public Task<DtoUserResponse> Login(DtoUserLoginRequest loginDto);
         public Task Logout(ClaimsPrincipal userPrincipal);
-        public Task<string> GenerateToken(User userPrincipal);
         public Task<DtoUserResponse> RefreshToken(TokenDto tokenDto);
         Task<bool> ResetPasswordAsync(ResetPasswordReqDTO resetPasswordDto);
         Task<bool> ForgotPasswordAsync(ForgotPasswordReqDTO forgotPasswordDto);

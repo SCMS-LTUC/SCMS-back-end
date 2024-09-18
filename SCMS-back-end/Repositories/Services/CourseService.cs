@@ -57,7 +57,7 @@ namespace SCMS_back_end.Repositories.Services
                 SubjectId = courseRequest.SubjectId,
                 ClassName = courseRequest.ClassName,
                 Capacity = courseRequest.Capacity,
-                Level = courseRequest.Level,
+                //Level = courseRequest.Level,
                 ScheduleId = schedule.ScheduleId,
 
                 //for test you should edit it
@@ -139,7 +139,7 @@ namespace SCMS_back_end.Repositories.Services
                 Days = courseDays,
                 ClassName = course.ClassName,
                 Capacity = course.Capacity,
-                Level = course.Level
+                //Level = course.Level
             };
 
             return courseResponse;
@@ -172,7 +172,7 @@ namespace SCMS_back_end.Repositories.Services
                     Days = courseDays,
                     ClassName = course.ClassName,
                     Capacity = course.Capacity,
-                    Level = course.Level
+                    //Level = course.Level
                 };
 
                 courseResponse.Add(courseRes);
@@ -212,7 +212,7 @@ namespace SCMS_back_end.Repositories.Services
                     Days = courseDays,
                     ClassName = course.ClassName,
                     Capacity = course.Capacity,
-                    Level = course.Level
+                    //Level = course.Level
                 };
 
                 courseResponses.Add(courseRes);
@@ -269,7 +269,7 @@ namespace SCMS_back_end.Repositories.Services
                     Days = courseDays,
                     ClassName = course.ClassName,
                     Capacity = course.Capacity,
-                    Level = course.Level
+                    //Level = course.Level
                 };
 
                 currentCourseResponses.Add(courseRes);
@@ -310,7 +310,7 @@ namespace SCMS_back_end.Repositories.Services
                     Days = courseDays,
                     ClassName = course.ClassName,
                     Capacity = course.Capacity,
-                    Level = course.Level
+                    //Level = course.Level
                 };
 
                 currentCourseResponses.Add(courseRes);
@@ -344,7 +344,7 @@ namespace SCMS_back_end.Repositories.Services
                     TeacherName = course.Teacher?.FullName ?? "N/A",
                     SubjectName = course.Subject?.Name ?? "N/A",
                     CourseName = course.ClassName,
-                    Level = course.Level,
+                    //Level = course.Level,
                     Grade = course.StudentCourses.FirstOrDefault(sc => sc.StudentId == studentId)?.AverageGrades ?? 0,
                     Status = course.StudentCourses.FirstOrDefault(sc => sc.StudentId == studentId)?.Status ?? "N/A"
                 };

@@ -19,7 +19,7 @@ namespace SCMS_back_end.Models
         public string ClassName { get; set; } = string.Empty;
 
         public int Capacity { get; set; }
-        public int Level { get; set; }
+        //public int Level { get; set; }
         public int ClassroomId { get; set; }
         public Classroom Classroom { get; set; }
         public Teacher? Teacher { get; set; }// Navigation property

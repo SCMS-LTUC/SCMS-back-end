@@ -8,7 +8,7 @@ namespace SCMS_back_end.Models
         public int StudentId { get; set; }
         public string UserId { get; set; } = string.Empty;
 
-        public int Level { get; set; }
+        //public int Level { get; set; }
 
         [Required]
         [MaxLength(255)]

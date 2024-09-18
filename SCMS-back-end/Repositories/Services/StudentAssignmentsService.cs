@@ -54,7 +54,7 @@ namespace SCMS_back_end.Services
             if (existingRecord != null)
             {
                 existingRecord.Submission = dto.Submission;
-                existingRecord.SubmissionDate = dto.SubmissionDate ?? DateTime.Now;
+                existingRecord.SubmissionDate = DateTime.Now;
                 if (!string.IsNullOrEmpty(filePath))
                 {
                     existingRecord.FilePath = filePath; // Store file path
@@ -67,7 +67,7 @@ namespace SCMS_back_end.Services
                 {
                     AssignmentId = dto.AssignmentId,
                     StudentId = dto.StudentId,
-                    SubmissionDate = dto.SubmissionDate ?? DateTime.Now,
+                    SubmissionDate = DateTime.Now,
                     Submission = dto.Submission,
                     FilePath = filePath // Store file path
                 };
