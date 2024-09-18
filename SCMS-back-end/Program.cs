@@ -65,6 +65,8 @@ namespace SCMS_back_end
 
             builder.Services.AddScoped<IStudent, StudentService>();
             builder.Services.AddScoped<IStudentAssignments, StudentAssignmentsService>();
+            builder.Services.AddScoped<IPayment, PaymentService>();
+
 
             //JWT authentication
             builder.Services.AddAuthentication(
@@ -127,6 +129,7 @@ namespace SCMS_back_end
                             Array.Empty<string>()
                         }
                     });
+
 
 
                 });

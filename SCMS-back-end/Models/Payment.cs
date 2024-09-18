@@ -4,6 +4,8 @@ namespace SCMS_back_end.Models
 {
     public class Payment
     {
+        internal string CreatedByUserId;
+
         public int PaymentId { get; set; }
         public int StudentId { get; set; }
         public int CourseId { get; set; }

@@ -5,6 +5,7 @@ using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Models.Dto.Response;
 using SCMS_back_end.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace SCMS_back_end.Repositories.Services
 {
@@ -17,8 +18,14 @@ namespace SCMS_back_end.Repositories.Services
             _context = context;
         }
 
-        public async Task<DtoPaymentResponse> AddPaymentAsync(DtoPaymentRequest paymentDto)
+        public async Task<DtoPaymentResponse> AddPaymentAsync(DtoPaymentRequest paymentDto, ClaimsPrincipal user)
         {
+            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userIdClaim == null)
+            {
+                throw new InvalidOperationException("User ID not found in claims.");
+            }
             var payment = new Payment
             {
                 StudentId = paymentDto.StudentId,
@@ -27,7 +34,8 @@ namespace SCMS_back_end.Repositories.Services
                 Amount = paymentDto.Amount,
                 Method = paymentDto.Method,
                 Status = paymentDto.Status,
-                ReferenceNumber = paymentDto.ReferenceNumber
+                ReferenceNumber = paymentDto.ReferenceNumber,
+                CreatedByUserId = userIdClaim
             };
 
             _context.Payments.Add(payment);

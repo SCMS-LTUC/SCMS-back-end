@@ -39,7 +39,9 @@ namespace SCMS_back_end.Controllers
             {
                 return BadRequest("Payment data is required.");
             }
-            var createdPaymentDto = await _paymentService.AddPaymentAsync(paymentDto);
+
+            // تمرير ClaimsPrincipal
+            var createdPaymentDto = await _paymentService.AddPaymentAsync(paymentDto, User);
             return CreatedAtAction(nameof(GetPaymentById), new { id = createdPaymentDto.PaymentId }, createdPaymentDto);
         }
 
