@@ -120,11 +120,11 @@ namespace SCMS_back_end.Repositories.Services
                 throw new InvalidOperationException($"Course with ID {courseId} is at full capacity.");
             }
 
-            // Check if student level is appropriate
-            if (student.Level > course.Level || student.Level < course.Level)
-            {
-                throw new InvalidOperationException($"Student level ({student.Level}) is not equal the course level ({course.Level}).");
-            }
+            //// Check if student level is appropriate
+            //if (student.Level > course.Level || student.Level < course.Level)
+            //{
+            //    throw new InvalidOperationException($"Student level ({student.Level}) is not equal the course level ({course.Level}).");
+            //}
 
             var studentCourses = await _context.Courses
                 .Include(c => c.StudentCourses)
@@ -157,16 +157,12 @@ namespace SCMS_back_end.Repositories.Services
                 }
             }
 
-
-
-
-
             // Add new enrollment
             var newEnrollment = new StudentCourse
             {
                 StudentId = studentId,
                 CourseId = courseId,
-                EnrollmentDate = DateTime.UtcNow,
+                EnrollmentDate = DateTime.Now,
                 Status = "Enrolled"
             };
 
@@ -186,7 +182,6 @@ namespace SCMS_back_end.Repositories.Services
             var studentDtos = students.Select(s => new StudentDtoResponse
             {
                 StudentId = s.StudentId.ToString(),  // Convert int to string if needed
-                Level = s.Level,
                 FullName = s.FullName,
                 PhoneNumber = s.PhoneNumber
             }).ToList();
@@ -209,7 +204,6 @@ namespace SCMS_back_end.Repositories.Services
             return new StudentDtoResponse
             {
                 StudentId = student.StudentId.ToString(),  // Assuming StudentId is an int, convert to string if needed
-                Level = student.Level,
                 FullName = student.FullName,
                 PhoneNumber = student.PhoneNumber
             };
@@ -227,7 +221,6 @@ namespace SCMS_back_end.Repositories.Services
             var studentDtos = students.Select(s => new StudentDtoResponse
             {
                 StudentId = s.StudentId.ToString(),
-                Level = s.Level,
                 FullName = s.FullName,
                 PhoneNumber = s.PhoneNumber
             });
@@ -263,7 +256,7 @@ namespace SCMS_back_end.Repositories.Services
                 existingStudent.PhoneNumber = studentDto.PhoneNumber;
             }
 
-            // Update Level only if the new level is greater than the current level
+           /* // Update Level only if the new level is greater than the current level
             if (studentDto.Level != 0)
             {
                 if (studentDto.Level > existingStudent.Level)
@@ -274,8 +267,8 @@ namespace SCMS_back_end.Repositories.Services
                 {
                     throw new ArgumentException("New level must be higher than the current level.");
                 }
-            }
-          
+            }*/
+
 
             _context.Students.Update(existingStudent);
             await _context.SaveChangesAsync();

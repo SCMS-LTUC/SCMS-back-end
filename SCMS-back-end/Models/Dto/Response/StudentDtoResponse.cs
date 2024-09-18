@@ -5,7 +5,7 @@ namespace SCMS_back_end.Models.Dto.Response
     public class StudentDtoResponse
     {
         public string StudentId { get; set; }
-        public int Level { get; set; }
+        //public int Level { get; set; }
 
         [Required]
         [MaxLength(255)]

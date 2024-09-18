@@ -12,7 +12,7 @@ namespace SCMS_back_end.Models.Dto.Request
         public string Role { get; set; }
         public string FullName { get; set; }
         public string PhoneNumber { get; set; }
-        public int Level { get; set; }
+        //public int Level { get; set; }
         public int DepartmentId { get; set; }
         public int CourseLoad { get; set; }
     }

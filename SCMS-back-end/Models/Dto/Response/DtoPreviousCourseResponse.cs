@@ -6,7 +6,7 @@
         public string TeacherName { get; set; }
         public string SubjectName { get; set; }
         public double Grade { get; set; }
-        public int Level { get; set; }
+        //public int Level { get; set; }
         public string Status { get; set; }
     }
 }

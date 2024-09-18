@@ -155,11 +155,12 @@ namespace SCMS_back_end.Repositories.Services
 
         public async Task<List<DtoStudentAssignmentResponse>> GetStudentAssignmentsByCourseId(int courseId, ClaimsPrincipal userPrincipal)
         {
-
             // get all assignmentsWithStudentAssignment in s course 
             // get the student assignment record for each assignment 
-            var user = await _userManager.GetUserAsync(userPrincipal);
-            var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id);
+           // var user = await _userManager.GetUserAsync(userPrincipal);
+
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userIdClaim);
             if (student == null)
             {
                 throw new InvalidOperationException("Student not found.");

@@ -13,6 +13,7 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.WebUtilities;
 using SCMS_back_end.Models.Dto;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace SCMS_back_end.Repositories.Services
 {
@@ -97,7 +98,7 @@ namespace SCMS_back_end.Repositories.Services
         }
         public async Task<DtoUserResponse> Login(DtoUserLoginRequest loginDto)
         {
-            var user = await _userManager.FindByNameAsync(loginDto.Username);
+            var user = await _userManager.FindByNameAsync(loginDto.Username);           
             if (user != null)
             {
                 bool passValidation = await _userManager.CheckPasswordAsync(user, loginDto.Password);
@@ -107,28 +108,6 @@ namespace SCMS_back_end.Repositories.Services
                 }
             }
             return null;
-        }
-        public async Task<string> GenerateToken(User user)
-        {
-            var userPrincliple = await _signInManager.CreateUserPrincipalAsync(user);
-            if (userPrincliple == null)
-            {
-                return null;
-            }
-
-            var tokenExpiryInMinutes = _configuration.GetValue<int>("JWT:ExpiryInMinutes");
-            var tokenExpiry = TimeSpan.FromMinutes(tokenExpiryInMinutes);
-
-            var signInKey = JwtTokenService.GetSecurityKey(_configuration);
-
-            var token = new JwtSecurityToken
-                (
-                expires: DateTime.UtcNow.Add(tokenExpiry),
-                signingCredentials: new SigningCredentials(signInKey, SecurityAlgorithms.HmacSha256),
-                claims: userPrincliple.Claims
-                );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
         }
         public async Task Logout(ClaimsPrincipal userPrincipal)
         {
@@ -150,7 +129,6 @@ namespace SCMS_back_end.Repositories.Services
             }
             return await CreateDtoUserResponseAsync(user, false);
         }
-
         public async Task<bool> ForgotPasswordAsync(ForgotPasswordReqDTO forgotPasswordDto)
         {
             var user = await _userManager.FindByEmailAsync(forgotPasswordDto.Email);
@@ -173,7 +151,6 @@ namespace SCMS_back_end.Repositories.Services
 
             return true;
         }
-
         public async Task<bool> ResetPasswordAsync(ResetPasswordReqDTO resetPasswordDto)
         {
             var user = await _userManager.FindByEmailAsync(resetPasswordDto.Email);
@@ -191,6 +168,28 @@ namespace SCMS_back_end.Repositories.Services
 
 
         //Helper methods
+        private async Task<string> GenerateToken(User user)
+        {
+            var userPrincipal = await _signInManager.CreateUserPrincipalAsync(user);
+            if (userPrincipal == null)
+            {
+                return null;
+            }
+            
+            var tokenExpiryInMinutes = _configuration.GetValue<int>("JWT:ExpiryInMinutes");
+            var tokenExpiry = TimeSpan.FromMinutes(tokenExpiryInMinutes);
+
+            var signInKey = JwtTokenService.GetSecurityKey(_configuration);
+
+            var token = new JwtSecurityToken
+                (
+                expires: DateTime.UtcNow.Add(tokenExpiry),
+                signingCredentials: new SigningCredentials(signInKey, SecurityAlgorithms.HmacSha256),
+                claims: userPrincipal.Claims
+                );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
         private bool IsValidRole(string role)
         {
             return role == "Teacher" || role == "Student";
@@ -216,7 +215,7 @@ namespace SCMS_back_end.Repositories.Services
                     {
                         UserId = user.Id,
                         FullName = registerDto.FullName,
-                        Level = registerDto.Level,
+                        //Level = registerDto.Level,
                         PhoneNumber = registerDto.PhoneNumber,
                     };
                     user.Student = student;

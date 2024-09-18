@@ -22,7 +22,7 @@ namespace SCMS_back_end_Tests
                 StudentId = studentId.ToString(),  // Convert to string
                 FullName = "John Doe",
                 PhoneNumber = "123-456-7890",
-                Level = 3 // Assuming level is an int, set it as needed
+                //Level = 3 // Assuming level is an int, set it as needed
             };
 
             mockStudentService.Setup(s => s.GetStudentByIdAsync(studentId)).ReturnsAsync(expectedStudent);
@@ -38,7 +38,7 @@ namespace SCMS_back_end_Tests
             var returnValue = Assert.IsType<StudentDtoResponse>(actionResult.Value);
             Assert.Equal(expectedStudent.FullName, returnValue.FullName);
             Assert.Equal(expectedStudent.PhoneNumber, returnValue.PhoneNumber);
-            Assert.Equal(expectedStudent.Level, returnValue.Level);
+            //Assert.Equal(expectedStudent.Level, returnValue.Level);
         }
     }
 }
