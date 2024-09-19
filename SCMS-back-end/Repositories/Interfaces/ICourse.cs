@@ -1,6 +1,7 @@
 ﻿using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Models.Dto.Response;
+using System.Security.Claims;
 
 namespace SCMS_back_end.Repositories.Interfaces
 {
@@ -25,19 +26,19 @@ namespace SCMS_back_end.Repositories.Interfaces
         public Task DeleteCourse(int courseId);
 
         // Get previous courses of a student
-        public Task<List<DtoPreviousCourseResponse>> GetPreviousCoursesOfStudent(int studentId);
+        public Task<List<DtoPreviousCourseResponse>> GetPreviousCoursesOfStudent(ClaimsPrincipal userPrincipal);
 
         // Get courses of a student
-        public Task<List<DtoCourseResponse>> GetCoursesOfStudent(int studentId);
+        public Task<List<DtoCourseResponse>> GetCoursesOfStudent(ClaimsPrincipal userPrincipal);
 
         // Get current courses of a student
-        public Task<List<DtoCourseResponse>> GetCurrentCoursesOfStudent(int studentId);
+        public Task<List<DtoCourseResponse>> GetCurrentCoursesOfStudent(ClaimsPrincipal userPrincipal);
 
         // Get courses of a teacher
-        public Task<List<DtoCourseResponse>> GetCoursesOfTeacher(int teacherId);
+        public Task<List<DtoCourseResponse>> GetCoursesOfTeacher(ClaimsPrincipal userPrincipal);
 
         // Get current courses of a teacher
-        public Task<List<DtoCourseResponse>> GetCurrentCoursesOfTeacher(int teacherId);
+        public Task<List<DtoCourseResponse>> GetCurrentCoursesOfTeacher(ClaimsPrincipal userPrincipal);
 
         // Calculate the average of a grades of a course
         public Task CalculateAverageGrade(int courseId);

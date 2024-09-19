@@ -5,6 +5,7 @@ using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Models.Dto.Response;
 using SCMS_back_end.Repositories.Interfaces;
+using System.Security.Claims;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SCMS_back_end.Repositories.Services
@@ -179,9 +180,10 @@ namespace SCMS_back_end.Repositories.Services
             }
             return courseResponse;
         }
-        public async Task<List<DtoCourseResponse>> GetCoursesOfStudent(int studentId)
+        public async Task<List<DtoCourseResponse>> GetCoursesOfStudent(ClaimsPrincipal userPrincipal)
         {
-            var student = await _context.Students.FindAsync(studentId);
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userIdClaim);
             if (student == null)
             {
                 throw new Exception("Student not found");
@@ -191,7 +193,7 @@ namespace SCMS_back_end.Repositories.Services
                                                 .Include(c => c.Schedule)
                                                 .ThenInclude(s => s.ScheduleDays)
                                                 .ThenInclude(sd => sd.WeekDay)
-                                                .Where(c => c.StudentCourses.Any(s => s.StudentId == studentId))
+                                                .Where(c => c.StudentCourses.Any(s => s.StudentId == student.StudentId))
                                                 .ToListAsync();
 
             var courseResponses = new List<DtoCourseResponse>();
@@ -219,14 +221,15 @@ namespace SCMS_back_end.Repositories.Services
             }
             return courseResponses;
         }
-        public async Task<List<DtoCourseResponse>> GetCoursesOfTeacher(int teacherId)
+        public async Task<List<DtoCourseResponse>> GetCoursesOfTeacher(ClaimsPrincipal userPrincipal)
         {
-            var teacher = await _context.Teachers.FindAsync(teacherId);
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == userIdClaim);
             if (teacher == null)
             {
                 throw new Exception("Teacher not found");
             }
-            var courses = await _context.Courses.Where(c => c.TeacherId == teacherId).ToListAsync();
+            var courses = await _context.Courses.Where(c => c.TeacherId == teacher.TeacherId).ToListAsync();
             var courseResponse = new List<DtoCourseResponse>();
             foreach (var course in courses)
             {
@@ -236,9 +239,10 @@ namespace SCMS_back_end.Repositories.Services
             return courseResponse;
         }
 
-        public async Task<List<DtoCourseResponse>> GetCurrentCoursesOfStudent(int studentId)
+        public async Task<List<DtoCourseResponse>> GetCurrentCoursesOfStudent(ClaimsPrincipal userPrincipal)
         {
-            var student = await _context.Students.FindAsync(studentId);
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userIdClaim);
             if (student == null)
             {
                 throw new Exception("Student not found");
@@ -248,7 +252,7 @@ namespace SCMS_back_end.Repositories.Services
                                                        .Include(c => c.Schedule)
                                                        .ThenInclude(s => s.ScheduleDays)
                                                        .ThenInclude(sd => sd.WeekDay)
-                                                       .Where(c => c.StudentCourses.Any(s => s.StudentId == studentId) && c.Schedule.StartDate <= DateTime.Now && c.Schedule.EndDate >= DateTime.Now)
+                                                       .Where(c => c.StudentCourses.Any(s => s.StudentId == student.StudentId) && c.Schedule.StartDate <= DateTime.Now && c.Schedule.EndDate >= DateTime.Now)
                                                        .ToListAsync();
 
             var currentCourseResponses = new List<DtoCourseResponse>();
@@ -276,9 +280,10 @@ namespace SCMS_back_end.Repositories.Services
             }
             return currentCourseResponses;
         }
-        public async Task<List<DtoCourseResponse>> GetCurrentCoursesOfTeacher(int teacherId)
+        public async Task<List<DtoCourseResponse>> GetCurrentCoursesOfTeacher(ClaimsPrincipal userPrincipal)
         {
-            var teacher = await _context.Teachers.FindAsync(teacherId);
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == userIdClaim);
             if (teacher == null)
             {
                 throw new Exception("Teacher not found");
@@ -288,7 +293,7 @@ namespace SCMS_back_end.Repositories.Services
                                                        .Include(c => c.Schedule)
                                                        .ThenInclude(s => s.ScheduleDays)
                                                        .ThenInclude(sd => sd.WeekDay)
-                                                       .Where(c => c.TeacherId == teacherId && c.Schedule.StartDate <= DateTime.Now && c.Schedule.EndDate >= DateTime.Now)
+                                                       .Where(c => c.TeacherId == teacher.TeacherId && c.Schedule.StartDate <= DateTime.Now && c.Schedule.EndDate >= DateTime.Now)
                                                        .ToListAsync();
 
 
@@ -317,9 +322,10 @@ namespace SCMS_back_end.Repositories.Services
             }
             return currentCourseResponses;
         }
-        public async Task<List<DtoPreviousCourseResponse>> GetPreviousCoursesOfStudent(int studentId)
+        public async Task<List<DtoPreviousCourseResponse>> GetPreviousCoursesOfStudent(ClaimsPrincipal userPrincipal)
         {
-            var student = await _context.Students.FindAsync(studentId);
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userIdClaim);
             if (student == null)
             {
                 throw new Exception("Student not found");

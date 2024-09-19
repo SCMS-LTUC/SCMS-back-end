@@ -22,7 +22,7 @@ namespace SCMS_back_end.Controllers
         }
 
         // POST: api/Assignment
-        //[Authorize(Roles ="Teacher")]
+        [Authorize(Roles ="Teacher")]
         [HttpPost]
         public async Task<ActionResult<DtoAddAssignmentResponse>> PostAssignment(DtoAddAssignmentRequest Assignment)
         {
@@ -30,7 +30,8 @@ namespace SCMS_back_end.Controllers
             return Ok(response);
         }
 
-        //[Authorize(Roles ="Teacher")]
+        // GET: api/Assignment/courses/5/assignments
+        [Authorize(Roles ="Teacher, Student")]
         [HttpGet("courses/{courseId}/assignments")]
         public async Task<ActionResult> GetAssignmentsByCourseID(int courseId)
         {
@@ -42,8 +43,8 @@ namespace SCMS_back_end.Controllers
             return Ok(AllAssignments);
         }
 
-        //[Authorize(Roles ="Teacher","Student")]
         // GET: api/Assignment/5
+        [Authorize(Roles ="Teacher, Student")]
         [HttpGet("{assignmentId}")]
         public async Task<ActionResult<DtoAddAssignmentResponse>> GetAssignment(int assignmentId)
         {
@@ -58,7 +59,7 @@ namespace SCMS_back_end.Controllers
         }
 
         // PUT: api/Assignment/5
-        //[Authorize(Roles ="Teacher")]
+        [Authorize(Roles ="Teacher")]
         [HttpPut("{assignmentId}")]
         public async Task<ActionResult<DtoUpdateAssignmentResponse>> PutAssignment(int assignmentId, DtoUpdateAssignmentRequest Assignment)
         {
@@ -66,6 +67,8 @@ namespace SCMS_back_end.Controllers
             return Ok(Response);
         }
 
+        // DELETE: api/Assignment/5
+        [Authorize(Roles = "Teacher")]
         [HttpDelete("{assignmentId}")]
         public async Task<IActionResult> DeleteAssignment(int AssignmentID)
         {
@@ -73,7 +76,7 @@ namespace SCMS_back_end.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles ="Student")]
+        [Authorize(Roles ="Teacher, Student")]
         [HttpGet("courses/{courseId}/student/assignments")]
         public async Task<ActionResult<List<DtoStudentAssignmentResponse>>> GetStudentAssignmentsForCourse(int courseId)
         {
@@ -92,7 +95,7 @@ namespace SCMS_back_end.Controllers
 
         }
 
-        //[Authorize(Roles ="Teacher")]
+        [Authorize(Roles ="Teacher")]
         [HttpGet("{assignmentId}/submissions")]
         public async Task<ActionResult<List<DtoStudentSubmissionResponse>>> GetStudentsSubmissionForAssignment(int assignmentId)
         {
