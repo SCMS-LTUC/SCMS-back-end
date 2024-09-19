@@ -11,6 +11,6 @@
         public List<string> Days { get; set; } = new List<string>();
         public string ClassName { get; set; } = string.Empty;
         public int Capacity { get; set; }
-        //public int Level { get; set; }
+        public string ClassroomNumber { get; set; }
     }
 }
