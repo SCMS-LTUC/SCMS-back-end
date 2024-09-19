@@ -68,7 +68,7 @@ namespace SCMS_back_end.Repositories.Services
             await _context.SaveChangesAsync();
 
             LectureService lectureService = new LectureService(_context);
-            lectureService.AddLecturesAsync(course.CourseId);
+            await lectureService.AddLecturesAsync(course.CourseId);
             return course;
         }
         public async Task DeleteCourse(int courseId)

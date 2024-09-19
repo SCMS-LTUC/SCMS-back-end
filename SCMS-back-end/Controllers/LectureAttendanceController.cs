@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SCMS_back_end.Models;
 using SCMS_back_end.Models.Dto.Request.LectureAttendance;
@@ -11,18 +12,18 @@ namespace SCMS_back_end.Controllers
     [ApiController]
     public class LectureAttendanceController : ControllerBase
     {
-        private readonly IlectureAttendance _attendance;
+        private readonly ILectureAttendance _attendance;
 
-        public LectureAttendanceController(IlectureAttendance attendance)
+        public LectureAttendanceController(ILectureAttendance attendance)
         {
             _attendance = attendance;
         }
 
 
         // POST: api/LectureAttendance
-        //[Authorize(Roles ="Teacher")]
-        [HttpPost("[action]")]
-        public async Task<ActionResult<DtoAddLectureAttendanceResponse>> AddLectureAttendance(DtoAddLectureAttendanceRequest Attendance)
+        [Authorize(Roles ="Teacher")]
+        [HttpPost]
+        public async Task<ActionResult<LectureAttendance>> AddLectureAttendance(AddLectureAttendanceReqDto Attendance)
         {
             //var response = await _attendance.AddLectureAttendance(Attendance);
             //return Ok(response);
@@ -39,8 +40,8 @@ namespace SCMS_back_end.Controllers
         }
 
 
-        //[Authorize(Roles ="Student")]
-        [HttpGet("[action]/{CourseId}")]
+        [Authorize(Roles ="Teacher")]
+        [HttpGet("{CourseId}")]
         public async Task<List<DtoGetAbsenceRateAndStudentResponse>> GetStudentAndAbsenceRate(int CourseId)
         {
             //var response = await _attendance.GetStudentAndAbsenceRate(CourseId);
@@ -59,13 +60,13 @@ namespace SCMS_back_end.Controllers
         }
 
 
-        //[Authorize(Roles ="Student")]
-        [HttpGet("[action]/{CourseId}/{StudentId}")]
-        public async Task<List<DtoGetAbsenceDateResponse>> GetAbsenceDate(int CourseId, int StudentId)
+        [Authorize(Roles ="Student")]
+        [HttpGet("/Student/{CourseId}")]
+        public async Task<List<DtoGetAbsenceDateResponse>> GetAbsenceDate(int CourseId)
         {
             try
             {
-                var response = await _attendance.GetAbsenceDate(CourseId, StudentId);
+                var response = await _attendance.GetAbsenceDate(CourseId, User);
                 return response;
             }
 
@@ -77,27 +78,6 @@ namespace SCMS_back_end.Controllers
             }
           
         }
-
-        //[HttpPost("[action]")]
-        //public async Task<ActionResult<DtoLectureAttendanceResponse>> GetStudentAndAbsenceRate(DtoAddLectureAttendanceRequest request)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        // Return a BadRequest response with validation errors
-        //        return BadRequest(ModelState);
-        //    }
-
-        //    try
-        //    {
-        //        var response = await _attendance.GetStudentAndAbsenceRate(request);
-        //        return Ok(response);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        // Log the exception (consider using a logging framework)
-        //        // Return a generic error response
-        //        return StatusCode(500, "An unexpected error occurred.");
-        //    }
-        //}
+        
     }
 }

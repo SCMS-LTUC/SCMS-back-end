@@ -8,13 +8,13 @@ namespace SCMS_back_end.Repositories.Interfaces
 {
     public interface IAssignment
     {
-        Task<DtoLectureAttendanceResponse> AddAssignment(DtoAddAssignmentRequest Assignment);
+        Task<DtoAddAssignmentResponse> AddAssignment(DtoAddAssignmentRequest Assignment);
 
-        Task<List<DtoLectureAttendanceResponse>> GetAllAssignmentsByCourseID(int CourseID);
+        Task<List<DtoAddAssignmentResponse>> GetAllAssignmentsByCourseID(int CourseID);
 
         Task<DtoUpdateAssignmentResponse> UpdateAssignmentByID(int AssignmentID, DtoUpdateAssignmentRequest Assignment);
 
-        Task<DtoLectureAttendanceResponse> GetAllAssignmentInfoByAssignmentID(int AssignmentID);
+        Task<DtoAddAssignmentResponse> GetAllAssignmentInfoByAssignmentID(int AssignmentID);
 
         Task DeleteAssignment(int AssignmentID);
 
