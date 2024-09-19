@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.IdentityModel.Tokens;
 using NuGet.Common;
 using SCMS_back_end.Models;
@@ -10,6 +11,7 @@ using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Models.Dto.Response;
 using SCMS_back_end.Repositories.Interfaces;
 using System.Security.Policy;
+using System.Text;
 
 namespace SCMS_back_end.Controllers
 {
@@ -18,13 +20,26 @@ namespace SCMS_back_end.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccount _userService;
-        public AccountController(IAccount context)
+        private UserManager<User> _userManager;
+
+        public AccountController(IAccount context, UserManager<User> userManager)
         {
             _userService = context;
+            _userManager = userManager;
+        }
+        [HttpPost("Student/Register")] //Register
+        public async Task<ActionResult<DtoUserResponse>> RegisterStudent(DtoUserRegisterRequest registerDto)
+        {
+            var user = await _userService.Register(registerDto, this.ModelState);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (user == null) return Unauthorized();
+
+            return Ok($"{user.Username} registered successfully.");
         }
 
-        [HttpPost("Register")] //Register
-        public async Task<ActionResult<DtoUserResponse>> Register(DtoUserRegisterRequest registerDto)
+        [Authorize(Roles ="Admin")]
+        [HttpPost("Teacher/Register")] //Register
+        public async Task<ActionResult<DtoUserResponse>> RegisterTeacher(DtoUserRegisterRequest registerDto)
         {         
              var user = await _userService.Register(registerDto, this.ModelState);
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -39,8 +54,11 @@ namespace SCMS_back_end.Controllers
             var user = await _userService.Login(loginDto);
             if (user == null) return Unauthorized("Invalid username or password.");
 
+            if (user.Message=="Email not confirmed")
+                return Unauthorized("Email not confirmed. Please check your email for the confirmation link.");
+            
             if (user.Roles != null && user.Roles.Contains("Admin"))
-                return Unauthorized("Admin users are not allowed to log in here.");
+                return Unauthorized();
 
             return Ok(user);
         }
@@ -115,6 +133,22 @@ namespace SCMS_back_end.Controllers
             {
                 res,
             });
+        }
+
+        [HttpGet("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail(string email, string code)
+        {
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code))
+            {
+                return BadRequest("Data are empty or null");
+            }
+
+            var result = await _userService.ConfirmEmailAsync(email, code);
+            // Log detailed result information
+            if (result)
+                return Ok("Email confirmed successfully. You can now log in.");
+
+            return BadRequest("Error confirming email.");
         }
     }
 }

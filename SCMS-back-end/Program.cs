@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using SCMS_back_end.Repositories.Interfaces;
 using SCMS_back_end.Models;
 using SCMS_back_end.Services;
+using Microsoft.Extensions.Options;
 
 namespace SCMS_back_end
 {
@@ -31,7 +32,7 @@ namespace SCMS_back_end
             {
                 options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
-                    Title = "SCMS API",
+                    Title = "EduSphere API",
                     Version = "v1",
                     Description = "API for managing students, courses and teachers in the study center"
                 });
@@ -44,7 +45,11 @@ namespace SCMS_back_end
 
             //Identity 
             builder.Services.AddScoped<IEmail, EmailService>();
-            builder.Services.AddIdentity<User, IdentityRole>()
+            builder.Services.AddIdentity<User, IdentityRole>(
+                    options =>
+                    {
+                        options.User.RequireUniqueEmail = true; 
+                    })  
                 .AddEntityFrameworkStores<StudyCenterDbContext>()
                 .AddDefaultTokenProviders();
             builder.Services.AddScoped<IAccount, IdentityAccountService>();
@@ -96,11 +101,11 @@ namespace SCMS_back_end
 
                 option =>
                 {
-                    option.SwaggerDoc("employeesApi", new Microsoft.OpenApi.Models.OpenApiInfo()
+                    option.SwaggerDoc("EduSphereApi", new Microsoft.OpenApi.Models.OpenApiInfo()
                     {
-                        Title = "Employees Api Doc",
+                        Title = "EduSphere Api Doc",
                         Version = "v1",
-                        Description = "Api for managing all emolyees"
+                        Description = "Api for managing all academic operations"
                     });
 
                     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -146,7 +151,7 @@ namespace SCMS_back_end
 
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/api/v1/swagger.json", "SCMS API v1");
+                options.SwaggerEndpoint("/api/v1/swagger.json", "EduSphere API v1");
                 options.RoutePrefix = "";
             });
 

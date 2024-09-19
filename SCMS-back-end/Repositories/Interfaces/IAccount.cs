@@ -19,6 +19,6 @@ namespace SCMS_back_end.Repositories.Interfaces
         public Task<DtoUserResponse> RefreshToken(TokenDto tokenDto);
         Task<bool> ResetPasswordAsync(ResetPasswordReqDTO resetPasswordDto);
         Task<bool> ForgotPasswordAsync(ForgotPasswordReqDTO forgotPasswordDto);
-
+        public Task<bool> ConfirmEmailAsync(string email, string code);
     }
 }

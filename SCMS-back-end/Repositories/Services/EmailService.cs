@@ -21,7 +21,7 @@ namespace SCMS_back_end.Repositories.Services
         public async Task SendEmailAsync(string toEmail, string subject, string emailDescription)
         {
             var client = new SendGridClient(_apiKey);
-            var from = new EmailAddress(_fromEmail, "AcademiaHub");
+            var from = new EmailAddress(_fromEmail, "EduSphere");
             var to = new EmailAddress(toEmail);
 
             // Create the email body with the confirmation link
