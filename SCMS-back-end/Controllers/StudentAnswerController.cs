@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore; // Import this to use EF Core methods
 using SCMS_back_end.Data;
 using SCMS_back_end.Models;
+using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Repositories.Interfaces;
 using SCMS_back_end.Repositories.Services;
 
@@ -88,8 +89,10 @@ namespace SCMS_back_end.Controllers
             return CreatedAtAction(nameof(GetStudentAnswer), new { id = studentAnswer.Id }, studentAnswer);
         }
 
+
+
         [HttpPut]
-        public async Task<IActionResult> UpdateStudentAnswer([FromBody] StudentAnswer studentAnswer)
+        public async Task<IActionResult> UpdateStudentAnswer([FromBody] UpdateStudentAnswerRequestDto studentAnswerDto)
         {
             // Ensure the body contains valid data
             if (!ModelState.IsValid)
@@ -98,31 +101,23 @@ namespace SCMS_back_end.Controllers
                 return BadRequest(new { Errors = errors });
             }
 
-            // Ensure the entity exists before updating
-            if (studentAnswer.Id == 0)
+            try
             {
-                return BadRequest("StudentAnswer ID is required.");
-            }
+                // Call the service method to update the student answer
+                await _studentAnswerRepository.UpdateAsync(studentAnswerDto);
+                await _studentAnswerRepository.SaveAsync();
 
-            var existingStudentAnswer = await _studentAnswerRepository.GetByIdAsync(studentAnswer.Id);
-            if (existingStudentAnswer == null)
+                // Return success response
+                return Ok(new { Message = "StudentAnswer updated successfully." });
+            }
+            catch (KeyNotFoundException ex)
             {
-                return NotFound();
+                return NotFound(new { Message = ex.Message });
             }
-
-            // Update the existing entity
-            existingStudentAnswer.QuizId = studentAnswer.QuizId;
-            existingStudentAnswer.QuestionId = studentAnswer.QuestionId;
-            existingStudentAnswer.SelectedAnswerOptionId = studentAnswer.SelectedAnswerOptionId;
-            existingStudentAnswer.StudentId = studentAnswer.StudentId;
-            existingStudentAnswer.SubmittedAt = studentAnswer.SubmittedAt;
-
-            // Save changes
-            await _studentAnswerRepository.UpdateAsync(existingStudentAnswer);
-            await _studentAnswerRepository.SaveAsync();
-
-            // Return success response
-            return Ok(new { Message = "StudentAnswer updated successfully." });
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while updating the student answer.", Details = ex.Message });
+            }
         }
 
 

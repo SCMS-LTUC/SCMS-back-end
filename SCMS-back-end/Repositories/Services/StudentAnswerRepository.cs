@@ -4,6 +4,7 @@ using SCMS_back_end.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using SCMS_back_end.Models.Dto.Request;
 
 namespace SCMS_back_end.Repositories.Services
 {
@@ -40,7 +41,7 @@ namespace SCMS_back_end.Repositories.Services
             await _context.StudentAnswers.AddAsync(studentAnswer);
         }
 
-        public async Task UpdateAsync(StudentAnswer studentAnswer)
+        public async Task UpdateAsync(UpdateStudentAnswerRequestDto studentAnswer)
         {
             var existingStudentAnswer = await _context.StudentAnswers.FindAsync(studentAnswer.Id);
             if (existingStudentAnswer != null)

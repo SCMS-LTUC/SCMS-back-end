@@ -5,8 +5,8 @@
 
     public class StudentAnswer
     {
-        //[JsonIgnore]
-        public int Id { get; set; }
+        [JsonIgnore]
+        public int? Id { get; set; }
         public int QuizId { get; set; } // FK to Quiz
         public int QuestionId { get; set; } // FK to Question
         public int SelectedAnswerOptionId { get; set; } // FK to AnswerOption (The selected answer)
