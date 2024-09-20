@@ -3,11 +3,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SCMS_back_end.Data;
 using SCMS_back_end.Models;
+using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Models.Dto.Request.Announcement;
+using SCMS_back_end.Models.Dto.Response;
 using SCMS_back_end.Models.Dto.Response.Announcement;
 using SCMS_back_end.Models.Dto.Response.Assignment;
 using SCMS_back_end.Repositories.Interfaces;
 using SendGrid.Helpers.Mail;
+using System.Security.Claims;
 
 namespace SCMS_back_end.Repositories.Services
 {
@@ -20,123 +23,117 @@ namespace SCMS_back_end.Repositories.Services
             _context = context;
         }
 
-        public async Task<List<DtoGetAnnouncementRes>> GetAllStudentAnnouncement(int AudinceID)
+        public async Task<List<DtoGetAnnouncementRes>> GetAllStudentAnnouncement()
         {
             var announcements = await _context.Announcements
-               .Where(a => a.AudienceId == AudinceID)
+               .Include(a => a.Audience)
+               .Where(a => a.Audience.Name == "Students")
                .Select(a => new DtoGetAnnouncementRes
                {
+                   AnnouncementId = a.AnnouncementId,
                    Title = a.Title,
                    Content = a.Content,
                    CreatedAt = a.CreatedAt,
-                   UserId = a.UserId
                })
                .ToListAsync();
-
-
-            if (!announcements.Any())
-            {
-                throw new ArgumentException("Invalid Teacher Announcements with Audince ID", nameof(AudinceID));
-            }
 
             return announcements;
         }
 
-        public async Task<List<DtoGetAnnouncementRes>> GetAllTeacherAnnouncement(int AudinceID)
+        public async Task<List<DtoGetAnnouncementRes>> GetAllTeacherAnnouncement()
         {
             
             var announcements = await _context.Announcements
-                .Where(a => a.AudienceId == AudinceID)  
+                .Include (a => a.Audience)
+                .Where(a => a.Audience.Name == "Teachers")  
                 .Select(a => new DtoGetAnnouncementRes
                 {
+                    AnnouncementId = a.AnnouncementId,
                     Title = a.Title,
                     Content = a.Content,
                     CreatedAt = a.CreatedAt,
-                    UserId = a.UserId
                 })
                 .ToListAsync();
-
-           
-            if (!announcements.Any())
-            {
-                throw new ArgumentException("Invalid Teacher Announcements with Audince ID", nameof(AudinceID));
-            }
 
             return announcements;
         }
 
         public async Task<DtoGetAnnouncementRes> GetAnnouncementByCourseID(int courseId)
         {
-            var Announcement = _context.CourseAnnouncements
+            var Announcement = await _context.CourseAnnouncements
                  .Where(x => x.CourseId == courseId)
                  .Include(x => x.Announcement)
                  .Select(a => new DtoGetAnnouncementRes
                  {
+                     AnnouncementId= a.AnnouncementId,
                      Title = a.Announcement.Title,
                      Content = a.Announcement.Content,
                      CreatedAt = a.Announcement.CreatedAt,
                      UserId = a.Announcement.UserId
-                 }).FirstOrDefault();
-            
-            if (Announcement == null)
-            {
-                throw new ArgumentException("No announcements found for the given Course ID", nameof(courseId));
-            }
-
+                 }).FirstOrDefaultAsync();
+        
             return Announcement;
         }
 
-        public async Task<DtoPostAnnouncementByAdmin> PostAnnouncementByAdmin(DtoPostAnnouncementByAdmin Announcement)
+        public async Task<object> PostAnnouncementByAdmin(DtoPostAnnouncementByAdmin Announcement, ClaimsPrincipal userPrincipal)
         {
-
-            var NewAnnouncement = new Announcement()
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var audience = await _context.Audiences.FirstOrDefaultAsync(a => a.Name == Announcement.Audience);
+            if (audience == null)
             {
-               
-                UserId = Announcement.UserId,
+                throw new ArgumentException("Audience can be either Teachers or Students");
+            }
+            var NewAnnouncement = new Announcement()
+            {               
+                UserId = userIdClaim,
                 Title = Announcement.Title,
                 Content = Announcement.Content,
-                CreatedAt = Announcement.CreatedAt,
-                AudienceId = Announcement.AudienceId,
-
+                CreatedAt = DateTime.Now,
+                AudienceId = audience.AudienceId
             };
 
             _context.Announcements.Add(NewAnnouncement);
             await _context.SaveChangesAsync();
 
-            var Response = new DtoPostAnnouncementByAdmin()
+            return new
             {
-                UserId = Announcement.UserId,
-                Title = Announcement.Title,
-                Content = Announcement.Content,
-                CreatedAt = Announcement.CreatedAt,
-                AudienceId = Announcement.AudienceId,
+                Title= NewAnnouncement.Title,
+                Content= NewAnnouncement.Content,
+                CreatedAt= NewAnnouncement.CreatedAt,
+                Audience= NewAnnouncement.Audience.Name
             };
-
-            return Response;
         }
 
-
-        public async Task<DtoPostAnnouncementByTeacher> PostAnnouncementByTeacher(DtoPostAnnouncementByTeacher Announcement, int CourseId)
+        public async Task<object> PostAnnouncementByTeacher(DtoPostAnnouncementByTeacher Announcement, int courseId, ClaimsPrincipal userPrincipal)
         {
-           
-            var courseExists = await _context.Courses.AnyAsync(c => c.CourseId == CourseId);
-          
-            if (!courseExists)
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var teacher = await _context.Teachers
+                .Include(t => t.Courses)
+                .FirstOrDefaultAsync(s => s.UserId == userIdClaim);
+            if (teacher == null)
             {
-                throw new ArgumentException("Invalid Course ID", nameof(CourseId));
-               
+                throw new InvalidOperationException("Teacher not found.");
             }
+            var course = teacher.Courses.FirstOrDefault(t => t.CourseId == courseId);          
+            if (course == null)
+            {
+                throw new ArgumentException("Invalid Course ID", nameof(courseId));               
+            }
+            var audience = await _context.Audiences.FirstOrDefaultAsync(a => a.Name == "Course");
+            //if (audience == null)
+            //{
+            //    throw new ArgumentException("Audience can be either Teachers or Students");
+            //}
 
-           
+
             var newAnnouncement = new Announcement
             {
                 Title = Announcement.Title,
                 Content =Announcement.Content,
                 CreatedAt = DateTime.Now,
-                UserId = Announcement.UserId,  
-                AudienceId = Announcement.AudienceId
+                UserId = teacher.UserId,  
+                AudienceId = audience.AudienceId
             };
-
             
             _context.Announcements.Add(newAnnouncement);
             await _context.SaveChangesAsync();
@@ -144,7 +141,7 @@ namespace SCMS_back_end.Repositories.Services
             
             var newCourseAnnouncement = new CourseAnnouncement
             {
-                CourseId = Announcement.CourseId,
+                CourseId = course.CourseId,
                 AnnouncementId = newAnnouncement.AnnouncementId
             };
 
@@ -152,7 +149,47 @@ namespace SCMS_back_end.Repositories.Services
             _context.CourseAnnouncements.Add(newCourseAnnouncement);
             await _context.SaveChangesAsync();
 
-            return Announcement;
+            return new
+            {
+                Title= newAnnouncement.Title,
+                Content=newAnnouncement.Content,
+                CreatedAt= newAnnouncement.CreatedAt,
+                TeacherId= teacher.TeacherId,
+                CourseId= course.CourseId
+            };
         }
+
+
+        public async Task<object> UpdateAnnouncementAsync(int id, DtoPostAnnouncementByAdmin Announcement, ClaimsPrincipal userPrincipal)
+        {
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var announcement = await _context.Announcements.FindAsync(id);
+            if (announcement != null && announcement.UserId==userIdClaim)
+            {
+                announcement.Title = Announcement.Title;
+                announcement.Content = Announcement.Content;
+                await _context.SaveChangesAsync();
+
+                return new 
+                {
+                    Title= announcement.Title,
+                    Content= announcement.Content
+                };
+            }
+            return null;
+        }
+        public async Task<bool> DeleteAnnouncementAsync(int id, ClaimsPrincipal userPrincipal)
+        {
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var announcement = await _context.Announcements.FindAsync(id);
+            if (announcement != null && announcement.UserId == userIdClaim)
+            {
+                _context.Announcements.Remove(announcement);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
     }
 }

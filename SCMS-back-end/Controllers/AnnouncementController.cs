@@ -20,33 +20,46 @@ namespace SCMS_back_end.Controllers
             _Announcement = context;
         }
         // POST: api/Announcement
-        //[Authorize(Roles ="Admin")]
+        [Authorize(Roles ="Admin")]
         [HttpPost]
-        public async Task<ActionResult<DtoPostAnnouncementByAdmin>> PostAnnouncementByAdmin(DtoPostAnnouncementByAdmin Announcement)
+        public async Task<IActionResult> PostAnnouncementByAdmin(DtoPostAnnouncementByAdmin Announcement)
         {
-            var response = await _Announcement.PostAnnouncementByAdmin(Announcement);
-            // return Ok(response);
-            return Announcement;
+            try
+            {
+                var response = await _Announcement.PostAnnouncementByAdmin(Announcement, User);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }
 
         // POST: api/Announcement
-        //[Authorize(Roles ="Teacher")]
-        [HttpPost("[Action]/{CourseID}")]
-        public async Task<ActionResult<DtoPostAnnouncementByTeacher>> PostAnnouncementByTeacher(DtoPostAnnouncementByTeacher Announcement, int CourseID)
-        {
-            var response = await _Announcement.PostAnnouncementByTeacher(Announcement, CourseID);
-            // return Ok(response);
-            return Announcement;
-        }
-
-
-        //[Authorize(Roles = "Teacher")]
-        [HttpGet("[Action]/{AudinceID}")]
-        public async Task<ActionResult<List<DtoGetAnnouncementRes>>> GetAllTeacherAnnouncement(int AudinceID)
+        [Authorize(Roles ="Teacher")]
+        [HttpPost("Course/{courseId}")]
+        public async Task<IActionResult> PostAnnouncementByTeacher(DtoPostAnnouncementByTeacher Announcement, int courseId)
         {
             try
             {
-                var AllAnnouncement = await _Announcement.GetAllTeacherAnnouncement(AudinceID);
+                var response = await _Announcement.PostAnnouncementByTeacher(Announcement, courseId, User);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
+        }
+
+        [Authorize(Roles = "Teacher, Admin")]
+        [HttpGet("Teachers")]
+        public async Task<ActionResult<List<DtoGetAnnouncementRes>>> GetTeachersAnnouncement()
+        {
+            try
+            {
+                var AllAnnouncement = await _Announcement.GetAllTeacherAnnouncement();
                 if (AllAnnouncement == null)
                     return NotFound("No Announcement found .");
 
@@ -60,15 +73,13 @@ namespace SCMS_back_end.Controllers
 
         }
 
-
-
-        //[Authorize(Roles = "Studnet")]
-        [HttpGet("[Action]/{AudinceID}")]
-        public async Task<ActionResult<List<DtoGetAnnouncementRes>>> GetAllStudentAnnouncement(int AudinceID)
+        [Authorize(Roles = "Student, Admin")]
+        [HttpGet("Students")]
+        public async Task<ActionResult<List<DtoGetAnnouncementRes>>> GetStudentsAnnouncement()
         {
             try
             {
-                var AllAnnouncement = await _Announcement.GetAllStudentAnnouncement(AudinceID);
+                var AllAnnouncement = await _Announcement.GetAllStudentAnnouncement();
                 if (AllAnnouncement == null)
                     return NotFound("No Announcement found .");
 
@@ -82,20 +93,41 @@ namespace SCMS_back_end.Controllers
 
         }
 
-       
+        [Authorize(Roles = "Student, Teacher")]
         // GET: api/Announcement/id
-        [HttpGet("{CourseID}")]
-        public async Task<ActionResult<DtoGetAnnouncementRes>> GetCourse(int CourseID)
+        [HttpGet("Course/{courseId}")]
+        public async Task<ActionResult<DtoGetAnnouncementRes>> GetCourseAnnouncement(int courseId)
         {
-            var course = await _Announcement.GetAnnouncementByCourseID(CourseID);
+            var announcement = await _Announcement.GetAnnouncementByCourseID(courseId);
 
-            if (course == null)
+            if (announcement == null)
             {
                 return NotFound();
             }
 
-            return Ok(course);
+            return Ok(announcement);
         }
 
+        [Authorize(Roles ="Admin, Teacher")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAnnouncement(int id)
+        {
+            var result= await _Announcement.DeleteAnnouncementAsync(id, User);
+            if (!result) return NotFound();
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Admin, Teacher")]
+        [HttpPut("{id}")]
+        public async Task<ActionResult<DtoSubjectResponse>> UpdateAnnouncement(int id, DtoPostAnnouncementByAdmin announcementDto)
+        {
+            if (announcementDto == null)
+            {
+                return BadRequest("Announcement data is required.");
+            }
+            var result = await _Announcement.UpdateAnnouncementAsync(id, announcementDto, User);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
     }
 }
