@@ -17,4 +17,5 @@ namespace SCMS_back_end.Services
         Task<StudentAssignmentDtoResponse> GetStudentAssignmentByIdAsync(int studentAssignmentId);
         Task<StudentAssignmentDtoResponse> GetStudentAssignmentByAssignmentAndStudentAsync(int assignmentId, int studentId);
     }
+
 }

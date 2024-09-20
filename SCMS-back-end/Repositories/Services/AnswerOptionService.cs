@@ -36,9 +36,20 @@ namespace SCMS_back_end.Services
 
         public async Task UpdateAnswerOptionAsync(AnswerOption answerOption)
         {
-            _context.AnswerOptions.Update(answerOption);
+            var existingAnswerOption = await _context.AnswerOptions.FindAsync(answerOption.AnswerOptionId);
+            if (existingAnswerOption == null)
+            {
+                throw new Exception($"Answer option with ID {answerOption.AnswerOptionId} not found.");
+            }
+
+            // Update only the fields we care about
+            existingAnswerOption.Text = answerOption.Text;
+            existingAnswerOption.IsCorrect = answerOption.IsCorrect;
+            existingAnswerOption.QuestionId = answerOption.QuestionId;
+
             await _context.SaveChangesAsync();
         }
+
 
         public async Task DeleteAnswerOptionAsync(int answerOptionId)
         {

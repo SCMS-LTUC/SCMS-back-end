@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace SCMS_back_end.Models
 {
@@ -18,7 +19,8 @@ namespace SCMS_back_end.Models
         public DateTime? SubmittedAt { get; set; }
 
         // Navigation properties
-        public Student Student { get; set; }
-        public Quiz Quiz { get; set; }
+        [JsonIgnore]
+        public Student? Student { get; set; }
+        public Quiz? Quiz { get; set; }
     }
 }

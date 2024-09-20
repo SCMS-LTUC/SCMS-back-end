@@ -273,21 +273,6 @@ namespace SCMS_back_end.Migrations
                     b.ToTable("Courses");
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.CourseQuiz", b =>
-                {
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuizId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CourseId", "QuizId");
-
-                    b.HasIndex("QuizId");
-
-                    b.ToTable("CourseQuizzes");
-                });
-
             modelBuilder.Entity("SCMS_back_end.Models.Department", b =>
                 {
                     b.Property<int>("DepartmentId")
@@ -387,6 +372,9 @@ namespace SCMS_back_end.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuizId"));
 
+                    b.Property<int?>("CourseId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
@@ -400,7 +388,41 @@ namespace SCMS_back_end.Migrations
 
                     b.HasKey("QuizId");
 
+                    b.HasIndex("CourseId");
+
                     b.ToTable("Quizzes");
+                });
+
+            modelBuilder.Entity("SCMS_back_end.Models.QuizResult", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("QuizId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TotalQuestions")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuizId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("QuizResults");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Schedule", b =>
@@ -482,6 +504,42 @@ namespace SCMS_back_end.Migrations
                         .IsUnique();
 
                     b.ToTable("Students");
+                });
+
+            modelBuilder.Entity("SCMS_back_end.Models.StudentAnswer", b =>
+                {
+                    b.Property<int?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuizId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SelectedAnswerOptionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("QuizId");
+
+                    b.HasIndex("SelectedAnswerOptionId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("StudentAnswers");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.StudentAssignment", b =>
@@ -582,7 +640,7 @@ namespace SCMS_back_end.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("StudentQuizzes");
+                    b.ToTable("StudentQuiz");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Subject", b =>
@@ -833,25 +891,6 @@ namespace SCMS_back_end.Migrations
                     b.Navigation("Teacher");
                 });
 
-            modelBuilder.Entity("SCMS_back_end.Models.CourseQuiz", b =>
-                {
-                    b.HasOne("SCMS_back_end.Models.Course", "Course")
-                        .WithMany("CourseQuizzes")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SCMS_back_end.Models.Quiz", "Quiz")
-                        .WithMany("CourseQuizzes")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Quiz");
-                });
-
             modelBuilder.Entity("SCMS_back_end.Models.Lecture", b =>
                 {
                     b.HasOne("SCMS_back_end.Models.Course", "Course")
@@ -893,6 +932,35 @@ namespace SCMS_back_end.Migrations
                     b.Navigation("Quiz");
                 });
 
+            modelBuilder.Entity("SCMS_back_end.Models.Quiz", b =>
+                {
+                    b.HasOne("SCMS_back_end.Models.Course", "Course")
+                        .WithMany("Quizzes")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("SCMS_back_end.Models.QuizResult", b =>
+                {
+                    b.HasOne("SCMS_back_end.Models.Quiz", "Quiz")
+                        .WithMany()
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SCMS_back_end.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Quiz");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("SCMS_back_end.Models.ScheduleDay", b =>
                 {
                     b.HasOne("SCMS_back_end.Models.Schedule", "Schedule")
@@ -921,6 +989,41 @@ namespace SCMS_back_end.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SCMS_back_end.Models.StudentAnswer", b =>
+                {
+                    b.HasOne("SCMS_back_end.Models.Question", "Question")
+                        .WithMany("StudentAnswers")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SCMS_back_end.Models.Quiz", "Quiz")
+                        .WithMany("StudentAnswers")
+                        .HasForeignKey("QuizId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SCMS_back_end.Models.AnswerOption", "SelectedAnswerOption")
+                        .WithMany("StudentAnswers")
+                        .HasForeignKey("SelectedAnswerOptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SCMS_back_end.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+
+                    b.Navigation("Quiz");
+
+                    b.Navigation("SelectedAnswerOption");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.StudentAssignment", b =>
@@ -1010,6 +1113,11 @@ namespace SCMS_back_end.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SCMS_back_end.Models.AnswerOption", b =>
+                {
+                    b.Navigation("StudentAnswers");
+                });
+
             modelBuilder.Entity("SCMS_back_end.Models.Assignment", b =>
                 {
                     b.Navigation("StudentAssignments");
@@ -1019,9 +1127,9 @@ namespace SCMS_back_end.Migrations
                 {
                     b.Navigation("Assignments");
 
-                    b.Navigation("CourseQuizzes");
-
                     b.Navigation("Lectures");
+
+                    b.Navigation("Quizzes");
 
                     b.Navigation("StudentCourses");
                 });
@@ -1041,13 +1149,15 @@ namespace SCMS_back_end.Migrations
             modelBuilder.Entity("SCMS_back_end.Models.Question", b =>
                 {
                     b.Navigation("AnswerOptions");
+
+                    b.Navigation("StudentAnswers");
                 });
 
             modelBuilder.Entity("SCMS_back_end.Models.Quiz", b =>
                 {
-                    b.Navigation("CourseQuizzes");
-
                     b.Navigation("Questions");
+
+                    b.Navigation("StudentAnswers");
 
                     b.Navigation("StudentQuizzes");
                 });

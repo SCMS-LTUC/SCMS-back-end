@@ -56,7 +56,10 @@ namespace SCMS_back_end
             builder.Services.AddScoped<IQuizRepository, QuizService>();
             builder.Services.AddScoped<IQuestionRepository, QuestionService>();
             builder.Services.AddScoped<IAnswerOptionRepository, AnswerOptionService>();
-            builder.Services.AddScoped<IStudentQuizRepository, StudentQuizService>();
+            builder.Services.AddScoped<IStudentAnswerRepository, StudentAnswerRepository>();
+            builder.Services.AddScoped<IQuizResultRepository, QuizResultRepository>();
+
+
 
 
 

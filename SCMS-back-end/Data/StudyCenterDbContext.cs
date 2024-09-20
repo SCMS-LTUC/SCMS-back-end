@@ -31,50 +31,70 @@ namespace SCMS_back_end.Data
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<AnswerOption> AnswerOptions { get; set; }
-        public DbSet<CourseQuiz> CourseQuizzes { get; set; }
-        public DbSet<StudentQuiz> StudentQuizzes { get; set; }
+        public DbSet<StudentAnswer> StudentAnswers { get; set; }
+        public DbSet<QuizResult> QuizResults { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-
-            // Many-to-many relationship between Course and Quiz
-            modelBuilder.Entity<CourseQuiz>()
-                .HasKey(cq => new { cq.CourseId, cq.QuizId });
-
-            modelBuilder.Entity<CourseQuiz>()
-                .HasOne(cq => cq.Course)
-                .WithMany(c => c.CourseQuizzes)
-                .HasForeignKey(cq => cq.CourseId);
-
-            modelBuilder.Entity<CourseQuiz>()
-                .HasOne(cq => cq.Quiz)
-                .WithMany(q => q.CourseQuizzes)
-                .HasForeignKey(cq => cq.QuizId);
+            modelBuilder.Entity<Quiz>()
+                .HasOne(q => q.Course)
+                .WithMany(c => c.Quizzes)
+                .HasForeignKey(q => q.CourseId)
+                .OnDelete(DeleteBehavior.Cascade); // Cascade delete for quizzes when a course is deleted
 
             // One-to-many relationships
             modelBuilder.Entity<Question>()
                 .HasOne(q => q.Quiz)
                 .WithMany(qz => qz.Questions)
-                .HasForeignKey(q => q.QuizId);
+                .HasForeignKey(q => q.QuizId)
+                .OnDelete(DeleteBehavior.Cascade); // Cascade delete for quiz questions
 
             modelBuilder.Entity<AnswerOption>()
                 .HasOne(ao => ao.Question)
                 .WithMany(q => q.AnswerOptions)
-                .HasForeignKey(ao => ao.QuestionId);
+                .HasForeignKey(ao => ao.QuestionId)
+                .OnDelete(DeleteBehavior.Cascade); // Cascade delete for answer options
 
-            // One-to-many between Student and StudentQuiz
-            modelBuilder.Entity<StudentQuiz>()
-                .HasOne(sq => sq.Student)
-                .WithMany(s => s.StudentQuizzes)
-                .HasForeignKey(sq => sq.StudentId);
 
-            modelBuilder.Entity<StudentQuiz>()
-                .HasOne(sq => sq.Quiz)
-                .WithMany(q => q.StudentQuizzes)
-                .HasForeignKey(sq => sq.QuizId);
+            // Define relationships for StudentAnswer
+            modelBuilder.Entity<StudentAnswer>()
+                .HasOne(sa => sa.Quiz)
+                .WithMany(q => q.StudentAnswers)
+                .HasForeignKey(sa => sa.QuizId)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict cascading delete
 
+            modelBuilder.Entity<StudentAnswer>()
+                .HasOne(sa => sa.Question)
+                .WithMany(q => q.StudentAnswers)
+                .HasForeignKey(sa => sa.QuestionId)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict cascading delete
+
+            modelBuilder.Entity<StudentAnswer>()
+                .HasOne(sa => sa.SelectedAnswerOption)
+                .WithMany(ao => ao.StudentAnswers)
+                .HasForeignKey(sa => sa.SelectedAnswerOptionId)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict cascading delete
+
+            modelBuilder.Entity<StudentAnswer>()
+                .HasOne(sa => sa.Student)
+                .WithMany() // Assuming many-to-one relationship
+                .HasForeignKey(sa => sa.StudentId)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict cascading delete
+
+            // Define relationships for QuizResult
+            modelBuilder.Entity<QuizResult>()
+                .HasOne(qr => qr.Quiz)
+                .WithMany() // Assuming one result per student per quiz
+                .HasForeignKey(qr => qr.QuizId)
+                .OnDelete(DeleteBehavior.Cascade); // Cascade delete for quiz results
+
+            modelBuilder.Entity<QuizResult>()
+                .HasOne(qr => qr.Student)
+                .WithMany() // Assuming a many-to-one relation
+                .HasForeignKey(qr => qr.StudentId)
+                .OnDelete(DeleteBehavior.Restrict); // Restrict cascading delete
 
             // Unique constraint on LectureAttendance (LectureId, StudentId)
             modelBuilder.Entity<LectureAttendance>()

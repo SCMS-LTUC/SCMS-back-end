@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace SCMS_back_end.Models
 {
     public class AnswerOption
     {
         [Key]
+        [JsonIgnore]
         public int AnswerOptionId { get; set; }
 
         [Required]
@@ -16,6 +18,9 @@ namespace SCMS_back_end.Models
         public int QuestionId { get; set; }
 
         // Navigation property
-        public Question Question { get; set; }
+        [JsonIgnore]
+        public Question? Question { get; set; }
+        [JsonIgnore]
+        public ICollection<StudentAnswer>? StudentAnswers { get; set; }
     }
 }

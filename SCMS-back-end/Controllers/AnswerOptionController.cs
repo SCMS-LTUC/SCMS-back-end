@@ -47,18 +47,36 @@ namespace SCMS_back_end.Controllers
         [HttpPut("{answerOptionId}")]
         public async Task<IActionResult> UpdateAnswerOption(int answerOptionId, [FromBody] AnswerOption answerOption)
         {
-            if (answerOptionId != answerOption.AnswerOptionId)
-                return BadRequest();
+            var existingAnswerOption = await _answerOptionService.GetAnswerOptionByIdAsync(answerOptionId);
+            if (existingAnswerOption == null)
+            {
+                return NotFound($"Answer option with ID {answerOptionId} not found.");
+            }
 
-            await _answerOptionService.UpdateAnswerOptionAsync(answerOption);
-            return NoContent();
+            // Manually update fields
+            existingAnswerOption.Text = answerOption.Text;
+            existingAnswerOption.IsCorrect = answerOption.IsCorrect;
+            existingAnswerOption.QuestionId = answerOption.QuestionId;
+
+            await _answerOptionService.UpdateAnswerOptionAsync(existingAnswerOption);
+
+            return Ok(new { message = "Answer option updated successfully" });
         }
+
+
 
         [HttpDelete("{answerOptionId}")]
         public async Task<IActionResult> DeleteAnswerOption(int answerOptionId)
         {
+            var answerOption = await _answerOptionService.GetAnswerOptionByIdAsync(answerOptionId);
+            if (answerOption == null)
+            {
+                return NotFound($"Answer option with ID {answerOptionId} not found.");
+            }
+
             await _answerOptionService.DeleteAnswerOptionAsync(answerOptionId);
-            return NoContent();
+            return Ok(new { message = "Answer option deleted successfully" });
         }
+
     }
 }

@@ -28,7 +28,9 @@ namespace SCMS_back_end.Models
         public ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
         public ICollection<Lecture> Lectures { get; set; }= new List<Lecture>();
 
-        public ICollection<CourseQuiz> CourseQuizzes { get; set; } = new List<CourseQuiz>();
+        // One-to-many relationship with Quiz
+        public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
+
 
     }
 

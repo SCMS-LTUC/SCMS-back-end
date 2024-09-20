@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using SCMS_back_end.Repositories.Interfaces;
+using SCMS_back_end.Models.Dto.Request;
 
 namespace SCMS_back_end.Controllers
 {
@@ -44,14 +45,33 @@ namespace SCMS_back_end.Controllers
         }
 
         [HttpPut("{questionId}")]
-        public async Task<IActionResult> UpdateQuestion(int questionId, [FromBody] Question question)
+        public async Task<IActionResult> UpdateQuestion(int questionId, [FromBody] QuestionUpdateDto questionDto)
         {
-            if (questionId != question.QuestionId)
-                return BadRequest();
+            try
+            {
+                // Call the service to update the question
+                await _questionService.UpdateQuestionAsync(questionId, questionDto);
 
-            await _questionService.UpdateQuestionAsync(question);
-            return NoContent();
+                // Return Ok (200) with a success message
+                return Ok(new { message = "Question updated successfully" });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound($"Question with ID {questionId} not found.");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
         }
+
+
+
+
 
         [HttpDelete("{questionId}")]
         public async Task<IActionResult> DeleteQuestion(int questionId)

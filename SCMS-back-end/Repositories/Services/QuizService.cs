@@ -3,6 +3,7 @@ using SCMS_back_end.Models;
 using Microsoft.EntityFrameworkCore;
 using SCMS_back_end.Data;
 using SCMS_back_end.Repositories.Interfaces;
+using SCMS_back_end.Models.Dto.Request;
 
 namespace SCMS_back_end.Services
 {
@@ -33,11 +34,27 @@ namespace SCMS_back_end.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateQuizAsync(Quiz quiz)
+        public async Task UpdateQuizAsync(int quizId, QuizUpdateDto quizDto)
         {
-            _context.Quizzes.Update(quiz);
+            var existingQuiz = await _context.Quizzes.FindAsync(quizId);
+            if (existingQuiz == null)
+            {
+                throw new KeyNotFoundException("Quiz not found");
+            }
+
+            // Update the properties
+            existingQuiz.Title = quizDto.Title;
+            existingQuiz.Duration = quizDto.Duration;
+            existingQuiz.IsVisible = quizDto.IsVisible;
+            existingQuiz.CourseId = quizDto.CourseId;
+
             await _context.SaveChangesAsync();
         }
+
+
+
+
+
 
         public async Task DeleteQuizAsync(int quizId)
         {

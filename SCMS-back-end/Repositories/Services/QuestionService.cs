@@ -3,6 +3,7 @@ using SCMS_back_end.Models;
 using Microsoft.EntityFrameworkCore;
 using SCMS_back_end.Data;
 using SCMS_back_end.Repositories.Interfaces;
+using SCMS_back_end.Models.Dto.Request;
 
 namespace SCMS_back_end.Services
 {
@@ -36,11 +37,24 @@ namespace SCMS_back_end.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateQuestionAsync(Question question)
+        public async Task UpdateQuestionAsync(int questionId, QuestionUpdateDto questionDto)
         {
-            _context.Questions.Update(question);
+            var existingQuestion = await _context.Questions.FindAsync(questionId);
+            if (existingQuestion == null)
+            {
+                throw new Exception($"Question with ID {questionId} not found.");
+            }
+
+            // Map the properties from the DTO to the entity
+            existingQuestion.Text = questionDto.Text;
+            existingQuestion.QuizId = questionDto.QuizId;
+
+            _context.Questions.Update(existingQuestion);
             await _context.SaveChangesAsync();
         }
+
+
+
 
         public async Task DeleteQuestionAsync(int questionId)
         {

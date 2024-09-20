@@ -51,20 +51,50 @@ namespace SCMS_back_end.Controllers
         }
 
         [HttpPut("{quizId}")]
-        public async Task<IActionResult> UpdateQuiz(int quizId, [FromBody] Quiz quiz)
+        public async Task<IActionResult> UpdateQuiz(int quizId, [FromBody] QuizUpdateDto quizDto)
         {
-            if (quizId != quiz.QuizId)
-                return BadRequest();
-
-            await _quizService.UpdateQuizAsync(quiz);
-            return NoContent();
+            try
+            {
+                // Update the quiz
+                await _quizService.UpdateQuizAsync(quizId, quizDto);
+                return NoContent(); // Indicates successful update
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(); // Quiz not found
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (if logging is set up)
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
+
+
+
 
         [HttpDelete("{quizId}")]
         public async Task<IActionResult> DeleteQuiz(int quizId)
         {
-            await _quizService.DeleteQuizAsync(quizId);
-            return NoContent();
+            try
+            {
+                await _quizService.DeleteQuizAsync(quizId);
+                // Return a JSON response with a success message
+                return new JsonResult(new { message = "Deleted Successfully" })
+                {
+                    StatusCode = 200 // OK
+                };
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(); // Quiz not found
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (if logging is set up)
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
+
     }
 }
