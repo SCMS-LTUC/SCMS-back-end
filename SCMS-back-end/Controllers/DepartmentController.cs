@@ -19,6 +19,8 @@ namespace SCMS_back_end.Controllers
             _departmentService = context;
         }
 
+        // GET: api/Department
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Department>>> GetAllDepartments()
         {
@@ -26,6 +28,8 @@ namespace SCMS_back_end.Controllers
             return Ok(department);
         }
 
+        // GET: api/Department/5
+        [Authorize(Roles= "Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Department>> GetDepartment(int id)
         {
@@ -34,6 +38,8 @@ namespace SCMS_back_end.Controllers
             return Ok(department);
         }
 
+        // PUT: api/Department/5
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<Department>> UpdateDepartment(int id, string DepartmentName)
         {
@@ -46,6 +52,8 @@ namespace SCMS_back_end.Controllers
             return Ok(updatedDepartment);
         }
 
+        // POST: api/Department
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<User>> AddDepartment(string DepartmentName)
         {

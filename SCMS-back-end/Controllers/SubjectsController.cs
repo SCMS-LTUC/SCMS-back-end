@@ -20,6 +20,8 @@ namespace SCMS_back_end.Controllers
             _subject = subject;
         }
 
+        // GET: api/Subject
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Subject>>> GetAllSubjects()
         {
@@ -27,6 +29,8 @@ namespace SCMS_back_end.Controllers
             return Ok(subjects);
         }
 
+        // GET: api/Subject/5
+        [Authorize(Roles= "Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<Subject>> GetSubjectById(int id)
         {
@@ -35,6 +39,8 @@ namespace SCMS_back_end.Controllers
             return Ok(subject);
         }
 
+        // POST: api/Subject
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<DtoSubjectResponse>> AddSubject(DtoSubjectRequest subjectDto)
         {
@@ -46,6 +52,8 @@ namespace SCMS_back_end.Controllers
             return CreatedAtAction(nameof(GetSubjectById), new { id = createdSubjectDto.SubjectId }, createdSubjectDto);
         }
 
+        // PUT: api/Subject/5
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<DtoSubjectResponse>> UpdateSubject(int id, DtoSubjectRequest subjectDto)
         {

@@ -29,6 +29,7 @@ namespace SCMS_back_end.Controllers
         }
 
         // POST: api/Courses
+        [Authorize(Roles ="Admin")]
         [HttpPost]
         public async Task<ActionResult<Course>> PostCourse(DtoCreateCourseWTRequest course)
         {
@@ -46,6 +47,7 @@ namespace SCMS_back_end.Controllers
         
         // Tested
         // PUT: api/Courses/5
+        [Authorize(Roles ="Admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<Course>> PutCourse(int id, DtoUpdateCourseRequest course)
         {
@@ -69,6 +71,7 @@ namespace SCMS_back_end.Controllers
 
         // Tested
         // GET: api/Courses/5
+        [Authorize(Roles= "Admin, Teacher, Student")]
         [HttpGet("{id}")]
         public async Task<ActionResult<DtoCourseResponse>> GetCourse(int id)
         {
@@ -92,6 +95,7 @@ namespace SCMS_back_end.Controllers
         
         // Tested
         // GET: api/Courses
+        [Authorize(Roles = "Admin, Teacher, Student")]
         [HttpGet]
         public async Task<ActionResult<List<DtoCourseResponse>>> GetCourses()
         {
@@ -109,6 +113,7 @@ namespace SCMS_back_end.Controllers
 
         // Tested
         // GET: api/Courses/NotStarted
+        [Authorize(Roles = "Admin, Teacher, Student")]
         [HttpGet("NotStarted")]
         public async Task<ActionResult<List<DtoCourseResponse>>> GetCoursesNotStarted()
         {
@@ -125,8 +130,9 @@ namespace SCMS_back_end.Controllers
         }
 
         // GET: api/Courses/Student/5/PreviousCourses
+        [Authorize(Roles= "Student")]
         [HttpGet("Student/{id}/PreviousCourses")]
-        public async Task<ActionResult<List<DtoPreviousCourseResponse>>> GetPreviousCoursesOfStudent(int id)
+        public async Task<ActionResult<List<DtoPreviousCourseResponse>>> GetPreviousCoursesOfStudent()
         {
             try
             {
@@ -141,8 +147,9 @@ namespace SCMS_back_end.Controllers
         }
 
         // GET: api/Courses/Student/5/AllCourses
+        [Authorize(Roles = "Student")]
         [HttpGet("Student/{id}/AllCourses")]
-        public async Task<ActionResult<List<DtoCourseResponse>>> GetCoursesOfStudent(int id)
+        public async Task<ActionResult<List<DtoCourseResponse>>> GetCoursesOfStudent()
         {
             try
             {
@@ -157,8 +164,9 @@ namespace SCMS_back_end.Controllers
         }
 
         // GET: api/Courses/Student/5/CurrentCourses
+        [Authorize(Roles = "Student")]
         [HttpGet("Student/{id}/CurrentCourses")]
-        public async Task<ActionResult<List<DtoCourseResponse>>> GetCurrentCoursesOfStudent(int id)
+        public async Task<ActionResult<List<DtoCourseResponse>>> GetCurrentCoursesOfStudent()
         {
             try
             {
@@ -173,8 +181,9 @@ namespace SCMS_back_end.Controllers
         }
 
         // GET: api/Courses/Teacher/5/AllCourses
+        [Authorize(Roles = "Teacher")]
         [HttpGet("Teacher/{id}/AllCourses")]
-        public async Task<ActionResult<List<DtoCourseResponse>>> GetCoursesOfTeacher(int id)
+        public async Task<ActionResult<List<DtoCourseResponse>>> GetCoursesOfTeacher()
         {
             try
             {
@@ -188,8 +197,9 @@ namespace SCMS_back_end.Controllers
         }
 
         // GET: api/Courses/Teacher/5/CurrentCourses
+        [Authorize(Roles="Teacher")]
         [HttpGet("Teacher/{id}/CurrentCourses")]
-        public async Task<ActionResult<List<DtoCourseResponse>>> GetCurrentCoursesOfTeacher(int id)
+        public async Task<ActionResult<List<DtoCourseResponse>>> GetCurrentCoursesOfTeacher()
         {
             try
             {
@@ -203,6 +213,7 @@ namespace SCMS_back_end.Controllers
         }
 
         // POST: api/Courses/5/CalculateAverageGrade
+        [Authorize(Roles = "Teacher")]
         [HttpPost("{id}/CalculateAverageGrade")]
         public async Task<ActionResult> CalculateAverageGrade(int id)
         {
@@ -223,6 +234,7 @@ namespace SCMS_back_end.Controllers
 
         // Tested
         //Delete: api/Courses/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
