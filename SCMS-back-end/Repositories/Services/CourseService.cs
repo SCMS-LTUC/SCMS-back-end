@@ -53,8 +53,8 @@ namespace SCMS_back_end.Repositories.Services
                             c.Schedule.StartDate < courseRequest.EndDate &&
                             c.Schedule.EndDate > courseRequest.StartDate &&
                             c.Schedule.ScheduleDays.Any(sd => courseRequest.WeekDays.Contains(sd.WeekDayId)) &&
-                            c.Schedule.StartTime == courseRequest.StartTime &&
-                            c.Schedule.EndTime == courseRequest.EndTime)
+                            c.Schedule.StartTime < courseRequest.EndTime &&
+                            c.Schedule.EndTime > courseRequest.StartTime)
                 .ToListAsync();
 
             if (overlappingCourses.Any())
@@ -140,6 +140,7 @@ namespace SCMS_back_end.Repositories.Services
         .Include(c => c.Subject)
         .Include(c => c.Schedule)
         .ThenInclude(s => s.ScheduleDays)
+        .ThenInclude(sd => sd.WeekDay)
         .Include(c => c.Classroom)
         .FirstOrDefaultAsync(c => c.CourseId == courseId);
 
@@ -432,8 +433,14 @@ namespace SCMS_back_end.Repositories.Services
             //{
             //    course.Level = courseRequest.Level;
             //}
+            if (courseRequest.Capacity != 0)
+            {
+                if (courseRequest.Capacity < course.StudentCourses.Count)
+                    throw new Exception("Capacity cannot be decreased below the number of registered students.");
+                course.Capacity = courseRequest.Capacity;
+            }
 
-            if (courseRequest.TeacherId.HasValue)
+            if (courseRequest.TeacherId.HasValue /*&& courseRequest.TeacherId!=0*/)
             {
                 var teacher = await _context.Teachers
                     .Include(t => t.Courses)

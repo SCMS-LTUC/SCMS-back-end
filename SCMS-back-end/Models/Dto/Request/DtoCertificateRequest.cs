@@ -4,7 +4,7 @@
     {
         public int StudentId { get; set; }
         public int CourseId { get; set; }
-        public DateTimeOffset CompletionDate { get; set; }
+        public DateTime CompletionDate { get; set; }
         public IFormFile CertificateFile { get; set; }
     }
 }

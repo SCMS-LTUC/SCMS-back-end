@@ -67,9 +67,9 @@ namespace SCMS_back_end.Controllers
         }
 
         [HttpDelete("{assignmentId}")]
-        public async Task<IActionResult> DeleteAssignment(int AssignmentID)
+        public async Task<IActionResult> DeleteAssignment(int assignmentId)
         {
-            await _context.DeleteAssignment(AssignmentID);
+            await _context.DeleteAssignment(assignmentId);
             return NoContent();
         }
 
