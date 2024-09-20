@@ -9,9 +9,9 @@ namespace SCMS_back_end.Repositories.Interfaces
     {
         Task<IEnumerable<DtoPaymentResponse>> GetAllPaymentsAsync();
         Task<DtoPaymentResponse> GetPaymentByIdAsync(int id);
-        Task<DtoPaymentResponse> AddPaymentAsync(DtoPaymentRequest paymentDto, ClaimsPrincipal user);
-        Task<DtoPaymentResponse> UpdatePaymentAsync(int id, DtoPaymentRequest paymentDto);
-        Task<bool> DeletePaymentAsync(int id);
+        Task<DtoPaymentResponse> AddPaymentAsync(DtoPaymentRequest paymentDto, ClaimsPrincipal userPrincipal);
+        //Task<DtoPaymentResponse> UpdatePaymentAsync(int id, DtoPaymentRequest paymentDto);
+        //Task<bool> DeletePaymentAsync(int id);
     }
 }
 

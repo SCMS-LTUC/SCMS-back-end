@@ -18,24 +18,23 @@ namespace SCMS_back_end.Repositories.Services
             _context = context;
         }
 
-        public async Task<DtoPaymentResponse> AddPaymentAsync(DtoPaymentRequest paymentDto, ClaimsPrincipal user)
+        public async Task<DtoPaymentResponse> AddPaymentAsync(DtoPaymentRequest paymentDto, ClaimsPrincipal userPrincipal)
         {
-            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (userIdClaim == null)
+            var userIdClaim = userPrincipal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == userIdClaim);
+            if (student == null)
             {
-                throw new InvalidOperationException("User ID not found in claims.");
+                throw new InvalidOperationException("Student not found.");
             }
             var payment = new Payment
             {
-                StudentId = paymentDto.StudentId,
+                StudentId = student.StudentId,
                 CourseId = paymentDto.CourseId,
-                Date = paymentDto.Date,
+                Date = DateTime.Now,
                 Amount = paymentDto.Amount,
                 Method = paymentDto.Method,
                 Status = paymentDto.Status,
                 ReferenceNumber = paymentDto.ReferenceNumber,
-                CreatedByUserId = userIdClaim
             };
 
             _context.Payments.Add(payment);
@@ -90,7 +89,7 @@ namespace SCMS_back_end.Repositories.Services
             return null;
         }
 
-        public async Task<DtoPaymentResponse> UpdatePaymentAsync(int id, DtoPaymentRequest paymentDto)
+      /*  public async Task<DtoPaymentResponse> UpdatePaymentAsync(int id, DtoPaymentRequest paymentDto)
         {
             var existingPayment = await _context.Payments.FindAsync(id);
             if (existingPayment != null)
@@ -130,7 +129,7 @@ namespace SCMS_back_end.Repositories.Services
                 return true;
             }
             return false;
-        }
+        }*/
     }
 }
 

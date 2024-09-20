@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SCMS_back_end.Models.Dto;
 using SCMS_back_end.Models.Dto.Request;
 using SCMS_back_end.Models.Dto.Response;
@@ -32,6 +33,7 @@ namespace SCMS_back_end.Controllers
             return Ok(payment);
         }
 
+        [Authorize(Roles ="Student")]
         [HttpPost]
         public async Task<ActionResult<DtoPaymentResponse>> AddPayment(DtoPaymentRequest paymentDto)
         {
@@ -40,12 +42,11 @@ namespace SCMS_back_end.Controllers
                 return BadRequest("Payment data is required.");
             }
 
-            // تمرير ClaimsPrincipal
             var createdPaymentDto = await _paymentService.AddPaymentAsync(paymentDto, User);
             return CreatedAtAction(nameof(GetPaymentById), new { id = createdPaymentDto.PaymentId }, createdPaymentDto);
         }
 
-        [HttpPut("{id}")]
+        /*[HttpPut("{id}")]
         public async Task<ActionResult<DtoPaymentResponse>> UpdatePayment(int id, DtoPaymentRequest paymentDto)
         {
             if (paymentDto == null)
@@ -63,6 +64,6 @@ namespace SCMS_back_end.Controllers
             var result = await _paymentService.DeletePaymentAsync(id);
             if (!result) return NotFound();
             return NoContent();
-        }
+        }*/
     }
 }
