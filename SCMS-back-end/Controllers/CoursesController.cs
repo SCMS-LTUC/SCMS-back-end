@@ -32,8 +32,16 @@ namespace SCMS_back_end.Controllers
         [HttpPost]
         public async Task<ActionResult<Course>> PostCourse(DtoCreateCourseWTRequest course)
         {
-            var newCourse = await _course.CreateCourseWithoutTeacher(course);
-            return Ok(newCourse);
+            try 
+            {
+                var newCourse = await _course.CreateCourseWithoutTeacher(course);
+                return Ok(newCourse);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+
         }
         
         // Tested
@@ -41,14 +49,22 @@ namespace SCMS_back_end.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<Course>> PutCourse(int id, DtoUpdateCourseRequest course)
         {
-            var updatedCourse = await _course.UpdateCourseInformation(id, course);
-
-            if (updatedCourse == null)
+            try
             {
-                return NotFound();
+                var updatedCourse = await _course.UpdateCourseInformation(id, course);
+
+                if (updatedCourse == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(updatedCourse);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
             }
 
-            return Ok(updatedCourse);
         }
 
         // Tested
@@ -56,14 +72,22 @@ namespace SCMS_back_end.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<DtoCourseResponse>> GetCourse(int id)
         {
-            var course = await _course.GetCourseById(id);
-
-            if (course == null)
+            try
             {
-                return NotFound();
+                var course = await _course.GetCourseById(id);
+
+                if (course == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(course);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
             }
 
-            return Ok(course);
         }
         
         // Tested
@@ -71,8 +95,16 @@ namespace SCMS_back_end.Controllers
         [HttpGet]
         public async Task<ActionResult<List<DtoCourseResponse>>> GetCourses()
         {
-            var courses = await _course.GetAllCourses();
-            return Ok(courses);
+            try
+            {
+                var courses = await _course.GetAllCourses();
+                return Ok(courses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+
         }
 
         // Tested
@@ -80,56 +112,109 @@ namespace SCMS_back_end.Controllers
         [HttpGet("NotStarted")]
         public async Task<ActionResult<List<DtoCourseResponse>>> GetCoursesNotStarted()
         {
-            var courses = await _course.GetCoursesNotStarted();
-            return Ok(courses);
+            try
+            {
+                var courses = await _course.GetCoursesNotStarted();
+                return Ok(courses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+
         }
 
         // GET: api/Courses/Student/5/PreviousCourses
         [HttpGet("Student/{id}/PreviousCourses")]
         public async Task<ActionResult<List<DtoPreviousCourseResponse>>> GetPreviousCoursesOfStudent(int id)
         {
-            var courses = await _course.GetPreviousCoursesOfStudent(id);
-            return Ok(courses);
+            try
+            {
+                var courses = await _course.GetPreviousCoursesOfStudent(id);
+                return Ok(courses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+
         }
 
         // GET: api/Courses/Student/5/AllCourses
         [HttpGet("Student/{id}/AllCourses")]
         public async Task<ActionResult<List<DtoCourseResponse>>> GetCoursesOfStudent(int id)
         {
-            var courses = await _course.GetCoursesOfStudent(id);
-            return Ok(courses);
+            try
+            {
+                var courses = await _course.GetCoursesOfStudent(id);
+                return Ok(courses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+
         }
 
         // GET: api/Courses/Student/5/CurrentCourses
         [HttpGet("Student/{id}/CurrentCourses")]
         public async Task<ActionResult<List<DtoCourseResponse>>> GetCurrentCoursesOfStudent(int id)
         {
-            var courses = await _course.GetCurrentCoursesOfStudent(id);
-            return Ok(courses);
+            try
+            {
+                var courses = await _course.GetCurrentCoursesOfStudent(id);
+                return Ok(courses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+
         }
 
         // GET: api/Courses/Teacher/5/AllCourses
         [HttpGet("Teacher/{id}/AllCourses")]
         public async Task<ActionResult<List<DtoCourseResponse>>> GetCoursesOfTeacher(int id)
         {
-            var courses = await _course.GetCoursesOfTeacher(id);
-            return Ok(courses);
+            try
+            {
+                var courses = await _course.GetCoursesOfTeacher(id);
+                return Ok(courses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
         }
 
         // GET: api/Courses/Teacher/5/CurrentCourses
         [HttpGet("Teacher/{id}/CurrentCourses")]
         public async Task<ActionResult<List<DtoCourseResponse>>> GetCurrentCoursesOfTeacher(int id)
         {
-            var courses = await _course.GetCurrentCoursesOfTeacher(id);
-            return Ok(courses);
+            try
+            {
+                var courses = await _course.GetCurrentCoursesOfTeacher(id);
+                return Ok(courses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
         }
 
         // POST: api/Courses/5/CalculateAverageGrade
         [HttpPost("{id}/CalculateAverageGrade")]
         public async Task<ActionResult> CalculateAverageGrade(int id)
         {
-            await _course.CalculateAverageGrade(id);
-            return Ok();
+            try
+            {
+                await _course.CalculateAverageGrade(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
         }
         private bool CourseExists(int id)
         {
