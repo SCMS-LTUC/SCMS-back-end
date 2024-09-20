@@ -14,7 +14,9 @@ namespace SCMS_back_end.Models
         public string Title { get; set; } = string.Empty;
 
         public int Duration { get; set; } // Duration in minutes
-
+        public int Mark { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
         public bool IsVisible { get; set; } // Indicates if quiz is visible to students
                                             // Foreign key to Course
         public int? CourseId { get; set; } // Make it nullable for now

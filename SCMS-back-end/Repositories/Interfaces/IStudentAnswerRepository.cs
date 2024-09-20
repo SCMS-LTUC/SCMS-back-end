@@ -11,6 +11,7 @@ namespace SCMS_back_end.Repositories.Interfaces
         Task AddAsync(StudentAnswer studentAnswer);
         Task UpdateAsync(UpdateStudentAnswerRequestDto studentAnswer);
         Task DeleteAsync(int id);
+        Task<QuizResult> GetFinalScoreAsync(int studentId , int quizId ); // For Score
         Task SaveAsync();
     }
 }

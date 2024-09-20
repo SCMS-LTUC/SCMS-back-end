@@ -47,6 +47,7 @@ namespace SCMS_back_end.Controllers
             return Ok(studentAnswers);
         }
 
+        
         [HttpPost]
         public async Task<ActionResult> CreateStudentAnswer([FromBody] StudentAnswer studentAnswer)
         {
@@ -85,10 +86,8 @@ namespace SCMS_back_end.Controllers
 
             // All checks passed, add the student answer
             await _studentAnswerRepository.AddAsync(studentAnswer);
-            await _studentAnswerRepository.SaveAsync();
             return CreatedAtAction(nameof(GetStudentAnswer), new { id = studentAnswer.Id }, studentAnswer);
         }
-
 
 
         [HttpPut]
@@ -128,5 +127,23 @@ namespace SCMS_back_end.Controllers
             await _studentAnswerRepository.SaveAsync();
             return NoContent();
         }
+
+        // GET: api/QuizResult/FinalScore?studentId=1&quizId=1
+        [HttpGet("FinalScore")]
+        public async Task<IActionResult> GetFinalScore(int studentId, int quizId)
+        {
+            // Call the service to get the QuizResult
+            var quizResult = await _studentAnswerRepository.GetFinalScoreAsync(studentId, quizId);
+
+            // Check if the result exists
+            if (quizResult == null)
+            {
+                return NotFound("Quiz result not found.");
+            }
+
+            // Return the student's score as a string
+            return Ok($"Student's Score: {quizResult.Score}");
+        }
+
     }
 }
