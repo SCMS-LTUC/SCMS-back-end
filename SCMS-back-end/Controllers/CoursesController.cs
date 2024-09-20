@@ -136,7 +136,7 @@ namespace SCMS_back_end.Controllers
         {
             try
             {
-                var courses = await _course.GetPreviousCoursesOfStudent(id);
+                var courses = await _course.GetPreviousCoursesOfStudent(User);
                 return Ok(courses);
             }
             catch (Exception ex)
@@ -153,7 +153,7 @@ namespace SCMS_back_end.Controllers
         {
             try
             {
-                var courses = await _course.GetCoursesOfStudent(id);
+                var courses = await _course.GetCoursesOfStudent(User);
                 return Ok(courses);
             }
             catch (Exception ex)
@@ -170,7 +170,7 @@ namespace SCMS_back_end.Controllers
         {
             try
             {
-                var courses = await _course.GetCurrentCoursesOfStudent(id);
+                var courses = await _course.GetCurrentCoursesOfStudent(User);
                 return Ok(courses);
             }
             catch (Exception ex)
@@ -187,7 +187,7 @@ namespace SCMS_back_end.Controllers
         {
             try
             {
-                var courses = await _course.GetCoursesOfTeacher(id);
+                var courses = await _course.GetCoursesOfTeacher(User);
                 return Ok(courses);
             }
             catch (Exception ex)
@@ -203,7 +203,7 @@ namespace SCMS_back_end.Controllers
         {
             try
             {
-                var courses = await _course.GetCurrentCoursesOfTeacher(id);
+                var courses = await _course.GetCurrentCoursesOfTeacher(User);
                 return Ok(courses);
             }
             catch (Exception ex)

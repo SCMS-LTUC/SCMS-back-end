@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SCMS_back_end.Repositories.Interfaces;
 using SCMS_back_end.Repositories.Services;
@@ -8,6 +9,7 @@ namespace SCMS_back_end.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles ="Admin")]
     public class ReportController : ControllerBase
     {
         private readonly IReport _reportService;

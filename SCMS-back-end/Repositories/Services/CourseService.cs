@@ -356,7 +356,7 @@ namespace SCMS_back_end.Repositories.Services
                                                         .Include(c => c.Schedule)
                                                         .ThenInclude(s => s.ScheduleDays)
                                                         .ThenInclude(sd => sd.WeekDay)
-                                                        .Where(c => c.StudentCourses.Any(s => s.StudentId == studentId) && c.Schedule.EndDate < DateTime.Now)
+                                                        .Where(c => c.StudentCourses.Any(s => s.StudentId == student.StudentId) && c.Schedule.EndDate < DateTime.Now)
                                                         .ToListAsync();
 
             var previousCourseResponses = new List<DtoPreviousCourseResponse>();
@@ -371,8 +371,8 @@ namespace SCMS_back_end.Repositories.Services
                     TeacherName = course.Teacher?.FullName ?? "N/A",
                     SubjectName = course.Subject?.Name ?? "N/A",
                     CourseName = course.ClassName,
-                    Grade = course.StudentCourses.FirstOrDefault(sc => sc.StudentId == studentId)?.AverageGrades ?? 0,
-                    Status = course.StudentCourses.FirstOrDefault(sc => sc.StudentId == studentId)?.Status ?? "N/A"
+                    Grade = course.StudentCourses.FirstOrDefault(sc => sc.StudentId == student.StudentId)?.AverageGrades ?? 0,
+                    Status = course.StudentCourses.FirstOrDefault(sc => sc.StudentId == student.StudentId)?.Status ?? "N/A"
                 };
 
                 previousCourseResponses.Add(courseRes);

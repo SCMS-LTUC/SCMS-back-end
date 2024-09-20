@@ -18,13 +18,15 @@ namespace SCMS_back_end.Controllers
             _paymentService = paymentService;
         }
 
+        [Authorize(Roles ="Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DtoPaymentResponse>>> GetAllPayments()
         {
             var payments = await _paymentService.GetAllPaymentsAsync();
             return Ok(payments);
         }
-
+        
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<DtoPaymentResponse>> GetPaymentById(int id)
         {
