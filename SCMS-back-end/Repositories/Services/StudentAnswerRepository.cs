@@ -44,21 +44,6 @@ namespace SCMS_back_end.Repositories.Services
             await _context.StudentAnswers.AddAsync(studentAnswer);
             await _context.SaveChangesAsync(); // Save the new answer first
 
-            // Update the numberOfCorrectAnswers if the selected answer is correct
-            if (studentAnswer.SelectedAnswerOption.IsCorrect)
-            {
-                // Fetch the quiz result for the student and the quiz
-                var quizResult = await _context.QuizResults
-                    .FirstOrDefaultAsync(qr => qr.StudentId == studentAnswer.StudentId
-                                            && qr.QuizId == studentAnswer.Question.QuizId);
-
-                // If a quiz result exists, update the correct answers count
-                if (quizResult != null)
-                {
-                    quizResult.NumbersOfCorrectAnswers++;
-                    await _context.SaveChangesAsync(); // Save the updated quiz result
-                }
-            }
         }
 
 
@@ -97,29 +82,102 @@ namespace SCMS_back_end.Repositories.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<QuizResult> GetFinalScoreAsync(int studentId, int quizId)
+        public async Task<(int correctAnswersCount, int totalQuestionsCount, int quizMark)> CalculateScoreAsync(int studentId, int quizId)
         {
-            // Ensure related entities are included
-            var quizResult = await _context.QuizResults
-                .Include(qr => qr.Quiz)
-                .ThenInclude(q => q.Questions)
-                .FirstOrDefaultAsync(qr => qr.StudentId == studentId && qr.QuizId == quizId);
+            // Count the number of correct answers submitted by the student for the quiz
+            var correctAnswersCount = await _context.StudentAnswers
+                .Where(sa => sa.StudentId == studentId && sa.QuizId == quizId && sa.SelectedAnswerOption.IsCorrect)
+                .CountAsync();
 
-            if (quizResult != null && quizResult.Quiz != null)
+            // Count the total number of questions for the quiz
+            var totalQuestionsCount = await _context.Questions
+                .Where(q => q.QuizId == quizId)
+                .CountAsync();
+
+            // Retrieve the Quiz
+            var quiz = await _context.Quizzes
+                .Where(q => q.QuizId == quizId)
+                .FirstOrDefaultAsync();
+
+            if (quiz == null)
             {
-                // Perform division with proper casting to avoid integer division
-                var totalQuestions = quizResult.Quiz.Questions.Count;
-                if (totalQuestions > 0)
-                {
-                    quizResult.Score = (int)Math.Round((decimal)quizResult.NumbersOfCorrectAnswers / totalQuestions * quizResult.Quiz.Mark, 2);
-                }
-
-                // Optionally save changes if you are updating the score in the database
-                await _context.SaveChangesAsync();
+                throw new KeyNotFoundException("Quiz not found");
             }
 
-            return quizResult;
+            var quizMark = quiz.Mark;
+
+            // Save the result in the QuizResult table
+            var quizResult = await _context.QuizResults
+                .FirstOrDefaultAsync(qr => qr.StudentId == studentId && qr.QuizId == quizId);
+
+            if (quizResult == null)
+            {
+                // Create a new QuizResult if it doesn't exist
+                quizResult = new QuizResult
+                {
+                    StudentId = studentId,
+                    QuizId = quizId,
+                    NumbersOfCorrectAnswers = correctAnswersCount,
+                    Score = (int)Math.Round((decimal)correctAnswersCount / totalQuestionsCount * quizMark, 2)
+                };
+
+                await _context.QuizResults.AddAsync(quizResult);
+            }
+            else
+            {
+                // Update the existing QuizResult
+                quizResult.NumbersOfCorrectAnswers = correctAnswersCount;
+                quizResult.Score = (int)Math.Round((decimal)correctAnswersCount / totalQuestionsCount * quizMark, 2);
+
+                _context.QuizResults.Update(quizResult);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return (correctAnswersCount, totalQuestionsCount, quizMark);
         }
+
+
+
+        // 2. Retrieve the saved score from the QuizResult
+        public async Task<(int correctAnswersCount, int totalQuestionsCount, int quizMark, int score, IEnumerable<StudentAnswer> studentAnswers)> GetSavedScoreAsync(int studentId, int quizId)
+        {
+            var quizResult = await _context.QuizResults
+                .FirstOrDefaultAsync(qr => qr.StudentId == studentId && qr.QuizId == quizId);
+
+            if (quizResult == null)
+            {
+                // Log or return a message indicating the quiz result was not found
+                return (0, 0, 0, 0, Enumerable.Empty<StudentAnswer>());
+            }
+
+            var studentAnswers = await _context.StudentAnswers
+                .Where(sa => sa.StudentId == studentId && sa.QuizId == quizId)
+                .ToListAsync();
+
+            // Log the number of student answers found
+            if (studentAnswers.Count == 0)
+            {
+                // Return a message indicating no answers were found
+                return (0, 0, 0, quizResult.Score, Enumerable.Empty<StudentAnswer>());
+            }
+
+            var correctAnswersCount = studentAnswers.Count(sa => sa.SelectedAnswerOption != null && sa.SelectedAnswerOption.IsCorrect);
+            var totalQuestionsCount = await _context.Questions.CountAsync(q => q.QuizId == quizId);
+            var quiz = await _context.Quizzes.FindAsync(quizId);
+
+            if (quiz == null)
+            {
+                throw new KeyNotFoundException("Quiz not found");
+            }
+
+            var quizMark = quiz.Mark;
+
+            return (correctAnswersCount, totalQuestionsCount, quizMark, quizResult.Score, studentAnswers);
+        }
+
+
+
 
     }
 }

@@ -128,22 +128,39 @@ namespace SCMS_back_end.Controllers
             return NoContent();
         }
 
-        // GET: api/QuizResult/FinalScore?studentId=1&quizId=1
-        [HttpGet("FinalScore")]
-        public async Task<IActionResult> GetFinalScore(int studentId, int quizId)
-        {
-            // Call the service to get the QuizResult
-            var quizResult = await _studentAnswerRepository.GetFinalScoreAsync(studentId, quizId);
 
-            // Check if the result exists
-            if (quizResult == null)
+        // POST: api/StudentAnswer/calculate-score
+        [HttpPost("calculate-score")]
+        public async Task<ActionResult> CalculateScore(int studentId, int quizId)
+        {
+            var (correctAnswers, totalQuestions, quizMark) = await _studentAnswerRepository.CalculateScoreAsync(studentId, quizId);
+
+            return Ok(new
             {
-                return NotFound("Quiz result not found.");
+                CorrectAnswers = correctAnswers,
+                TotalQuestions = totalQuestions,
+                QuizMark = quizMark,
+                Message = "Score calculated successfully."
+            });
+        }
+
+
+
+        // GET: api/StudentAnswer/get-saved-score
+        [HttpGet("get-saved-score")]
+        public async Task<ActionResult<(int correctAnswersCount, int totalQuestionsCount, int quizMark, int score, IEnumerable<StudentAnswer> studentAnswers)>> GetSavedScore(int studentId, int quizId)
+        {
+            var result = await _studentAnswerRepository.GetSavedScoreAsync(studentId, quizId);
+
+            // Check if there are any answers or quiz result
+            if (result.score == 0) // Adjust this check based on your requirements
+            {
+                return NotFound("Score not found");
             }
 
-            // Return the student's score as a string
-            return Ok($"Student's Score: {quizResult.Score}");
+            return Ok(result);
         }
+
 
     }
 }
