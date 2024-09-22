@@ -32,7 +32,7 @@ namespace SCMS_back_end
             {
                 options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
-                    Title = "EduSphere API",
+                    Title = "FusionLearn API",
                     Version = "v1",
                     Description = "API for managing students, courses and teachers in the study center"
                 });
@@ -108,7 +108,7 @@ namespace SCMS_back_end
                 {
                     option.SwaggerDoc("EduSphereApi", new Microsoft.OpenApi.Models.OpenApiInfo()
                     {
-                        Title = "EduSphere Api Doc",
+                        Title = "FusionLearn Api Doc",
                         Version = "v1",
                         Description = "Api for managing all academic operations"
                     });
@@ -157,7 +157,7 @@ namespace SCMS_back_end
 
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/api/v1/swagger.json", "EduSphere API v1");
+                options.SwaggerEndpoint("/api/v1/swagger.json", "FusionLearn API v1");
                 options.RoutePrefix = "";
             });
 

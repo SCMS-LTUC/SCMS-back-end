@@ -3,9 +3,9 @@
   "email": "demamohamad1998@gmail.com",
   "password": "123456@Dm",
   "role": "Student",
-  "fullName": "dima",
-  "phoneNumber": "123456",
+  "fullName": "DimaMohamadHasanSalem",
+  "phoneNumber": "0787309957",
   "departmentId": 0,
   "courseLoad": 0
 }
---------
+---------------
