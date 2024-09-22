@@ -5,8 +5,6 @@ VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SCMS-back-end", "SCMS-back-end\SCMS-back-end.csproj", "{960E1716-3928-42E7-BEE7-24A4F52179EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SCMS-back-end-Tests", "SCMS-back-end-Tests\SCMS-back-end-Tests.csproj", "{6A036108-4E4C-4251-B2DD-5F4025823F5B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,10 +15,6 @@ Global
 		{960E1716-3928-42E7-BEE7-24A4F52179EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{960E1716-3928-42E7-BEE7-24A4F52179EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{960E1716-3928-42E7-BEE7-24A4F52179EA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6A036108-4E4C-4251-B2DD-5F4025823F5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6A036108-4E4C-4251-B2DD-5F4025823F5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6A036108-4E4C-4251-B2DD-5F4025823F5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6A036108-4E4C-4251-B2DD-5F4025823F5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
