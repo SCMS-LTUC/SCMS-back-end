@@ -28,6 +28,11 @@ namespace SCMS_back_end.Repositories.Services
 
         public async Task<DtoAddAssignmentResponse> AddAssignment(DtoAddAssignmentRequest AssignmentDto)
         {
+            var courseExists = await _context.Courses.AnyAsync(c => c.CourseId == AssignmentDto.CourseId);
+            if (!courseExists)
+            {
+                throw new Exception("Course does not exist.");
+            }
             var NewAssignment = new Assignment()
             {
                // assignmentId = AssignmentDto.assignmentId,
@@ -89,7 +94,7 @@ namespace SCMS_back_end.Repositories.Services
                 throw new ArgumentException("Invalid Assignment ID", nameof(AssignmentID));
             }
 
-            if (string.IsNullOrEmpty(AssignmentDto.AssignmentName))
+            if (!string.IsNullOrEmpty(AssignmentDto.AssignmentName))
                 Assignment.AssignmentName = AssignmentDto.AssignmentName;
 
             if (AssignmentDto.DueDate != Convert.ToDateTime("01/01/0001 00:00:00"))
@@ -174,8 +179,9 @@ namespace SCMS_back_end.Repositories.Services
 
             var assignmentsWithStudentAssignment = await _context.Assignments
                 .Include(a => a.StudentAssignments)
-                .Where(a => a.CourseId == courseId)
-                .Select(a => new DtoStudentAssignmentResponse {
+                .Where(a => a.CourseId == courseId && a.Visible == true)
+                .Select(a => new DtoStudentAssignmentResponse
+                {
                     AssignmentId = a.AssignmentId,
                     AssignmentName = a.AssignmentName,
                     DueDate = a.DueDate,

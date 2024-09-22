@@ -22,58 +22,101 @@ namespace SCMS_back_end.Controllers
         }
 
         // POST: api/Assignment
-        //[Authorize(Roles ="Teacher")]
+        [Authorize(Roles ="Teacher")]
         [HttpPost]
         public async Task<ActionResult<DtoAddAssignmentResponse>> PostAssignment(DtoAddAssignmentRequest Assignment)
         {
-           var response= await _context.AddAssignment(Assignment);
-            return Ok(response);
+            try
+            {
+                var response = await _context.AddAssignment(Assignment);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+
         }
 
-        //[Authorize(Roles ="Teacher")]
+        // GET: api/Assignment/courses/5/assignments
+        [Authorize(Roles ="Teacher, Student")]
         [HttpGet("courses/{courseId}/assignments")]
         public async Task<ActionResult> GetAssignmentsByCourseID(int courseId)
         {
-            var AllAssignments = await _context.GetAllAssignmentsByCourseID(courseId);
+            try
+            {
+                var AllAssignments = await _context.GetAllAssignmentsByCourseID(courseId);
 
-            if (AllAssignments == null)
-                return NotFound();
+                if (AllAssignments == null)
+                    return NotFound();
 
-            return Ok(AllAssignments);
+                return Ok(AllAssignments);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+
         }
 
-        //[Authorize(Roles ="Teacher","Student")]
         // GET: api/Assignment/5
+        [Authorize(Roles ="Teacher, Student")]
         [HttpGet("{assignmentId}")]
         public async Task<ActionResult<DtoAddAssignmentResponse>> GetAssignment(int assignmentId)
         {
-            var assignmentInfo = await _context.GetAllAssignmentInfoByAssignmentID(assignmentId);
-
-            if (assignmentInfo == null)
+            try
             {
-                return NotFound(new { Message = "Assignment not found." });
+                var assignmentInfo = await _context.GetAllAssignmentInfoByAssignmentID(assignmentId);
+
+                if (assignmentInfo == null)
+                {
+                    return NotFound(new { Message = "Assignment not found." });
+                }
+
+                return Ok(assignmentInfo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
             }
 
-            return Ok(assignmentInfo);
         }
 
         // PUT: api/Assignment/5
-        //[Authorize(Roles ="Teacher")]
+        [Authorize(Roles ="Teacher")]
         [HttpPut("{assignmentId}")]
         public async Task<ActionResult<DtoUpdateAssignmentResponse>> PutAssignment(int assignmentId, DtoUpdateAssignmentRequest Assignment)
         {
-            var Response = await _context.UpdateAssignmentByID(assignmentId, Assignment);
-            return Ok(Response);
+            try
+            {
+                var Response = await _context.UpdateAssignmentByID(assignmentId, Assignment);
+                return Ok(Response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+
         }
 
+        // DELETE: api/Assignment/5
+        [Authorize(Roles = "Teacher")]
         [HttpDelete("{assignmentId}")]
-        public async Task<IActionResult> DeleteAssignment(int AssignmentID)
+        public async Task<IActionResult> DeleteAssignment(int assignmentId)
         {
-            await _context.DeleteAssignment(AssignmentID);
-            return NoContent();
+            try
+            {
+                await _context.DeleteAssignment(assignmentId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Internal server error: {ex.Message}");
+            }
+
         }
 
-        [Authorize(Roles ="Student")]
+        [Authorize(Roles ="Teacher, Student")]
         [HttpGet("courses/{courseId}/student/assignments")]
         public async Task<ActionResult<List<DtoStudentAssignmentResponse>>> GetStudentAssignmentsForCourse(int courseId)
         {
@@ -92,7 +135,7 @@ namespace SCMS_back_end.Controllers
 
         }
 
-        //[Authorize(Roles ="Teacher")]
+        [Authorize(Roles ="Teacher")]
         [HttpGet("{assignmentId}/submissions")]
         public async Task<ActionResult<List<DtoStudentSubmissionResponse>>> GetStudentsSubmissionForAssignment(int assignmentId)
         {

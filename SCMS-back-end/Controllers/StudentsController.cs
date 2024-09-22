@@ -28,7 +28,7 @@ namespace SCMS_back_end.Controllers
         }
 
         // GET: api/Students
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<StudentDtoResponse>>> GetStudents()
         {
@@ -52,7 +52,7 @@ namespace SCMS_back_end.Controllers
         }
 
         // GET: api/Students/5
-        //[Authorize(Roles = "Admin,Teacher,Student")]
+        [Authorize(Roles = "Admin,Teacher,Student")]
         [HttpGet("{id}")]
         public async Task<ActionResult<StudentDtoResponse>> GetStudent(int id)
         {
@@ -79,7 +79,7 @@ namespace SCMS_back_end.Controllers
         
         
         // PUT: api/Students/5
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutStudent(int id, StudentDtoRequest studentDto)
         {
@@ -126,7 +126,7 @@ namespace SCMS_back_end.Controllers
         // POST: api/Students/drop
 
         [HttpPost("drop")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DropStudentFromCourse([FromBody] EnrollmentDtoRequest enrollmentDto)
         {
             if (enrollmentDto == null)
@@ -154,7 +154,7 @@ namespace SCMS_back_end.Controllers
         }
 
         // GET: api/Students/course/5
-        //[Authorize(Roles = "Teacher")]
+        [Authorize(Roles = "Teacher")]
         [HttpGet("course/{courseId}")]
         public async Task<ActionResult<IEnumerable<StudentDtoResponse>>> GetStudentsByCourseId(int courseId)
         {
@@ -176,7 +176,7 @@ namespace SCMS_back_end.Controllers
         }
 
         // POST: api/Students/enroll
-        //[Authorize(Roles = "Student")]
+        [Authorize(Roles = "Student")]
         [HttpPost("enroll")]
         public async Task<IActionResult> EnrollStudentInCourse([FromBody] EnrollmentDtoRequest enrollmentDto)
         {

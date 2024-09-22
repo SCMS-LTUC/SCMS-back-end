@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SCMS_back_end.Data;
 using SCMS_back_end.Models;
@@ -23,6 +24,8 @@ namespace SCMS_back_end.Controllers
             _context = context; // Assign the injected context to the field
         }
 
+        // GET: api/StudentAssignments
+        [Authorize(Roles = "Teacher, Student")]
         [HttpGet("download/{studentAssignmentId}")]
         public async Task<IActionResult> DownloadFile(int studentAssignmentId)
         {
@@ -76,7 +79,8 @@ namespace SCMS_back_end.Controllers
             }
         }
 
-
+        // POST: api/StudentAssignments
+        [Authorize(Roles = "Student")]
         [HttpPost("submit-assignment")]
         public async Task<IActionResult> SubmitAssignment([FromForm] StudentAssignmentSubmissionDtoRequest dto)
         {
@@ -85,7 +89,8 @@ namespace SCMS_back_end.Controllers
             return Ok(result);
         }
 
-
+        // POST: api/StudentAssignments/AddStudentAssignmentFeedback
+        [Authorize(Roles = "Teacher")]
         [HttpPost("AddStudentAssignmentFeedback")]
         public async Task<IActionResult> AddStudentAssignmentFeedback([FromBody] TeacherAssignmentFeedbackDtoRequest dto)
         {
@@ -93,8 +98,8 @@ namespace SCMS_back_end.Controllers
             return Ok(result);
         }
 
-
-        //[Authorize(Roles = "Teacher")]
+        // PUT: api/StudentAssignments/update/{studentAssignmentId}
+        [Authorize(Roles = "Teacher")]
         [HttpPut("update/{studentAssignmentId}")]
         public async Task<IActionResult> UpdateStudentAssignment(int studentAssignmentId, [FromBody] UpdateStudentAssignmentRequest request)
         {
@@ -124,9 +129,9 @@ namespace SCMS_back_end.Controllers
             }
         }
 
-        
-        
-        //[Authorize(Roles = "Teacher,Student")]
+
+        // GET: api/StudentAssignments/5
+        [Authorize(Roles = "Teacher, Student")]
         [HttpGet("{studentAssignmentId}")]
         public async Task<StudentAssignmentDtoResponse> GetStudentAssignmentByIdAsync(int studentAssignmentId)
         {
@@ -155,7 +160,7 @@ namespace SCMS_back_end.Controllers
             return responseDto;
         }
        
-        
+        // TODO
         //[Authorize(Roles = "Teacher,Student")]
         [HttpGet("byAssignmentAndStudent")]
         public async Task<StudentAssignmentDtoResponse> GetStudentAssignmentByAssignmentAndStudentAsync(int assignmentId, int studentId)

@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ate\" />
     <Folder Include="Uploads\" />
   </ItemGroup>
 

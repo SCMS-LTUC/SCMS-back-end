@@ -67,6 +67,31 @@ namespace SCMS_back_end.Repositories.Services
                 await AddRoleSpecificInfoAsync(registerDto, user);
                 await _context.SaveChangesAsync();
 
+                //Email verfication
+                if (registerDto.Role == "Student")
+                {
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+                    //Change this when the server is live.
+                    var confirmationLink = $"{_appUrl}/api/Account/confirm-email?email={user.Email}&code={code}";
+
+                    var subject = "Confirm your email";
+                    //with html
+                    var emailDescription = $@"
+                    <p>Hello,</p>
+                    <p>Please confirm your email address by clicking the following link:</p>
+                    <p><a href='{confirmationLink}'>Confirm Email</a></p>
+                    <p>Thank you!</p>";
+
+                    await _emailService.SendEmailAsync(user.Email, subject, emailDescription);
+                }
+                else if (registerDto.Role == "Teacher")
+                {
+                    user.EmailConfirmed = true;
+                    await _userManager.UpdateAsync(user);
+                }
+
                 return await CreateDtoUserResponseAsync(user, true);
             }
             AddErrorsToModelState(result, modelState);
@@ -82,13 +107,15 @@ namespace SCMS_back_end.Repositories.Services
             var user = new User
             {
                 UserName = registerDto.Username,
-                Email = registerDto.Email
+                Email = registerDto.Email,
+                EmailConfirmed = true
             };
             var result = await _userManager.CreateAsync(user, registerDto.Password);
 
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "Admin");
+
 
                 return await CreateDtoUserResponseAsync(user, true);
             }
@@ -101,6 +128,8 @@ namespace SCMS_back_end.Repositories.Services
             var user = await _userManager.FindByNameAsync(loginDto.Username);           
             if (user != null)
             {
+                if (!user.EmailConfirmed)
+                    return new DtoUserResponse { Message = "Email not confirmed" };
                 bool passValidation = await _userManager.CheckPasswordAsync(user, loginDto.Password);
                 if (passValidation)
                 {
@@ -164,7 +193,15 @@ namespace SCMS_back_end.Repositories.Services
             var result = await _userManager.ResetPasswordAsync(user, decodedToken, resetPasswordDto.NewPassword);
             return result.Succeeded;
         }
-
+        public async Task<bool> ConfirmEmailAsync(string email, string code)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                return false;
+            var token = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            return result.Succeeded;
+        }
 
 
         //Helper methods
@@ -253,7 +290,7 @@ namespace SCMS_back_end.Repositories.Services
                 Username = user.UserName,
                 Roles = await _userManager.GetRolesAsync(user),
                 AccessToken = await GenerateToken(user),
-                RefreshToken = refreshToken
+                RefreshToken = refreshToken,
             };
 
         }
@@ -279,8 +316,8 @@ namespace SCMS_back_end.Repositories.Services
                 throw new SecurityTokenException("Invalid Token");
             }
             return principle;
-        }      
+        }
 
-       
+        
     }
 }

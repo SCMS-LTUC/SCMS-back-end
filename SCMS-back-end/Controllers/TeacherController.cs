@@ -32,7 +32,7 @@ namespace SCMS_back_end.Controllers
 
 
         // PUT: api/Teacher/5
-        //[Authorize(Roles ="Admin")]
+        [Authorize(Roles ="Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTeacherInfo(int ID, DtoUpdateTeacherInfoByAdminRequest Teacher)
         {
@@ -41,7 +41,7 @@ namespace SCMS_back_end.Controllers
             return Ok();
         }
 
-        //[Authorize(Roles ="Admin")]
+        [Authorize(Roles ="Admin")]
         // GET: api/Teacher/5
         [HttpGet("{id}")]
         public async Task<ActionResult<DtoGetTeacherInfoByIDRequest>> GetTeacherInfoByID(int id)
@@ -57,6 +57,7 @@ namespace SCMS_back_end.Controllers
         }
 
         // GET: api/Teachers
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DtoGetAllTeacherRequest>>> GetAllTeachers()
         {
